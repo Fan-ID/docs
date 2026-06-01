@@ -1,0 +1,40 @@
+---
+title: Errors
+description: Standard error codes and HTTP status mapping for the Public API v1.
+---
+
+All errors follow:
+
+```json
+{
+  "error": {
+    "code": "invalid_query_parameter",
+    "message": "Human-readable summary."
+  },
+  "meta": { "requestId": "..." }
+}
+```
+
+Always cite `meta.requestId` when reporting issues to Soundlink.
+
+## Common codes
+
+| HTTP | Code                      | When                                        |
+| ---- | ------------------------- | ------------------------------------------- |
+| 401  | `invalid_api_key`         | Missing or malformed `x-api-key`            |
+| 401  | `api_key_revoked`         | Key revoked                                 |
+| 401  | `api_key_expired`         | Key past `expires_at`                       |
+| 401  | `mixed_credentials`       | Bearer + `x-api-key` on the same request    |
+| 403  | `insufficient_scope`      | Valid key missing route scope               |
+| 404  | `not_found`               | Unknown path or Public API disabled for org |
+| 404  | `campaign_not_found`      | Unknown campaign or other org's campaign    |
+| 400  | `invalid_query_parameter` | Bad pagination or sort params               |
+| 400  | `invalid_date_range`      | `endDate` before `startDate`                |
+| 400  | `page_size_exceeded`      | `pageSize` above endpoint max               |
+| 429  | `rate_limit_exceeded`     | Per-key rate limit (honor `Retry-After`)    |
+| 500  | `internal_error`          | Unexpected failure — retry with backoff     |
+
+## Pagination limits
+
+- Campaign list: `pageSize` max **100**
+- Metrics breakdown list: `pageSize` max **500** (see endpoint docs)

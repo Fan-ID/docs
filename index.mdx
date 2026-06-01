@@ -1,0 +1,43 @@
+---
+title: Introduction
+description: Read-only Public API for campaigns and metrics on Soundlink.
+---
+
+Soundlink's Public API lets partner organizations sync **campaigns** and **metrics** into their own tools and data warehouses.
+
+## Base URL
+
+```
+https://api.getsoundlink.com
+```
+
+## Authentication
+
+Send your API key on every request:
+
+```bash
+x-api-key: sk_<prefix>_<secret>
+```
+
+Keys are issued by Soundlink Engineering. See [Authentication](/authentication) and [Quickstart](/quickstart).
+
+## Response envelope
+
+Successful responses:
+
+```json
+{
+  "data": {},
+  "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
+}
+```
+
+Errors use the same shape with an `error` field instead of `data`. See [Errors](/errors).
+
+## Timestamps
+
+All `createdAt` and `updatedAt` fields are **UTC** (ISO 8601 with `Z` suffix).
+
+## v1 scope
+
+Read-only endpoints under `/v1/*`. Campaign creation and write scopes are planned for a future version.

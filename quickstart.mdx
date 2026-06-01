@@ -1,0 +1,45 @@
+---
+title: Quickstart
+description: Verify your API key and fetch your first campaign list.
+---
+
+## Prerequisites
+
+- An API key (`sk_*`) issued for your organization
+- `PUBLIC_API_ENABLED` turned on for your org (Soundlink Engineering)
+
+## 1. Ping (connectivity)
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/ping' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+Expected:
+
+```json
+{
+  "data": { "status": "ok" },
+  "meta": { "requestId": "..." }
+}
+```
+
+Ping accepts any valid key scope (`campaigns:read` and/or `metrics:read`).
+
+## 2. List campaigns
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns?page=1&pageSize=10' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+Requires the `campaigns:read` scope on your key.
+
+## 3. Use requestId for support
+
+If something fails, include `meta.requestId` from the error response when contacting Soundlink support.
+
+## Next steps
+
+- [Authentication](/authentication) — scopes and key handling
+- [API Reference](/api-reference) — full endpoint list (generated from OpenAPI)

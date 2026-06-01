@@ -1,0 +1,48 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Soundlink API",
+  "colors": {
+    "primary": "#16a34a",
+    "light": "#22c55e",
+    "dark": "#15803d"
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:support@getsoundlink.com"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://getsoundlink.com"
+  },
+  "api": {
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "languages": ["curl", "python", "javascript"],
+      "defaults": "required"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": ["index", "quickstart", "authentication", "errors"]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": "openapi/soundlink-public-api-v1.yaml"
+      }
+    ]
+  },
+  "footerSocials": {
+    "website": "https://getsoundlink.com"
+  }
+}

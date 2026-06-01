@@ -1,0 +1,48 @@
+---
+title: Authentication
+description: API keys, scopes, and security expectations for the Public API.
+---
+
+## API key format
+
+```
+sk_<prefix>_<secret>
+```
+
+Pass the full string in the **`x-api-key`** header:
+
+```bash
+-H 'x-api-key: sk_abc123_...'
+```
+
+Do **not** send Firebase Bearer tokens or legacy product headers on this host. Mixed credentials return `401` with code `mixed_credentials`.
+
+## Scopes (v1)
+
+| Scope | Access |
+|-------|--------|
+| `campaigns:read` | List campaigns, campaign detail |
+| `metrics:read` | Metrics overview, breakdown, exports |
+| `campaigns:write` | Reserved for v2 (not available to customer keys yet) |
+
+v1 keys are typically minted with `campaigns:read` and `metrics:read`.
+
+## Organization isolation
+
+Your organization is determined **only** from the API key. The API ignores `x-organization-id` and similar spoofed headers.
+
+## Key lifecycle
+
+- Keys can be **revoked** or **expired** — you receive `api_key_revoked` or `api_key_expired`.
+- Store the raw key securely when issued; it cannot be retrieved from Soundlink later.
+
+## Feature flag
+
+If your organization does not have Public API access enabled, endpoints return **`404`** with code `not_found` (same shape as unknown routes).
+
+## Ping vs data endpoints
+
+| Endpoint | Scope required |
+|----------|----------------|
+| `GET /v1/ping` | Valid key only (any v1 scope) |
+| `GET /v1/campaigns`, metrics, etc. | Matching scope on the key |
