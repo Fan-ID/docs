@@ -8,7 +8,7 @@ info:
     **Base URL:** `https://api.getsoundlink.com`
 
     **Authentication:** `x-api-key` header using a `sk_*` API key issued by Soundlink Engineering.
-    ```
+    ```http
     x-api-key: sk_abc123_<token>
     ```
 
@@ -317,7 +317,7 @@ paths:
         Snowflake, or any JSONL-aware ingest tool without cursor logic.
 
         **Usage:**
-        ```
+        ```http
         GET /v1/campaigns/{campaignId}/metrics/breakdown/export
         Accept: application/x-ndjson
         ```
@@ -486,13 +486,13 @@ paths:
         Snowflake, or any JSONL-aware ingest tool without cursor logic.
 
         **Usage:**
-        ```
+        ```http
         GET /v1/campaigns/{campaignId}/metrics/engagement/export
         Accept: application/x-ndjson
         ```
 
         **Response body (one JSON object per line, no trailing comma):**
-        ```
+        ```json
         {"provider":"soundlink","report_date":"2026-04-01","streams":89,...}
         {"provider":"soundlink","report_date":"2026-04-02","streams":104,...}
         ```

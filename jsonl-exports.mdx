@@ -1,0 +1,79 @@
+---
+title: JSONL exports
+description: Bulk metrics downloads for data pipelines without pagination.
+---
+
+Export endpoints stream **newline-delimited JSON (JSONL)**. Each line is one complete JSON object — load directly into BigQuery, Snowflake, or any JSONL-aware tool without cursor logic.
+
+## Endpoints
+
+| Export | Path |
+|--------|------|
+| Country breakdown | `GET /v1/campaigns/{campaignId}/metrics/breakdown/export` |
+| Track engagement | `GET /v1/campaigns/{campaignId}/metrics/engagement/export` |
+
+Requires the `metrics:read` scope.
+
+## Request
+
+```bash
+curl -sS \
+  'https://api.getsoundlink.com/v1/campaigns/{campaignId}/metrics/breakdown/export?startDate=2026-04-01&endDate=2026-04-30' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Accept: application/x-ndjson'
+```
+
+Optional query params:
+
+- `startDate`, `endDate` — inclusive `YYYY-MM-DD`
+- `engagementContext` — `catalog` or `playlist` (engagement export only)
+
+## Date windows
+
+Responses are capped at **90 days** per request. If you omit both dates, the API uses a default window of the last 90 days ending today.
+
+For longer campaign histories, page in 90-day slices:
+
+```
+2026-01-01 → 2026-03-31
+2026-04-01 → 2026-06-30
+...
+```
+
+If `endDate` is before `startDate`, or the range exceeds 90 days, you get `400` with `invalid_date_range` or `invalid_query_parameter`.
+
+## Response headers
+
+| Header | Purpose |
+|--------|---------|
+| `Content-Type: application/x-ndjson` | One JSON object per line |
+| `Content-Disposition` | Suggested filename, e.g. `breakdown_{id}_{start}_{end}.jsonl` |
+| `X-Row-Count` | Total lines in the response (progress tracking) |
+
+## Ingest pattern
+
+```python
+import json
+import requests
+
+resp = requests.get(url, headers={"x-api-key": API_KEY}, stream=True)
+for line in resp.iter_lines():
+    if line:
+        row = json.loads(line)
+        # upsert on primary key from row schema
+```
+
+Treat each line as an upsert on the schema primary key (documented in [Understanding metrics](/understanding-metrics)). Re-running the same window after the 7-day mutability period is safe.
+
+## Paginated vs export
+
+| | Paginated (`/metrics/breakdown`) | Export (`/metrics/.../export`) |
+|--|----------------------------------|--------------------------------|
+| Format | JSON envelope + `pagination` | Raw JSONL stream |
+| Max rows per call | `pageSize` up to 500 | Full window (≤ 90 days) |
+| Best for | UI, small probes | Warehouses, scheduled jobs |
+
+## Next
+
+- [Understanding metrics](/understanding-metrics) — schemas and when to use each endpoint
+- [Errors](/errors) — error codes if a window or key fails

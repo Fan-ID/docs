@@ -1,55 +1,55 @@
-# Soundlink Public API — documentation (Mintlify)
+# Mintlify Starter Kit
 
-Developer docs for `https://api.getsoundlink.com`, built with [Mintlify](https://mintlify.com).
+Use the starter kit to get your docs deployed and ready to customize.
 
-## What is auto-generated vs manual
+Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
 
-| Content                                            | Source                                                                     |
-| -------------------------------------------------- | -------------------------------------------------------------------------- |
-| **API Reference** (endpoints, schemas, playground) | `openapi/soundlink-public-api-v1.yaml` — Mintlify generates pages on build |
-| **Guides** (intro, quickstart, auth, errors)       | `*.mdx` in this repo — edited by hand                                      |
+- Guide pages
+- Navigation
+- Customizations
+- API reference pages
+- Use of popular components
 
-OpenAPI **source of truth** lives in the backend repo:
+**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
 
-`backend/specs/public-api/soundlink-public-api-v1.yaml`
+## AI-assisted writing
 
-After changing the spec in backend, run:
+Set up your AI coding tool to work with Mintlify:
 
 ```bash
-make sync-openapi
+npx skills add https://mintlify.com/docs
 ```
 
-## Local preview
+This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
 
-Requires Node 20+ and the Mintlify CLI:
+See the [AI tools guides](/ai-tools) for tool-specific setup.
 
-```bash
+## Development
+
+Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+
+```
 npm i -g mint
-make sync-openapi   # optional if yaml already copied
+```
+
+Run the following command at the root of your documentation, where your `docs.json` is located:
+
+```
 mint dev
 ```
 
-Open http://localhost:3000
+View your local preview at `http://localhost:3000`.
 
-## Deploy (Mintlify hosting)
+## Publishing changes
 
-1. Go to [mintlify.com/start](https://mintlify.com/start) and connect this GitHub repo (`api-docs`).
-2. Set the docs root to the repository root (where `docs.json` lives).
-3. Add custom domain, e.g. `docs.getsoundlink.com`, or proxy `getsoundlink.com/docs` per [Mintlify subpath guide](https://www.mintlify.com/docs/deploy/docs-subpath).
+Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
 
-## Repo layout
+## Need help?
 
-```
-api-docs/
-  docs.json          # Mintlify config + navigation
-  index.mdx          # Introduction
-  quickstart.mdx
-  authentication.mdx
-  errors.mdx
-  openapi/           # Copy of Public API OpenAPI spec
-  Makefile           # sync-openapi, dev
-```
+### Troubleshooting
 
-## Branding (optional)
+- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
+- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
 
-Add `logo/light.svg`, `logo/dark.svg`, and `favicon.svg`, then wire them in `docs.json` when ready.
+### Resources
+- [Mintlify documentation](https://mintlify.com/docs)

@@ -1,20 +1,41 @@
 {
   "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
   "name": "Soundlink API",
   "colors": {
-    "primary": "#16a34a",
-    "light": "#22c55e",
-    "dark": "#15803d"
+    "primary": "#fafafa",
+    "light": "#ffffff",
+    "dark": "#a3a3a3"
   },
-  "topbarLinks": [
-    {
-      "name": "Support",
-      "url": "mailto:support@getsoundlink.com"
+  "styling": {
+    "codeblocks": {
+      "theme": {
+        "light": "github-light",
+        "dark": "github-dark"
+      }
     }
-  ],
-  "topbarCtaButton": {
-    "name": "Dashboard",
-    "url": "https://getsoundlink.com"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "API Reference",
+        "href": "/api-reference"
+      },
+      {
+        "label": "Support",
+        "href": "mailto:support@getsoundlink.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://getsoundlink.com"
+    }
   },
   "api": {
     "playground": {
@@ -29,20 +50,33 @@
     "tabs": [
       {
         "tab": "Guides",
+        "icon": "book-open",
         "groups": [
           {
             "group": "Getting started",
             "pages": ["index", "quickstart", "authentication", "errors"]
+          },
+          {
+            "group": "Using the API",
+            "pages": [
+              "using-the-api",
+              "syncing-campaigns",
+              "understanding-metrics",
+              "jsonl-exports"
+            ]
           }
         ]
       },
       {
         "tab": "API Reference",
+        "icon": "square-terminal",
         "openapi": "openapi/soundlink-public-api-v1.yaml"
       }
     ]
   },
-  "footerSocials": {
-    "website": "https://getsoundlink.com"
+  "footer": {
+    "socials": {
+      "website": "https://getsoundlink.com"
+    }
   }
 }

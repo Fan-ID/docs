@@ -10,4 +10,4 @@ sync-openapi:
 
 .PHONY: dev
 dev:
-	mint dev
+	npx mintlify dev

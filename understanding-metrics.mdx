@@ -1,0 +1,61 @@
+---
+title: Understanding metrics
+description: When to use overview, breakdown, and engagement endpoints.
+---
+
+The Metrics API exposes three layers of campaign performance. Pick the endpoint that matches how you plan to store and report the data.
+
+## Overview
+
+`GET /v1/campaigns/{campaignId}/metrics/overview`
+
+Campaign-level totals for a date range: spend, streams, listeners, followers, and efficiency metrics (CPL, CPF, CTR). One row per campaign per request window.
+
+Use for dashboards, executive summaries, and quick health checks. Not broken down by country or track.
+
+## Breakdown (by country)
+
+`GET /v1/campaigns/{campaignId}/metrics/breakdown` (paginated)
+
+`GET /v1/campaigns/{campaignId}/metrics/breakdown/export` (JSONL)
+
+Per-day, per-country rows (`campaign_country_daily` v1.0). Primary key:
+
+`(provider, account_id, report_date, campaign_id, country_code)`
+
+Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and daily warehouse loads by territory.
+
+| Use case | Endpoint |
+|----------|----------|
+| Interactive sync, small windows | Paginated `breakdown` |
+| Full backfill, pipelines, BigQuery | `breakdown/export` |
+
+## Engagement (by track)
+
+`GET /v1/campaigns/{campaignId}/metrics/engagement` (paginated)
+
+`GET /v1/campaigns/{campaignId}/metrics/engagement/export` (JSONL)
+
+Per-day, per-track rows (`campaign_engagement_daily` v1.0). Primary key:
+
+`(provider, account_id, report_date, campaign_id, engagement_context, country_code, engaged_spotify_track_id)`
+
+**`engagement_context` values:**
+
+- `catalog` — same-artist spillover and direct plays on track campaigns
+- `playlist` — per-track performance inside the promoted playlist
+
+Filter with `?engagementContext=catalog` or `playlist` when you only need one slice.
+
+## Data mutability
+
+Rows for a given `report_date` can change for up to **7 days** after the date closes (delayed Meta and Spotify events). Re-fetch and re-ingest on the primary key — it is idempotent.
+
+## Listeners vs streams
+
+On engagement rows, **do not sum `listeners` across days** — the same listener can appear on multiple `report_date` rows. Summing `streams` within a day is safe; across days it counts repeat listens.
+
+## Next
+
+- [JSONL exports](/jsonl-exports) — streaming, date windows, and pipeline patterns
+- [API Reference](/api-reference) — request parameters and response schemas

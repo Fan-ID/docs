@@ -1,0 +1,55 @@
+---
+title: Syncing campaigns
+description: List and detail endpoints for keeping your campaign catalog in sync.
+---
+
+Use the Campaigns API to discover which campaigns belong to your organization and pull metadata for reporting joins.
+
+## List campaigns
+
+`GET /v1/campaigns`
+
+Requires `campaigns:read`. Supports pagination:
+
+| Param | Default | Max |
+|-------|---------|-----|
+| `page` | 1 | — |
+| `pageSize` | 10 | 100 |
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns?page=1&pageSize=100' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+Walk pages until `pagination.page >= pagination.totalPages`.
+
+## Campaign detail
+
+`GET /v1/campaigns/{campaignId}`
+
+Returns full metadata for one campaign: name, status, target type (track or playlist), dates, and identifiers you need to join metrics rows.
+
+Use the `campaignId` from the list response in all `/metrics/*` paths.
+
+## Typical sync flow
+
+```mermaid
+flowchart LR
+  A[List campaigns] --> B[Store campaign IDs]
+  B --> C[Metrics overview / export per campaign]
+  C --> D[Join on campaign_id in warehouse]
+```
+
+1. **Daily:** `GET /v1/campaigns` — upsert catalog
+2. **Daily:** export or paginated metrics per active campaign
+3. **Warehouse:** join metrics on `campaign_id` + `account_id` (your organization UUID from each row)
+
+## Organization scope
+
+Your organization is determined only from the API key. You never pass `organization_id` in query params — rows already include `account_id` for your org.
+
+## Next
+
+- [Understanding metrics](/understanding-metrics)
+- [JSONL exports](/jsonl-exports)
+- [API Reference](/api-reference)

@@ -1,0 +1,28 @@
+---
+title: Using the API
+description: Guides for campaigns, metrics, and pipeline exports.
+---
+
+These guides explain how to use the Public API beyond authentication and error handling. For request parameters and response schemas, use the **API Reference** tab.
+
+<CardGroup cols={2}>
+  <Card title="Syncing campaigns" icon="database" href="/syncing-campaigns">
+    List campaigns, pagination, and warehouse join patterns.
+  </Card>
+  <Card title="Understanding metrics" icon="chart-bar" href="/understanding-metrics">
+    Overview vs breakdown vs engagement — which endpoint to call.
+  </Card>
+  <Card title="JSONL exports" icon="download" href="/jsonl-exports">
+    Bulk metrics downloads, 90-day windows, and ingest patterns.
+  </Card>
+  <Card title="API Reference" icon="book-open" href="/api-reference">
+    Full OpenAPI docs with playground and schemas.
+  </Card>
+</CardGroup>
+
+## Suggested order
+
+1. [Quickstart](/quickstart) — verify your key with `/v1/ping`
+2. [Syncing campaigns](/syncing-campaigns) — discover `campaignId` values
+3. [Understanding metrics](/understanding-metrics) — pick the right metrics endpoint
+4. [JSONL exports](/jsonl-exports) — backfill your warehouse
