@@ -18,7 +18,8 @@
   "favicon": "/favicon.svg",
   "logo": {
     "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "dark": "/logo/dark.svg",
+    "href": "https://getsoundlink.com"
   },
   "navbar": {
     "links": [
@@ -33,8 +34,8 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://getsoundlink.com"
+      "label": "Get started",
+      "href": "https://getsoundlink.com/auth"
     }
   },
   "api": {
