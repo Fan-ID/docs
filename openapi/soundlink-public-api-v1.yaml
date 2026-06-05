@@ -10,9 +10,7 @@ info:
     **Authentication:** `x-api-key` header using a `sk_*` API key issued by Soundlink Engineering, e.g. `x-api-key: sk_abc123_<token>`.
 
     All responses are wrapped in a standard envelope:
-    ```json
-    { "data": <payload>, "meta": { "requestId": "<uuid>" } }
-    ```
+    `{ "data": <payload>, "meta": { "requestId": "<uuid>" } }`.
 
     Errors follow the same envelope shape with an `error` field instead of `data`.
 
@@ -479,11 +477,10 @@ paths:
 
         **Usage:** `GET /v1/campaigns/{campaignId}/metrics/engagement/export` with header `Accept: application/x-ndjson`.
 
-        **Response body (one JSON object per line, no trailing comma):**
-        ```json
-        {"provider":"soundlink","report_date":"2026-04-01","streams":89,...}
-        {"provider":"soundlink","report_date":"2026-04-02","streams":104,...}
-        ```
+        **Response body (one JSON object per line, no trailing comma), for example:**
+
+        - `{"provider":"soundlink","report_date":"2026-04-01","streams":89,...}`
+        - `{"provider":"soundlink","report_date":"2026-04-02","streams":104,...}`
 
         **Date range:** defaults to the full campaign lifetime plus 30 days
         post-end to capture tail engagement. Override with `startDate` /
