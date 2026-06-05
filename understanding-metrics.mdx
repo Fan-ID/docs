@@ -23,12 +23,14 @@ Per-day, per-country rows (`campaign_country_daily` v1.0). Primary key:
 
 `(provider, account_id, report_date, campaign_id, country_code)`
 
+On track campaigns (`campaign_target_type = track`), each row also includes `campaign_target_isrc` and `campaign_target_spotify_track_id`. Use `campaign_target_spotify_track_id` to join with partner track catalogs when ISRC is unavailable.
+
 Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and daily warehouse loads by territory.
 
-| Use case | Endpoint |
-|----------|----------|
-| Interactive sync, small windows | Paginated `breakdown` |
-| Full backfill, pipelines, BigQuery | `breakdown/export` |
+| Use case                           | Endpoint              |
+| ---------------------------------- | --------------------- |
+| Interactive sync, small windows    | Paginated `breakdown` |
+| Full backfill, pipelines, BigQuery | `breakdown/export`    |
 
 ## Engagement (by track)
 
@@ -39,6 +41,8 @@ Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and d
 Per-day, per-track rows (`campaign_engagement_daily` v1.0). Primary key:
 
 `(provider, account_id, report_date, campaign_id, engagement_context, country_code, engaged_spotify_track_id)`
+
+Engagement rows also include `campaign_target_isrc` and `campaign_target_spotify_track_id` for the promoted track when `campaign_target_type = track`.
 
 **`engagement_context` values:**
 
