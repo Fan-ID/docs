@@ -17,6 +17,8 @@ All errors follow:
 
 Always cite `meta.requestId` when reporting issues to Soundlink.
 
+Using the TypeScript SDK? API errors arrive as `{ data: null, error }` on every method — see [Access the API with TypeScript](/typescript-sdk#errors). Thrown `SoundlinkSdkError` subclasses are only for config, parse, and transport failures.
+
 ## Common codes
 
 | HTTP | Code                      | When                                        |

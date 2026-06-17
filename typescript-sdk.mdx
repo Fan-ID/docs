@@ -38,7 +38,7 @@ bun add soundlink
 ## 2. Initialize the client
 
 ```typescript
-import { Soundlink } from 'soundlink';
+import { Soundlink } from "soundlink";
 
 const soundlink = new Soundlink({
   apiKey: process.env.SOUNDLINK_API_KEY!,
@@ -61,16 +61,18 @@ if (error) {
 const { data: campaigns, error: listError } = await soundlink.campaigns.list({
   page: 1,
   pageSize: 100,
-  sortBy: 'createdAt',
-  sortOrder: 'desc',
+  sortBy: "createdAt",
+  sortOrder: "desc",
 });
 
 if (listError) {
   console.error(listError.code, listError.message);
 }
+
+const { data: campaign } = await soundlink.campaigns.get("camp_abc123");
 ```
 
-List campaigns requires the `campaigns:read` scope. Equivalent `curl` examples are in [Quickstart](/quickstart).
+List and get require the `campaigns:read` scope. Equivalent `curl` examples are in [Quickstart](/quickstart).
 
 ### Paginate all campaigns
 
@@ -82,24 +84,29 @@ for await (const campaign of soundlink.campaigns.listAll({ pageSize: 100 })) {
 
 ## Response pattern
 
-Every method returns `{ data, error, meta? }` — the same envelope as the REST API. HTTP errors are **not thrown**; check `error` and use `requestId` when contacting support. See [Errors](/errors).
+Every method returns `{ data, error, meta? }` — the same envelope as the REST API. HTTP errors are **not thrown**; check `error` and use `requestId` when contacting support.
 
 <Note>
-  Do not use `try/catch` for normal API failures. The SDK only throws for configuration, parse, or transport errors.
+  Do not use `try/catch` for normal API failures. The SDK only throws for
+  configuration, parse, or transport errors. See [Errors](#errors) below and
+  [Errors](/errors) for API codes.
 </Note>
 
 ## Metrics and exports
 
 ```typescript
-const { data: overview } = await soundlink.metrics.overview('camp_abc123', {
-  startDate: '2026-01-01',
-  endDate: '2026-03-31',
+const { data: overview } = await soundlink.metrics.overview("camp_abc123", {
+  startDate: "2026-01-01",
+  endDate: "2026-03-31",
 });
 
-const { data: stream } = await soundlink.metrics.breakdown.export('camp_abc123', {
-  startDate: '2026-01-01',
-  endDate: '2026-03-31',
-});
+const { data: stream } = await soundlink.metrics.breakdown.export(
+  "camp_abc123",
+  {
+    startDate: "2026-01-01",
+    endDate: "2026-03-31",
+  },
+);
 
 if (stream) {
   for await (const row of stream) {
@@ -110,19 +117,153 @@ if (stream) {
 
 For smaller datasets: `await soundlink.metrics.breakdown.export.collect('camp_abc123')`.
 
-See [Understanding metrics](/understanding-metrics) for which endpoint to call and [JSONL exports](/jsonl-exports) for date windows and pipeline patterns.
+Engagement exports work the same way: `soundlink.metrics.engagement.export` and `.export.collect`.
+
+See [Understanding metrics](/understanding-metrics) and [JSONL exports](/jsonl-exports).
 
 ## Configuration
 
 ```typescript
 const soundlink = new Soundlink({
   apiKey: process.env.SOUNDLINK_API_KEY!,
-  baseUrl: 'https://api.getsoundlink.com', // default
+  baseUrl: "https://api.getsoundlink.com", // default
   timeout: 30_000,
   maxRetries: 2,
   fetch: customFetch, // optional — tests or Edge
 });
 ```
+
+## Methods
+
+Every method maps 1:1 to a Public API route. All return `Promise<ApiResponse<T>>` unless noted.
+
+### System
+
+| Method             | REST endpoint  | Returns                 |
+| ------------------ | -------------- | ----------------------- |
+| `soundlink.ping()` | `GET /v1/ping` | `ApiResponse<PingData>` |
+
+### Campaigns
+
+Requires `campaigns:read`.
+
+| Method                                 | REST endpoint            | Returns                           |
+| -------------------------------------- | ------------------------ | --------------------------------- |
+| `soundlink.campaigns.list(params?)`    | `GET /v1/campaigns`      | `ApiResponse<CampaignListData>`   |
+| `soundlink.campaigns.get(campaignId)`  | `GET /v1/campaigns/{id}` | `ApiResponse<CampaignDetail>`     |
+| `soundlink.campaigns.listAll(params?)` | Paginated `list`         | `AsyncGenerator<CampaignSummary>` |
+
+`list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt` \| `status`), `sortOrder` (`asc` \| `desc`).
+
+### Metrics
+
+Requires `metrics:read`.
+
+| Method                                                     | REST endpoint                       | Returns                                        |
+| ---------------------------------------------------------- | ----------------------------------- | ---------------------------------------------- |
+| `soundlink.metrics.overview(id, params?)`                  | `GET .../metrics/overview`          | `ApiResponse<MetricsOverview>`                 |
+| `soundlink.metrics.breakdown.list(id, params?)`            | `GET .../metrics/breakdown`         | `ApiResponse<BreakdownListData>`               |
+| `soundlink.metrics.breakdown.export(id, params?)`          | `GET .../metrics/breakdown/export`  | `ApiResponse<JsonlStream<BreakdownRow>>`       |
+| `soundlink.metrics.breakdown.export.collect(id, params?)`  | Same export route                   | `ApiResponse<ExportCollection<BreakdownRow>>`  |
+| `soundlink.metrics.engagement.list(id, params?)`           | `GET .../metrics/engagement`        | `ApiResponse<EngagementListData>`              |
+| `soundlink.metrics.engagement.export(id, params?)`         | `GET .../metrics/engagement/export` | `ApiResponse<JsonlStream<EngagementRow>>`      |
+| `soundlink.metrics.engagement.export.collect(id, params?)` | Same export route                   | `ApiResponse<ExportCollection<EngagementRow>>` |
+
+Date params use inclusive `YYYY-MM-DD`. Export windows are capped at **90 days** per request. List `pageSize` max is **500**.
+
+<Note>
+  `metrics.engagement.list` is spec-ready in the SDK; the backend route may
+  return `404` until it ships.
+</Note>
+
+## Types
+
+All public types are exported from `soundlink` for use in your app:
+
+```typescript
+import type {
+  ApiResponse,
+  ApiError,
+  ApiMeta,
+  PingData,
+  CampaignSummary,
+  CampaignDetail,
+  CampaignListData,
+  CampaignListParams,
+  MetricsOverview,
+  BreakdownRow,
+  BreakdownListData,
+  BreakdownListParams,
+  EngagementRow,
+  EngagementListData,
+  EngagementListParams,
+  ExportCollection,
+  JsonlStream,
+  SoundlinkClientOptions,
+  PublicApiErrorCode,
+} from "soundlink";
+```
+
+| Group         | Types                                                                                                               |
+| ------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Envelope**  | `ApiResponse<T>`, `ApiError`, `ApiMeta`, `PublicApiErrorCode`                                                       |
+| **Campaigns** | `CampaignSummary`, `CampaignDetail`, `CampaignListData`, `CampaignListParams`, `CampaignStatus`                     |
+| **Metrics**   | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`, `EngagementListData`                       |
+| **Params**    | `DateRangeParams`, `BreakdownListParams`, `EngagementListParams`, `BreakdownExportParams`, `EngagementExportParams` |
+| **Exports**   | `JsonlStream<T>`, `ExportCollection<T>`                                                                             |
+| **Client**    | `Soundlink`, `SoundlinkClientOptions`                                                                               |
+
+Row shapes match the warehouse schemas documented in [Understanding metrics](/understanding-metrics). For full field lists, use the [API Reference](/api-reference) or your IDE hover hints on the imported types.
+
+## Errors
+
+The SDK has **two** error paths. Most of the time you only need the first.
+
+### API errors (returned, not thrown)
+
+When the Public API returns `4xx` or `5xx`, the SDK resolves with `{ data: null, error, meta? }`:
+
+```typescript
+const { data, error, meta } = await soundlink.campaigns.get("camp_unknown");
+
+if (error) {
+  // error.code    — e.g. 'campaign_not_found'
+  // error.message — human-readable
+  // error.status  — HTTP status (404, 429, …)
+  // error.requestId — same as meta?.requestId
+  // error.retryAfter — seconds, on 429 only
+
+  if (error.code === "rate_limit_exceeded" && error.retryAfter) {
+    await sleep(error.retryAfter * 1000);
+  }
+}
+```
+
+Always check `error` before using `data`. Error codes and HTTP mapping: [Errors](/errors).
+
+### SDK errors (thrown)
+
+These extend `SoundlinkSdkError` and mean something went wrong **outside** a normal API response:
+
+| Class                  | When                                       |
+| ---------------------- | ------------------------------------------ |
+| `SoundlinkConfigError` | Missing or invalid API key at construction |
+| `SoundlinkParseError`  | Response body could not be parsed          |
+| `SoundlinkSdkError`    | Unexpected transport failure               |
+
+```typescript
+import { Soundlink, SoundlinkConfigError } from "soundlink";
+
+try {
+  const soundlink = new Soundlink({ apiKey: "" }); // throws SoundlinkConfigError
+} catch (err) {
+  if (err instanceof SoundlinkConfigError) {
+    console.error("Fix your API key configuration");
+  }
+}
+```
+
+Use `try/catch` for client setup and rare transport failures. Use `{ data, error }` for everything the API returns.
 
 ## Next
 
