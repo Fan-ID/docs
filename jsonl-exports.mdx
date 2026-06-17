@@ -63,6 +63,8 @@ for line in resp.iter_lines():
         # upsert on primary key from row schema
 ```
 
+Node.js users can stream the same exports with the [TypeScript SDK](/typescript-sdk) (`for await` over `metrics.breakdown.export`).
+
 Treat each line as an upsert on the schema primary key (documented in [Understanding metrics](/understanding-metrics)). Re-running the same window after the 7-day mutability period is safe.
 
 ## Paginated vs export
@@ -75,5 +77,4 @@ Treat each line as an upsert on the schema primary key (documented in [Understan
 
 ## Next
 
-- [Understanding metrics](/understanding-metrics) — schemas and when to use each endpoint
-- [Errors](/errors) — error codes if a window or key fails
+[Understanding metrics](/understanding-metrics) · [Errors](/errors)

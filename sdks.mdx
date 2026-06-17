@@ -1,0 +1,32 @@
+---
+title: Official SDKs
+description: When to use the TypeScript SDK vs raw HTTP for the Soundlink Public API.
+---
+
+The Public API is **HTTP-first** — every endpoint works with `curl`, Python, or your own client. The official TypeScript SDK wraps the same routes with types, auth, pagination helpers, and JSONL streaming for Node.js and Edge runtimes.
+
+New here? Start with [Quickstart](/quickstart) (REST) or jump to [Access the API with TypeScript](/typescript-sdk).
+
+## REST API vs SDK
+
+| | **REST API** | **TypeScript SDK** |
+| --- | --- | --- |
+| **Best for** | Any language, data pipelines, one-off scripts | Node.js, TypeScript, Edge runtimes |
+| **Auth** | Set `x-api-key` on every request | Set once on the client constructor |
+| **Types** | [API Reference](/api-reference) schemas | Built-in TypeScript types |
+| **Errors** | Parse the JSON envelope yourself | `{ data, error, meta? }` on every method |
+| **Pagination** | Follow `pagination` cursors manually | `listAll()` async iterators |
+| **JSONL exports** | Stream `application/x-ndjson` yourself | `for await` + `.collect()` |
+| **Retries** | Implement backoff on `429` / `5xx` | Built-in (configurable) |
+
+Both hit the same base URL and return the same JSON envelope. The SDK does not add capabilities beyond what the API exposes.
+
+## TypeScript SDK
+
+Install from npm: [`soundlink`](https://www.npmjs.com/package/soundlink) · Source: [github.com/Fan-ID/lib](https://github.com/Fan-ID/lib)
+
+Requires **Node.js 18+** (native `fetch`). See the [TypeScript guide](/typescript-sdk) for install, examples, and configuration.
+
+<Warning>
+  Server-side only. Never expose your `sk_*` API key in a browser or mobile app — call Soundlink from your backend and keep the key in environment variables.
+</Warning>

@@ -1,54 +1,88 @@
 ---
-title: API Docs
-description: Official Soundlink API docs. Sync campaigns and metrics, export JSONL for data pipelines, and integrate Spotify ad attribution into your stack.
+title: Introduction
+description: Sync Soundlink campaigns and metrics into your tools, warehouses, and apps.
 ---
 
 Soundlink's Public API lets partner organizations sync **campaigns** and **metrics** into their own tools and data warehouses.
 
-## Base URL
+## Get started
 
-```
-https://api.getsoundlink.com
-```
+<CardGroup cols={2}>
+  <Card title="REST API" icon="terminal" href="/quickstart">
+    Verify your key with `curl`, then list campaigns. Works with Python, BigQuery, Airflow, or any HTTP client.
+  </Card>
+  <Card title="TypeScript SDK" icon="node-js" href="/typescript-sdk">
+    Official `soundlink` package for Node.js, serverless, and Edge — typed methods, pagination helpers, and JSONL streaming.
+  </Card>
+</CardGroup>
 
-## Authentication
-
-Send your API key on every request:
-
-```bash
-x-api-key: sk_<prefix>_<secret>
-```
-
-Keys are issued by Soundlink Engineering. See [Authentication](/authentication) and [Quickstart](/quickstart).
-
-## Response envelope
-
-Successful responses:
-
-```json
-{
-  "data": {},
-  "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
-}
-```
-
-Errors use the same shape with an `error` field instead of `data`. See [Errors](/errors).
-
-## Timestamps
-
-All `createdAt` and `updatedAt` fields are **UTC** (ISO 8601 with `Z` suffix).
-
-## v1 scope
-
-v1 covers campaigns and metrics under `/v1/*`. Write endpoints (including campaign creation) are on the roadmap.
+Not sure which to pick? See [Official SDKs](/sdks) for a side-by-side comparison.
 
 ## Guides
 
-Start with [Using the API](/using-the-api) for the full guide index, or jump to:
+<CardGroup cols={2}>
+  <Card title="Syncing campaigns" icon="database" href="/syncing-campaigns">
+    List campaigns, pagination, and warehouse join patterns.
+  </Card>
+  <Card title="Understanding metrics" icon="chart-bar" href="/understanding-metrics">
+    Overview vs breakdown vs engagement — which endpoint to call.
+  </Card>
+  <Card title="JSONL exports" icon="download" href="/jsonl-exports">
+    Bulk metrics downloads, 90-day windows, and ingest patterns.
+  </Card>
+  <Card title="API Reference" icon="square-terminal" href="/api-reference">
+    Full OpenAPI spec, schemas, and interactive playground.
+  </Card>
+</CardGroup>
 
-| Guide | What you learn |
-|-------|----------------|
-| [Syncing campaigns](/syncing-campaigns) | List and detail endpoints for your campaign catalog |
-| [Understanding metrics](/understanding-metrics) | Overview, breakdown, and engagement — which to call |
-| [JSONL exports](/jsonl-exports) | Bulk metrics for BigQuery, Snowflake, and pipelines |
-| [API Reference](/api-reference) | Endpoints, schemas, and playground |
+## Reference
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/authentication">
+    API key format, scopes, and organization isolation.
+  </Card>
+  <Card title="Errors" icon="triangle-exclamation" href="/errors">
+    Error codes, HTTP status mapping, and pagination limits.
+  </Card>
+</CardGroup>
+
+## API basics
+
+<AccordionGroup>
+  <Accordion title="Base URL">
+    ```
+    https://api.getsoundlink.com
+    ```
+
+    All v1 routes live under `/v1/*`.
+  </Accordion>
+
+  <Accordion title="Authentication">
+    Send your API key on every request:
+
+    ```bash
+    x-api-key: sk_<prefix>_<secret>
+    ```
+
+    See [Authentication](/authentication) for scopes and security.
+  </Accordion>
+
+  <Accordion title="Response envelope">
+    Successful responses:
+
+    ```json
+    {
+      "data": {},
+      "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
+    }
+    ```
+
+    Errors use the same shape with an `error` field instead of `data`. See [Errors](/errors).
+  </Accordion>
+
+  <Accordion title="Timestamps and v1 scope">
+    All `createdAt` and `updatedAt` fields are **UTC** (ISO 8601 with `Z` suffix).
+
+    v1 covers campaigns and metrics. Write endpoints (including campaign creation) are on the roadmap.
+  </Accordion>
+</AccordionGroup>

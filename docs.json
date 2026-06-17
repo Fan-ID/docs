@@ -47,6 +47,12 @@
       "defaults": "required"
     }
   },
+  "redirects": [
+    {
+      "source": "/using-the-api",
+      "destination": "/"
+    }
+  ],
   "navigation": {
     "tabs": [
       {
@@ -58,9 +64,12 @@
             "pages": ["index", "quickstart", "authentication", "errors"]
           },
           {
-            "group": "Using the API",
+            "group": "SDKs",
+            "pages": ["sdks", "typescript-sdk"]
+          },
+          {
+            "group": "Campaigns & metrics",
             "pages": [
-              "using-the-api",
               "syncing-campaigns",
               "understanding-metrics",
               "jsonl-exports"
