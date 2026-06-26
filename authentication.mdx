@@ -1,6 +1,84 @@
 ---
 title: Authentication
-description: API keys, scopes, and security expectations for the Public API.
+description: Create API keys in Soundlink, then use them with scopes, expiration, and x-api-key.
+---
+
+## Create an API key
+
+Organization **owners** and **admins** can create keys in the Soundlink app — no support ticket required.
+
+<Card
+  title="Open API keys in Settings"
+  icon="key"
+  href="https://getsoundlink.com/home"
+>
+  Sign in at Soundlink, open your profile menu → **Settings**, then **Developer
+  → API keys**. The app uses your current organization automatically — no org ID
+  in the URL.
+</Card>
+
+<Steps>
+  <Step title="Open the API keys page">
+    From your profile menu, go to **Settings → Developer → API keys**. Soundlink scopes this page
+    to your active organization — you never paste an org ID into the URL.
+    You'll see every key for the org — active, expired, and revoked — with scopes, expiration,
+    and last used.
+
+    <Frame caption="API keys list in Settings → Developer">
+      <img
+        src="/images/api-keys/list.png"
+        alt="Soundlink Settings Developer API keys table with name, scopes, expiration, status, and Create key button"
+      />
+    </Frame>
+
+  </Step>
+
+  <Step title="Create a key">
+    Click **Create key**. Give the key a **name** (required), choose an **expiration**, and select
+    one or more **scopes** (at least one required).
+
+    | Field | Details |
+    |-------|---------|
+    | **Name** | A label you'll recognize later (e.g. `Warehouse sync`, `Staging`). |
+    | **Expiration** | Required. Presets: **7 days**, **30 days**, **90 days**, or **1 year**. When the date passes, the API returns `401` with `api_key_expired`. |
+    | **Scopes** | `campaigns:read` and/or `metrics:read` for v1. See [Scopes](#scopes-v1) below. |
+
+    <Frame caption="Create key — name, expiration, and scopes">
+      <img
+        src="/images/api-keys/create-dialog.png"
+        alt="Create API key dialog with name field, expiration dropdown, and scope checkboxes"
+      />
+    </Frame>
+
+    <Tip>
+      Start with **30 days** and both read scopes if you're exploring the API. Rotate or revoke the
+      key when you're done testing.
+    </Tip>
+
+  </Step>
+
+  <Step title="Copy and store the key">
+    After you click **Create key**, Soundlink shows the **full key exactly once**. Copy it
+    immediately and store it in your secrets manager or password vault.
+
+    <Warning>
+      You cannot retrieve the full key later — only revoke it and create a new one. The keys list
+      never shows the secret, only a masked placeholder.
+    </Warning>
+
+    <Frame caption="One-time key reveal — copy before closing">
+      <img
+        src="/images/api-keys/key-reveal.png"
+        alt="Save your API key dialog with masked key, reveal and copy buttons, and warning that the key is shown only once"
+      />
+    </Frame>
+
+  </Step>
+</Steps>
+
+Members (non-admin roles) see **API keys** in Settings but cannot open the page — ask an owner or
+admin to create a key for your integration.
+
 ---
 
 ## API key format
@@ -19,13 +97,34 @@ Do **not** send Firebase Bearer tokens or legacy product headers on this host. M
 
 ## Scopes (v1)
 
-| Scope | Access |
-|-------|--------|
-| `campaigns:read` | List campaigns, campaign detail |
-| `metrics:read` | Metrics overview, breakdown, exports |
-| `campaigns:write` | Reserved for v2 (not available to customer keys yet) |
+Scopes limit which endpoints a key can call. Select them when you create the key; they cannot be changed without minting a new key.
 
-v1 keys are typically minted with `campaigns:read` and `metrics:read`.
+| Scope             | Access                                               | Self-serve UI |
+| ----------------- | ---------------------------------------------------- | ------------- |
+| `campaigns:read`  | List campaigns, campaign detail                      | Yes           |
+| `metrics:read`    | Metrics overview, breakdown, exports                 | Yes           |
+| `campaigns:write` | Reserved for v2 (not available to customer keys yet) | No            |
+
+Typical integrations enable **both** `campaigns:read` and `metrics:read`.
+
+<Note>
+  `GET /v1/ping` accepts any valid v1 key regardless of which read scopes you
+  selected — useful for smoke tests after creation.
+</Note>
+
+## Expiration
+
+Every self-serve key has a fixed lifetime chosen at creation:
+
+| Preset  | Duration                               |
+| ------- | -------------------------------------- |
+| 7 days  | Short-lived (experiments, CI)          |
+| 30 days | Default-friendly for most integrations |
+| 90 days | Longer-running services                |
+| 1 year  | Maximum preset in the app              |
+
+After `expiresAt`, requests fail with `401` and `api_key_expired`. Create a replacement key before
+the old one lapses, update your integration, then revoke the old key.
 
 ## Organization isolation
 
@@ -33,16 +132,19 @@ Your organization is determined **only** from the API key. The API ignores `x-or
 
 ## Key lifecycle
 
-- Keys can be **revoked** or **expired** — you receive `api_key_revoked` or `api_key_expired`.
-- Store the raw key securely when issued; it cannot be retrieved from Soundlink later.
+- **Active** — key is within its expiration window and not revoked.
+- **Revoked** — you deleted the key in Settings; API returns `api_key_revoked`.
+- **Expired** — past `expiresAt`; API returns `api_key_expired`.
 
-## Feature flag
-
-If your organization does not have Public API access enabled, endpoints return **`404`** with code `not_found` (same shape as unknown routes).
+Revoked keys stay visible in the list with status and date so you can audit past integrations.
 
 ## Ping vs data endpoints
 
-| Endpoint | Scope required |
-|----------|----------------|
-| `GET /v1/ping` | Valid key only (any v1 scope) |
-| `GET /v1/campaigns`, metrics, etc. | Matching scope on the key |
+| Endpoint                           | Scope required                |
+| ---------------------------------- | ----------------------------- |
+| `GET /v1/ping`                     | Valid key only (any v1 scope) |
+| `GET /v1/campaigns`, metrics, etc. | Matching scope on the key     |
+
+## Next
+
+Verify your new key in [Quickstart](/quickstart) with `GET /v1/ping`, then list campaigns.

@@ -1,16 +1,37 @@
 ---
 title: Quickstart
-description: Verify your API key and fetch your first campaign list.
+description: Create an API key in Soundlink, verify it with ping, and fetch your first campaign list.
 ---
 
 Get your first successful API response in a few minutes with `curl`. Using Node.js or TypeScript? See [Access the API with TypeScript](/typescript-sdk) instead.
 
 ## Prerequisites
 
-- An API key (`sk_*`) issued for your organization
-- `PUBLIC_API_ENABLED` turned on for your org (Soundlink Engineering)
+- A Soundlink account with **owner** or **admin** access to your organization
+- An API key (`sk_*`) — create one in the app (below) or use an existing key
+
+<CardGroup cols={2}>
+  <Card title="Create an API key" icon="key" href="/authentication#create-an-api-key">
+    Step-by-step in **Settings → Developer → API keys** — name, expiration, scopes, and one-time
+    copy. Includes screenshots.
+  </Card>
+  <Card
+    title="Open in Soundlink"
+    icon="arrow-up-right-from-square"
+    href="https://getsoundlink.com/home"
+  >
+    Sign in, then **Settings → Developer → API keys**.
+  </Card>
+</CardGroup>
+
+<Note>
+  Keys require an expiration (7 days to 1 year) and at least one scope. See
+  [Authentication](/authentication#expiration) for details.
+</Note>
 
 ## 1. Ping (connectivity)
+
+Replace `sk_YOUR_PREFIX_YOUR_SECRET` with the key you copied from the **Save your API key** dialog:
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/ping' \
@@ -30,12 +51,12 @@ Ping accepts any valid key scope (`campaigns:read` and/or `metrics:read`).
 
 ## 2. List campaigns
 
+Requires the `campaigns:read` scope on your key.
+
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/campaigns?page=1&pageSize=10' \
   -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
 ```
-
-Requires the `campaigns:read` scope on your key.
 
 ## 3. Use requestId for support
 
