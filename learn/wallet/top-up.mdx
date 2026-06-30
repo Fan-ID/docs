@@ -1,0 +1,46 @@
+---
+title: Top up
+description: Add credits to your workspace credit wallet with a one-time card payment.
+---
+
+Top up adds credits to your workspace balance through **Stripe Checkout**. Each top-up is a separate one-time payment — it is not a subscription.
+
+[Insert image here]
+
+## How to top up
+
+1. Go to **Settings → Credit wallet**.
+2. Click **Top up** (or the equivalent action on the balance card).
+3. Choose a preset amount or enter a custom amount.
+4. Complete payment in Stripe Checkout.
+5. After success, you return to the Credit wallet page and your balance updates.
+
+Preset amounts in the app are **$100**, **$250**, **$500**, and **$1,000**. You can also enter a custom amount within the limits below.
+
+## Amount limits
+
+| Limit | Value |
+| --- | --- |
+| Minimum | **$50** |
+| Maximum | **$100,000** |
+
+Amounts outside this range cannot proceed to checkout.
+
+## After payment
+
+- Stripe may calculate tax automatically depending on your billing details.
+- An invoice can be generated for the payment.
+- Credits appear in your ledger as a **topup** event.
+- If you have wallet campaigns in **renew failed** status with **auto-renew still on**, Soundlink may retry renewal after your balance increases.
+
+<Note>
+  Top-up credits are for your workspace only. They cannot be transferred to another workspace or withdrawn as cash.
+</Note>
+
+## Cancelled checkout
+
+If you cancel Stripe Checkout, no credits are added and your balance stays the same. You can start a new top-up at any time.
+
+## Failed verification
+
+If you return from checkout but payment verification fails, the Credit wallet page shows a failure state. Your balance is unchanged until payment succeeds. Try topping up again or contact support if the problem continues.

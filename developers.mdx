@@ -1,0 +1,99 @@
+---
+title: For Developers
+description: Sync Soundlink campaigns and metrics into your tools, warehouses, and apps.
+---
+
+Soundlink's Public API lets partner organizations sync **campaigns** and **metrics** into their own tools and data warehouses.
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/quickstart">
+    Create an API key, verify it with `ping`, and fetch your first campaign list
+    using `curl`.
+  </Card>
+  <Card title="TypeScript SDK" icon="node-js" href="/typescript-sdk">
+    Official `soundlink` package for Node.js, serverless, and Edge — typed
+    methods, pagination helpers, and JSONL streaming.
+  </Card>
+</CardGroup>
+
+Not sure which to pick? See [SDK overview](/sdks) for a side-by-side comparison.
+
+## API guides
+
+<CardGroup cols={2}>
+  <Card title="Syncing campaigns" icon="database" href="/syncing-campaigns">
+    List campaigns, pagination, and warehouse join patterns.
+  </Card>
+  <Card
+    title="Understanding metrics"
+    icon="chart-bar"
+    href="/understanding-metrics"
+  >
+    Overview vs breakdown vs engagement — which endpoint to call.
+  </Card>
+  <Card title="JSONL exports" icon="download" href="/jsonl-exports">
+    Bulk metrics downloads, 90-day windows, and ingest patterns.
+  </Card>
+  <Card title="API Reference" icon="square-terminal" href="/api-reference">
+    Full OpenAPI spec, schemas, and interactive playground.
+  </Card>
+</CardGroup>
+
+## Reference
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Create keys in Settings, API key format, scopes, expiration, and
+    organization isolation.
+  </Card>
+  <Card title="Errors" icon="triangle-exclamation" href="/errors">
+    Error codes, HTTP status mapping, and pagination limits.
+  </Card>
+</CardGroup>
+
+## API basics
+
+<AccordionGroup>
+  <Accordion title="Base URL">
+    ```
+    https://api.getsoundlink.com
+    ```
+
+    All v1 routes live under `/v1/*`.
+
+  </Accordion>
+
+  <Accordion title="Authentication">
+    Send your API key on every request:
+
+    ```bash
+    x-api-key: sk_<prefix>_<secret>
+    ```
+
+    See [Authentication](/authentication) for scopes and security.
+
+  </Accordion>
+
+  <Accordion title="Response envelope">
+    Successful responses:
+
+    ```json
+    {
+      "data": {},
+      "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
+    }
+    ```
+
+    Errors use the same shape with an `error` field instead of `data`. See [Errors](/errors).
+
+  </Accordion>
+
+  <Accordion title="Timestamps and v1 scope">
+    All `createdAt` and `updatedAt` fields are **UTC** (ISO 8601 with `Z` suffix).
+
+    v1 covers campaigns and metrics. Write endpoints (including campaign creation) are on the roadmap.
+
+  </Accordion>
+</AccordionGroup>

@@ -24,6 +24,10 @@
   "navbar": {
     "links": [
       {
+        "label": "Documentation",
+        "href": "/"
+      },
+      {
         "label": "API Reference",
         "href": "/api-reference"
       },
@@ -56,23 +60,50 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "icon": "book-open",
         "groups": [
           {
-            "group": "Getting started",
-            "pages": ["index", "quickstart", "authentication", "errors"]
+            "group": "Get started",
+            "pages": ["index"]
           },
           {
-            "group": "SDKs",
-            "pages": ["sdks", "typescript-sdk"]
-          },
-          {
-            "group": "Campaigns & metrics",
+            "group": "For Developers",
             "pages": [
-              "syncing-campaigns",
-              "understanding-metrics",
-              "jsonl-exports"
+              "developers",
+              "quickstart",
+              "authentication",
+              "errors",
+              {
+                "group": "SDKs",
+                "pages": ["sdks", "typescript-sdk"]
+              },
+              {
+                "group": "API guides",
+                "pages": [
+                  "syncing-campaigns",
+                  "understanding-metrics",
+                  "jsonl-exports"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Learn",
+            "pages": [
+              "learn/index",
+              {
+                "group": "Credit wallet",
+                "pages": [
+                  "learn/wallet/index",
+                  "learn/wallet/balance-and-ledger",
+                  "learn/wallet/top-up",
+                  "learn/wallet/paying-for-campaigns",
+                  "learn/wallet/renewals",
+                  "learn/wallet/campaign-budget-top-up",
+                  "learn/wallet/limitations-and-edge-cases"
+                ]
+              }
             ]
           }
         ]

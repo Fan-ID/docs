@@ -1,0 +1,96 @@
+---
+title: Limitations & edge cases
+description: Rules, campaign statuses, refunds, and situations you should know about when using the credit wallet.
+---
+
+This page collects product limits and non-obvious behavior confirmed in Soundlink today.
+
+## Wallet top-up limits
+
+| Rule           | Detail                                                     |
+| -------------- | ---------------------------------------------------------- |
+| Minimum top-up | $50                                                        |
+| Maximum top-up | $100,000                                                   |
+| Currency       | USD                                                        |
+| Transfer       | Credits cannot be moved to another workspace or cashed out |
+
+## Pay with wallet at creation
+
+- Balance must cover **100%** of the first cycle total (`daily budget × duration`).
+- Partial balance alone is **not** enough for full wallet payment — use card checkout with partial credit instead.
+
+## Partial credit on card checkout
+
+- Maximum applicable credit: `min(wallet balance, cycle total)`.
+- Credits reserve **immediately** when you apply them.
+- Abandoned checkout: discount expires in about **one hour**; reserved credits are refunded to your wallet shortly after expiry (usually within a few minutes, not necessarily the instant the hour ends).
+- UI copy may mention ~60 minutes; the discount expires after about **one hour**.
+
+## Campaign budget top-up
+
+- Wallet campaigns only, **active** status
+- Requires **more than two days** left in the cycle
+- Minimum **$1/day** effective increase
+- **Next renewal only** mode does not debit the wallet for the current cycle
+
+## Stopping a wallet campaign
+
+You can stop a wallet campaign when status is **active** or **renew failed**.
+
+- Soundlink pauses ads on connected platforms.
+- **Unused credits** for the current cycle can return to your wallet based on actual Meta spend.
+- UI copy: refunds typically appear within a few minutes.
+- Stop is blocked while status is **creating** or **renewing** — try again shortly.
+
+Stopped and ended campaigns cannot be stopped again.
+
+## End-of-campaign refunds
+
+When a Meta campaign **ends** (natural end of cycle or lifecycle), Soundlink may refund **unused net spend** to your wallet if:
+
+- Campaign status is **ended**
+- Platform is **Meta**
+- No stop refund was already recorded for that campaign
+- Calculated refund amount is greater than zero
+
+Refund timing depends on spend data availability from Meta.
+
+## Renew failed
+
+| Topic       | Detail                                                                  |
+| ----------- | ----------------------------------------------------------------------- |
+| Cause       | Insufficient wallet balance at renewal                                  |
+| User action | Top up; optionally confirm auto-renew is still on                       |
+| Recovery    | Automatic retry after balance increases, only if **auto-renew is still on** |
+| Email       | Insufficient-credit notification to campaign creator when renewal fails |
+
+## Auto-renew toggle (wallet)
+
+Editable while the campaign is **active** and the cycle end date is still in the future.
+
+Disabled when the campaign is **stopped**, **ended**, **creating**, **renewing**, or **past the cycle end date** — including most **renew failed** campaigns, where the due date has already passed and the toggle is no longer available in the app.
+
+## Workspace plan (upgrade / downgrade)
+
+- Plan tier changes **Ad fees**, which affects **renewal debits** and **campaign budget top-up** math.
+- Plan changes do **not** automatically credit or debit your wallet balance.
+
+## Campaign statuses to know
+
+| Status           | Wallet relevance                                                     |
+| ---------------- | -------------------------------------------------------------------- |
+| **active**       | Normal operation; top-up and stop available                          |
+| **renewing**     | Renewal in progress; wait before stopping                            |
+| **renew_failed** | Needs top-up; stop still available                                   |
+| **stopped**      | Terminal; no further wallet charges for new cycles                   |
+| **ended**        | Cycle finished; end refund may apply                                 |
+| **creating**     | Setup in progress; wallet payment already debited for wallet creates |
+
+## Need help?
+
+- Top-up or balance not updating after successful payment
+- Renew failed after topping up
+- Refund missing after stop or end
+- Budget top-up debited but budget unchanged
+
+Contact [hello@getsoundlink.com](mailto:hello@getsoundlink.com) with your workspace name, campaign name, and approximate time of the transaction.
