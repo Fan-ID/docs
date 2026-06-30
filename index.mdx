@@ -1,88 +1,39 @@
 ---
 title: Introduction
-description: Sync Soundlink campaigns and metrics into your tools, warehouses, and apps.
+description: Soundlink documentation — learn the product and integrate the Public API.
 ---
 
-Soundlink's Public API lets partner organizations sync **campaigns** and **metrics** into their own tools and data warehouses.
+Welcome to the Soundlink documentation. Whether you run campaigns inside the app or sync data into your own stack, start here.
 
-## Get started
-
-<CardGroup cols={2}>
-  <Card title="REST API" icon="terminal" href="/quickstart">
-    Verify your key with `curl`, then list campaigns. Works with Python, BigQuery, Airflow, or any HTTP client.
-  </Card>
-  <Card title="TypeScript SDK" icon="node-js" href="/typescript-sdk">
-    Official `soundlink` package for Node.js, serverless, and Edge — typed methods, pagination helpers, and JSONL streaming.
-  </Card>
-</CardGroup>
-
-Not sure which to pick? See [Official SDKs](/sdks) for a side-by-side comparison.
-
-## Guides
+## Pick your path
 
 <CardGroup cols={2}>
-  <Card title="Syncing campaigns" icon="database" href="/syncing-campaigns">
-    List campaigns, pagination, and warehouse join patterns.
+  <Card title="For Developers" icon="code" href="/developers">
+    Integrate the Public API — keys, endpoints, SDKs, and guides to sync
+    campaigns and metrics into your tools and warehouses.
   </Card>
-  <Card title="Understanding metrics" icon="chart-bar" href="/understanding-metrics">
-    Overview vs breakdown vs engagement — which endpoint to call.
-  </Card>
-  <Card title="JSONL exports" icon="download" href="/jsonl-exports">
-    Bulk metrics downloads, 90-day windows, and ingest patterns.
+  <Card title="Learn the product" icon="book-open" href="/learn">
+    Understand how Soundlink works inside the app — billing, the credit wallet,
+    campaigns, and workspace features.
   </Card>
   <Card title="API Reference" icon="square-terminal" href="/api-reference">
-    Full OpenAPI spec, schemas, and interactive playground.
+    Full OpenAPI spec, schemas, and an interactive playground.
+  </Card>
+  <Card
+    title="Get started"
+    icon="arrow-up-right-from-square"
+    href="https://getsoundlink.com/auth"
+  >
+    Create a Soundlink account and open your workspace.
   </Card>
 </CardGroup>
 
-## Reference
+## What's here
 
-<CardGroup cols={2}>
-  <Card title="Authentication" icon="key" href="/authentication">
-    Create keys in Settings, API key format, scopes, expiration, and organization isolation.
-  </Card>
-  <Card title="Errors" icon="triangle-exclamation" href="/errors">
-    Error codes, HTTP status mapping, and pagination limits.
-  </Card>
-</CardGroup>
+- **For Developers** — everything to build on the Public API: [Quickstart](/quickstart), [Authentication](/authentication), [Errors](/errors), [SDK overview](/sdks), and API guides for [campaigns](/syncing-campaigns), [metrics](/understanding-metrics), and [JSONL exports](/jsonl-exports).
+- **Learn** — product concepts and flows for people using Soundlink in your workspace, starting with the [Credit wallet](/learn/wallet).
+- **API Reference** — the generated [endpoint reference](/api-reference) with request/response schemas and a playground.
 
-## API basics
+## Need help?
 
-<AccordionGroup>
-  <Accordion title="Base URL">
-    ```
-    https://api.getsoundlink.com
-    ```
-
-    All v1 routes live under `/v1/*`.
-  </Accordion>
-
-  <Accordion title="Authentication">
-    Send your API key on every request:
-
-    ```bash
-    x-api-key: sk_<prefix>_<secret>
-    ```
-
-    See [Authentication](/authentication) for scopes and security.
-  </Accordion>
-
-  <Accordion title="Response envelope">
-    Successful responses:
-
-    ```json
-    {
-      "data": {},
-      "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
-    }
-    ```
-
-    Errors use the same shape with an `error` field instead of `data`. See [Errors](/errors).
-  </Accordion>
-
-  <Accordion title="Timestamps and v1 scope">
-    All `createdAt` and `updatedAt` fields are **UTC** (ISO 8601 with `Z` suffix).
-
-    v1 covers campaigns and metrics. Write endpoints (including campaign creation) are on the roadmap.
-  </Accordion>
-</AccordionGroup>
+Email [hello@getsoundlink.com](mailto:hello@getsoundlink.com) — include `meta.requestId` from any API error to speed up support.

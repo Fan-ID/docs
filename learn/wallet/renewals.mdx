@@ -1,0 +1,69 @@
+---
+title: Renewals
+description: How wallet campaigns renew, auto-renew settings, failed renewals, and low-balance alerts.
+---
+
+Wallet campaigns run in **cycles** (the duration you chose at creation). When a cycle ends, the campaign can start a new cycle if **auto-renew** is enabled and your wallet has enough credits.
+
+[Insert image here]
+
+## Auto-renew
+
+Wallet campaigns support an **auto-renew** toggle in campaign insights (and related campaign management views).
+
+| Setting | Behavior |
+| --- | --- |
+| **On** | Soundlink attempts to charge the next cycle from your wallet when the current period ends |
+| **Off** | The campaign does not automatically start a new paid cycle |
+
+You can change auto-renew while the campaign is **active** and the current cycle end date has **not** passed yet. The toggle is not available in other states — for example while a campaign is **creating**, **renewing**, **stopped**, **ended**, or after the cycle end date (including **renew failed**, where the due date has typically already passed).
+
+Wallet campaigns do not use a Stripe subscription for renewal billing — renewals debit your **credit wallet** directly.
+
+## What happens at renewal
+
+1. Before the cycle ends, Soundlink identifies wallet campaigns due for renewal.
+2. The campaign enters a **renewing** state while renewal is processed.
+3. Soundlink calculates the **next cycle total**, including your workspace plan's **Ad fees**.
+4. If balance is sufficient, credits are deducted and the campaign continues into the next cycle.
+5. If balance is insufficient, the campaign moves to **renew failed**.
+
+The renewal amount is based on:
+
+- Effective daily budget (including any **next-cycle budget** set by a campaign top-up)
+- Campaign duration
+- Your workspace plan's **Ad fees**
+
+This renewal calculation can be **higher** than the simple `daily budget × duration` total shown when you first created the campaign.
+
+## Renew failed
+
+Status **renew failed** means the cycle ended but Soundlink could not debit enough credits.
+
+In the app you will see an alert similar to: *Renewal failed — insufficient wallet balance*, with a link to top up.
+
+To recover:
+
+1. **Top up** your wallet so balance covers the renewal amount.
+2. If **auto-renew is still on**, Soundlink can **retry** the campaign after your balance increases (including after a successful top-up).
+
+If auto-renew was turned off before the cycle ended, top-up alone will not restart the campaign — contact support if you need help.
+
+## Low-balance heads-up email
+
+If you have wallet campaigns renewing within the **next three days** and your balance is **below the combined renewal cost** of those campaigns, Soundlink may email the workspace primary user a low-balance reminder.
+
+- At most **one** such email per workspace within a **24-hour** window.
+- The email lists affected campaigns and how much balance is needed.
+
+Use this as early warning to top up before renewals fail.
+
+## Plan changes and renewal cost
+
+Upgrading or downgrading your Soundlink workspace plan can change **Ad fees** on your account. That affects **renewal** and **campaign budget top-up** calculations.
+
+Plan changes do **not** directly add or remove credits from your wallet balance — they change how much future debits will be.
+
+## Card campaigns vs wallet renewals
+
+Campaigns paid by **Stripe subscription** renew through Stripe, not the credit wallet. This page applies only to campaigns with **wallet** payment mode.
