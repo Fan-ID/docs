@@ -21,42 +21,33 @@ You can also see your wallet balance when creating a new campaign, or on a walle
 
 ## What you can do with credits
 
-| Action                                                                                 | Summary                                                                                                           |
-| -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| [Top up](/learn/wallet/top-up)                                                         | Add credits with a one-time payment from a saved payment method                                                   |
-| [Save payment methods](/learn/wallet/payment-methods)                                  | Store cards (and other methods) for top-ups and auto-recharge                                                     |
-| [Auto-recharge](/learn/wallet/auto-recharge)                                           | Automatically top up when balance is short for renewals                                                           |
-| [Pay for a campaign](/learn/wallet/paying-for-campaigns)                               | Fund a full cycle from the wallet, or apply credits as a discount at Stripe checkout                              |
-| [Renew automatically](/learn/wallet/renewals)                                          | Wallet campaigns renew each cycle if auto-renew is on and balance is sufficient (or auto-recharge covers the gap) |
-| [Manage campaign budget](/learn/wallet/campaign-budget-top-up)                         | Raise or lower daily budget on an active wallet campaign                                                          |
-| [Stop a campaign](/learn/wallet/limitations-and-edge-cases#stopping-a-wallet-campaign) | Unused credits for the current cycle return to your wallet                                                        |
+| Action | Summary |
+| --- | --- |
+| [Top up](/learn/wallet/top-up) | Add credits with a one-time payment from a saved payment method |
+| [Save payment methods](/learn/wallet/payment-methods) | Store cards (and other methods) for top-ups and auto-recharge |
+| [Auto-recharge](/learn/wallet/auto-recharge) | Automatically top up when balance is short for renewals |
+| [Pay for a campaign](/learn/wallet/paying-for-campaigns) | Fund the campaign cycle from the wallet (top up inline if balance is short) |
+| [Renew automatically](/learn/wallet/renewals) | Wallet campaigns renew each cycle if auto-renew is on and balance is sufficient (or auto-recharge covers the gap) |
+| [Manage campaign budget](/learn/wallet/campaign-budget-top-up) | Raise or lower daily budget on an active wallet campaign |
+| [Stop a campaign](/learn/wallet/limitations-and-edge-cases#stopping-a-wallet-campaign) | Unused credits for the current cycle return to your wallet |
 
-## Payment options at checkout
+## Paying for a new campaign
 
-When you create a paid growth campaign, Soundlink offers:
+New paid growth campaigns use a **single wallet-first payment** on the Review step:
 
-1. **Pay with card** — Stripe subscription for the campaign cycle. You can optionally apply wallet credits as a partial discount; the remainder is charged to your card.
-2. **Pay with wallet** — Available when your balance covers the **full first cycle** total. No card charge for that cycle.
+1. Soundlink shows your wallet balance and the first-cycle total.
+2. If balance covers the total, create debits the wallet and launches the campaign.
+3. If balance is short, use **Top up wallet** on Review (add a **backup card** first if you do not have one yet).
 
-You must have enough balance for the option you choose. See [Paying for campaigns](/learn/wallet/paying-for-campaigns) for details.
-
-If you choose wallet payment and your balance is too low, a **Top up wallet** option appears in the Review step so you can add credits without leaving campaign creation.
+There is no separate “pay with Stripe subscription” option in this flow. Saved cards are for topping up the wallet and for auto-recharge on renewals. See [Paying for campaigns](/learn/wallet/paying-for-campaigns).
 
 ## Related pages
 
 <CardGroup cols={2}>
-  <Card
-    title="Balance & ledger"
-    icon="list"
-    href="/learn/wallet/balance-and-ledger"
-  >
+  <Card title="Balance & ledger" icon="list" href="/learn/wallet/balance-and-ledger">
     How balance is calculated and how to read transaction history.
   </Card>
-  <Card
-    title="Payment methods"
-    icon="credit-card"
-    href="/learn/wallet/payment-methods"
-  >
+  <Card title="Payment methods" icon="credit-card" href="/learn/wallet/payment-methods">
     Save and manage cards used for top-ups and auto-recharge.
   </Card>
   <Card title="Auto-recharge" icon="bolt" href="/learn/wallet/auto-recharge">
@@ -68,11 +59,7 @@ If you choose wallet payment and your balance is too low, a **Top up wallet** op
   <Card title="Renewals" icon="rotate" href="/learn/wallet/renewals">
     Auto-renew, failed renewals, and upcoming renewals.
   </Card>
-  <Card
-    title="Limitations"
-    icon="triangle-exclamation"
-    href="/learn/wallet/limitations-and-edge-cases"
-  >
+  <Card title="Limitations" icon="triangle-exclamation" href="/learn/wallet/limitations-and-edge-cases">
     Rules, statuses, and edge cases.
   </Card>
 </CardGroup>

@@ -7,13 +7,13 @@ This page collects product limits and non-obvious behavior confirmed in Soundlin
 
 ## Wallet top-up limits
 
-| Rule           | Detail                                                     |
-| -------------- | ---------------------------------------------------------- |
-| Minimum top-up | $50                                                        |
-| Maximum top-up | $100,000                                                   |
-| Currency       | USD                                                        |
-| Transfer       | Credits cannot be moved to another workspace or cashed out |
-| Expiry         | Credits do not expire                                      |
+| Rule | Detail |
+| --- | --- |
+| Minimum top-up | $50 |
+| Maximum top-up | $100,000 |
+| Currency | USD |
+| Transfer | Credits cannot be moved to another workspace or cashed out |
+| Expiry | Credits do not expire |
 
 ## Payment methods and auto-recharge
 
@@ -25,17 +25,12 @@ This page collects product limits and non-obvious behavior confirmed in Soundlin
 - Monthly cap (optional) limits auto-charges per **calendar month**.
 - Auto-recharge does not turn on only because you saved a card — you enable it (or Soundlink enables it when you add a first active method in some flows).
 
-## Pay with wallet at creation
+## Paying at campaign creation
 
-- Balance must cover **100%** of the first cycle total (`daily budget × duration`).
-- Partial balance alone is **not** enough for full wallet payment — use card checkout with partial credit instead, or [top up](/learn/wallet/top-up) from the Review step.
-
-## Partial credit on card checkout
-
-- Maximum applicable credit: `min(wallet balance, cycle total)`.
-- Credits reserve **immediately** when you apply them.
-- Abandoned checkout: discount expires in about **one hour**; reserved credits are refunded to your wallet shortly after expiry (usually within a few minutes, not necessarily the instant the hour ends).
-- UI copy may mention ~60 minutes; the discount expires after about **one hour**.
+- New campaigns are **wallet-first** — there is no Stripe subscription checkout option on Review.
+- Balance must cover **100%** of the first cycle total (`daily budget × duration`) before create succeeds.
+- If balance is short, [top up](/learn/wallet/top-up) from the Review step (add a backup payment method first if you have none).
+- A backup card is **not** charged for the campaign create itself; it is for top-ups and renewal auto-recharge.
 
 ## Campaign budget changes
 
@@ -45,7 +40,6 @@ This page collects product limits and non-obvious behavior confirmed in Soundlin
 - Requires **more than two days** left in the cycle
 - Minimum **$1/day** effective increase
 - **Next renewal only** mode does not debit the wallet for the current cycle
-- Cannot mix wallet and card funding on the same campaign
 
 **Lower**
 
@@ -83,12 +77,12 @@ Refund timing depends on spend data availability from Meta.
 
 ## Renew failed
 
-| Topic       | Detail                                                                                |
-| ----------- | ------------------------------------------------------------------------------------- |
-| Cause       | Insufficient wallet balance at renewal (and auto-recharge did not cover the gap)      |
+| Topic | Detail |
+| --- | --- |
+| Cause | Insufficient wallet balance at renewal (and auto-recharge did not cover the gap) |
 | User action | Top up; check auto-recharge and active payment method; confirm auto-renew is still on |
-| Recovery    | Automatic retry after balance increases, only if **auto-renew is still on**           |
-| Email       | Insufficient-credit notification to campaign creator when renewal fails               |
+| Recovery | Automatic retry after balance increases, only if **auto-renew is still on** |
+| Email | Insufficient-credit notification to campaign creator when renewal fails |
 
 ## Auto-renew toggle (wallet)
 
@@ -98,26 +92,26 @@ Disabled when the campaign is **stopped**, **ended**, **creating**, **renewing**
 
 ## Workspace plan (upgrade / downgrade)
 
-- Plan tier changes **Ad fees**, which affects **renewal debits** and **campaign budget top-up** math.
+- Plan tier changes **Ad fees**, which affects **renewal debits** and **campaign budget** math.
 - Plan changes do **not** automatically credit or debit your wallet balance.
 
 ## Campaign statuses to know
 
-| Status           | Wallet relevance                                                     |
-| ---------------- | -------------------------------------------------------------------- |
-| **active**       | Normal operation; top-up and stop available                          |
-| **renewing**     | Renewal in progress; wait before stopping                            |
-| **renew_failed** | Needs top-up (or successful auto-recharge); stop still available     |
-| **stopped**      | Terminal; no further wallet charges for new cycles                   |
-| **ended**        | Cycle finished; end refund may apply                                 |
-| **creating**     | Setup in progress; wallet payment already debited for wallet creates |
+| Status | Wallet relevance |
+| --- | --- |
+| **active** | Normal operation; budget changes and stop available |
+| **renewing** | Renewal in progress; wait before stopping |
+| **renew_failed** | Needs top-up (or successful auto-recharge); stop still available |
+| **stopped** | Terminal; no further wallet charges for new cycles |
+| **ended** | Cycle finished; end refund may apply |
+| **creating** | Setup in progress; wallet payment already debited for wallet creates |
 
 ## Need help?
 
 - Top-up or balance not updating after successful payment
 - Renew failed after topping up or with auto-recharge enabled
 - Refund missing after stop or end
-- Budget top-up debited but budget unchanged
+- Budget increase debited but budget unchanged
 - Budget lowered but refund missing
 - Payment method or auto-recharge not behaving as expected
 

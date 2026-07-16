@@ -180,8 +180,8 @@ Copy these into your `.mdx` files as needed.
 
 ```mdx
 <Warning>
-  Do not close Stripe Checkout after applying wallet credits unless you intend
-  to abandon payment.
+  Balance must cover the full first cycle before you can create a wallet
+  campaign. Top up from Review if you are short.
 </Warning>
 ```
 
