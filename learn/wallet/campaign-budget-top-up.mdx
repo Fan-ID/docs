@@ -1,53 +1,70 @@
 ---
-title: Campaign budget top-up
-description: Increase daily budget on an active wallet campaign by spending credits from your wallet.
+title: Campaign budget changes
+description: Raise or lower daily budget on an active wallet campaign using credits from your wallet.
 ---
 
-A **campaign budget top-up** increases how much your wallet campaign spends per day. It is separate from **wallet top-up** (adding credits to your workspace balance).
+On wallet campaigns you can **manage budget** from campaign insights: increase daily spend (spends wallet credits) or lower it (refunds unused budget to your wallet).
 
-You use credits already in your wallet — there is no new Stripe payment for this action.
+This is separate from **wallet top-up** (adding credits to your workspace balance). There is no new Stripe payment for these actions — they use credits already in your wallet.
 
 ## Where to do it
 
-From **campaign insights** (or the campaign row on your dashboard) for a **wallet** campaign, use **Add budget** when the campaign is **active**. The app shows your current wallet balance in context.
+From **campaign insights** (or the campaign row on your dashboard) for a **wallet** campaign, open **Manage budget** / **Add budget** when the campaign is **active**. The app shows your current wallet balance in context.
 
-This only works for campaigns originally created with the wallet. Card-funded campaigns are topped up via card instead — the two payment modes cannot be mixed.
+This only works for campaigns originally created with the wallet. Card-funded campaigns are managed via card instead — the two payment modes cannot be mixed.
 
-## How it works
+## Increase daily budget
 
-1. You choose how much extra budget to add (total dollar amount for the top-up).
+1. Choose how much extra budget to add (total dollar amount for the increase).
 2. Soundlink splits that amount across **remaining days** in the current cycle to compute additional daily budget.
 3. Credits are **deducted from your wallet**.
 4. Budget changes are applied to your Meta campaign (processing happens asynchronously after the debit is recorded).
 
 If the Meta update cannot be applied, Soundlink may **refund** the debit to your wallet.
 
-## Top-up modes
+### Increase modes
 
-When increasing budget, you can choose how the change applies:
-
-| Mode | Effect |
-| --- | --- |
-| **Current cycle only** | Raises budget for the rest of this cycle; debits your wallet |
-| **Next renewal only** | Sets a higher daily budget starting at the next cycle; **no wallet debit** for the current cycle |
+| Mode                           | Effect                                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| **Current cycle only**         | Raises budget for the rest of this cycle; debits your wallet                                                 |
+| **Next renewal only**          | Sets a higher daily budget starting at the next cycle; **no wallet debit** for the current cycle             |
 | **Current cycle and renewals** | Raises budget now and keeps the increase for future cycles; debits your wallet for the current-cycle portion |
 
-The app labels these options in plain language during the flow.
+### Increase limits
 
-## Requirements and limits
-
-Soundlink blocks campaign budget top-up when:
+Soundlink blocks an increase when:
 
 - Campaign is not **active**
 - Campaign is not **wallet** payment mode
 - **Two or fewer days** remain in the current cycle
-- Top-up would add **less than $1 per day** on average (`total amount ÷ remaining days` must be at least $1)
+- Increase would add **less than $1 per day** on average (`total amount ÷ remaining days` must be at least $1)
 - Wallet balance is **insufficient** for the debit (current-cycle modes)
 
-## After a successful top-up
+## Lower daily budget
 
-- Your wallet balance decreases by the debited amount.
-- Ledger shows a **deduct** for the campaign.
-- Daily budget on the campaign reflects the increase once Meta processing completes.
+You can lower the daily budget on an active wallet campaign. Unused budget for the remaining days is **refunded to your wallet** (typically within a few minutes after processing).
 
-If processing is delayed, the debit is still recorded; support can help if budget does not update as expected.
+### Lower modes
+
+| Mode                           | Effect                                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| **Current cycle only**         | Lowers budget for the rest of this cycle; refunds unused portion to the wallet                               |
+| **Current cycle and renewals** | Lowers budget now and keeps the lower amount for future cycles; refunds unused portion for the current cycle |
+
+There is no separate “next renewal only” lower mode in the app today.
+
+### Lower limits
+
+Soundlink blocks lowering when:
+
+- Campaign is not **active** / **wallet** payment mode
+- **Three or fewer days** remain in the current cycle
+- Target daily budget would be below the minimum allowed in the app (currently **$10/day**)
+
+## After a successful change
+
+- **Increase:** wallet balance decreases; ledger shows a **deduct**.
+- **Lower:** wallet balance increases; ledger shows a **refund**.
+- Daily budget on the campaign reflects the change once Meta processing completes.
+
+If processing is delayed, contact support if budget does not update as expected.

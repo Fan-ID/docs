@@ -7,17 +7,18 @@ This page collects product limits and non-obvious behavior confirmed in Soundlin
 
 ## Wallet top-up limits
 
-| Rule | Detail |
-| --- | --- |
-| Minimum top-up | $50 |
-| Maximum top-up | $100,000 |
-| Currency | USD |
-| Transfer | Credits cannot be moved to another workspace or cashed out |
-| Expiry | Credits do not expire |
+| Rule           | Detail                                                     |
+| -------------- | ---------------------------------------------------------- |
+| Minimum top-up | $50                                                        |
+| Maximum top-up | $100,000                                                   |
+| Currency       | USD                                                        |
+| Transfer       | Credits cannot be moved to another workspace or cashed out |
+| Expiry         | Credits do not expire                                      |
 
 ## Payment methods and auto-recharge
 
-- Only one payment method can be **Active** per workspace.
+- Only one payment method can be **Active** per workspace (used for auto-recharge).
+- Manual top-up can charge any saved method that is not detached.
 - Auto-recharge requires an active payment method.
 - Deactivating or removing the last active method turns auto-recharge **off**.
 - Detached or expired methods cannot be reactivated — add a new method.
@@ -36,13 +37,23 @@ This page collects product limits and non-obvious behavior confirmed in Soundlin
 - Abandoned checkout: discount expires in about **one hour**; reserved credits are refunded to your wallet shortly after expiry (usually within a few minutes, not necessarily the instant the hour ends).
 - UI copy may mention ~60 minutes; the discount expires after about **one hour**.
 
-## Campaign budget top-up
+## Campaign budget changes
+
+**Increase**
 
 - Wallet campaigns only, **active** status
 - Requires **more than two days** left in the cycle
 - Minimum **$1/day** effective increase
 - **Next renewal only** mode does not debit the wallet for the current cycle
 - Cannot mix wallet and card funding on the same campaign
+
+**Lower**
+
+- Wallet campaigns only, **active** status
+- Requires **more than three days** left in the cycle
+- Minimum target daily budget in the app is **$10/day**
+- Unused remaining-cycle budget is refunded to the wallet
+- Modes: current cycle only, or current cycle and renewals
 
 ## Stopping a wallet campaign
 
@@ -72,12 +83,12 @@ Refund timing depends on spend data availability from Meta.
 
 ## Renew failed
 
-| Topic | Detail |
-| --- | --- |
-| Cause | Insufficient wallet balance at renewal (and auto-recharge did not cover the gap) |
+| Topic       | Detail                                                                                |
+| ----------- | ------------------------------------------------------------------------------------- |
+| Cause       | Insufficient wallet balance at renewal (and auto-recharge did not cover the gap)      |
 | User action | Top up; check auto-recharge and active payment method; confirm auto-renew is still on |
-| Recovery | Automatic retry after balance increases, only if **auto-renew is still on** |
-| Email | Insufficient-credit notification to campaign creator when renewal fails |
+| Recovery    | Automatic retry after balance increases, only if **auto-renew is still on**           |
+| Email       | Insufficient-credit notification to campaign creator when renewal fails               |
 
 ## Auto-renew toggle (wallet)
 
@@ -92,14 +103,14 @@ Disabled when the campaign is **stopped**, **ended**, **creating**, **renewing**
 
 ## Campaign statuses to know
 
-| Status | Wallet relevance |
-| --- | --- |
-| **active** | Normal operation; top-up and stop available |
-| **renewing** | Renewal in progress; wait before stopping |
-| **renew_failed** | Needs top-up (or successful auto-recharge); stop still available |
-| **stopped** | Terminal; no further wallet charges for new cycles |
-| **ended** | Cycle finished; end refund may apply |
-| **creating** | Setup in progress; wallet payment already debited for wallet creates |
+| Status           | Wallet relevance                                                     |
+| ---------------- | -------------------------------------------------------------------- |
+| **active**       | Normal operation; top-up and stop available                          |
+| **renewing**     | Renewal in progress; wait before stopping                            |
+| **renew_failed** | Needs top-up (or successful auto-recharge); stop still available     |
+| **stopped**      | Terminal; no further wallet charges for new cycles                   |
+| **ended**        | Cycle finished; end refund may apply                                 |
+| **creating**     | Setup in progress; wallet payment already debited for wallet creates |
 
 ## Need help?
 
@@ -107,6 +118,7 @@ Disabled when the campaign is **stopped**, **ended**, **creating**, **renewing**
 - Renew failed after topping up or with auto-recharge enabled
 - Refund missing after stop or end
 - Budget top-up debited but budget unchanged
+- Budget lowered but refund missing
 - Payment method or auto-recharge not behaving as expected
 
 Contact [hello@getsoundlink.com](mailto:hello@getsoundlink.com) with your workspace name, campaign name, and approximate time of the transaction.
