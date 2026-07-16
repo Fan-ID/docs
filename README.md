@@ -46,7 +46,7 @@ Follow these so docs stay consistent and accurate:
 
 - **Voice:** second person, active (“Click **Settings**”, not “The user should click…”).
 - **Headings:** sentence case (`## How to top up`, not `## How To Top Up`).
-- **UI labels:** bold — **Settings**, **Credit wallet**, **Top up**.
+- **UI labels:** bold — **Settings**, **Credit wallet & payment methods**, **Top up wallet**.
 - **Accuracy:** describe only what users can see and do in the product today. Verify in the app before publishing.
 - **Scope:** one page = one concept or flow. Link to related pages instead of duplicating.
 - **Support:** when in doubt, end with [hello@getsoundlink.com](mailto:hello@getsoundlink.com).
@@ -180,8 +180,8 @@ Copy these into your `.mdx` files as needed.
 
 ```mdx
 <Warning>
-  Do not close Stripe Checkout after applying wallet credits unless you intend
-  to abandon payment.
+  Balance must cover the full first cycle before you can create a wallet
+  campaign. Top up from Review if you are short.
 </Warning>
 ```
 

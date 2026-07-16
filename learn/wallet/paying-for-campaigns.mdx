@@ -1,68 +1,59 @@
 ---
 title: Paying for campaigns
-description: Pay with card, pay fully from your wallet, or apply wallet credits as a partial discount at checkout.
+description: New paid growth campaigns are funded from your credit wallet. Top up if balance is short; keep a backup card for renewals.
 ---
 
-When you finish campaign setup, the review step shows how you will pay for the **first cycle**. Your daily budget and campaign duration determine the cycle total shown in the app.
+When you finish campaign setup, the **Review** step shows **Payment** for the **first cycle**. New paid growth campaigns are funded from your **credit wallet** — there is no separate “pay with card vs pay with wallet” choice at checkout.
+
+Your daily budget and campaign duration determine the cycle total shown in the app.
 
 ## Cycle total at creation
 
-For the first cycle at checkout, the total is:
+For the first cycle, the total is:
 
 **Daily budget × campaign duration (days)**
 
-This is the amount Soundlink uses to decide whether you can pay fully from the wallet or how much you can apply as a partial discount.
+Soundlink debits that full amount from your wallet when the campaign is created.
 
 <Note>
   **Renewals** use a calculation that includes your workspace plan's **Ad fees**. The renewal amount can differ from the first-cycle total shown at creation. See [Renewals](/learn/wallet/renewals).
 </Note>
 
-## Option 1: Pay with card (Stripe)
+## How payment works
 
-This is the default. Soundlink creates a **Stripe subscription** for the campaign cycle and charges your card.
+1. Review shows your **Wallet balance** and the first-cycle total.
+2. If balance covers the total, you create the campaign. Credits are deducted from the wallet.
+3. If balance is short, create is blocked until you **Top up wallet** from the Review step (you do not leave campaign creation).
+4. If you have no saved payment method and balance is short, Review asks you to **Add backup card & top up** first.
 
-### Apply wallet credits as a discount
+After a successful create, the campaign runs in **wallet** payment mode. Renewals also debit the wallet (with [auto-recharge](/learn/wallet/auto-recharge) as a fallback when enabled).
 
-On the card payment option, you can apply part of your wallet balance to reduce what you pay on the card:
+## Backup payment method
 
-- You can apply up to **the lesser of your balance and the cycle total**.
-- The selected amount is **deducted from your wallet immediately** and converted into a Stripe checkout discount.
-- You pay the **remainder on your card**.
+A saved card (or other payment method) is your **backup** so ads can keep running when wallet balance is low at renewal time.
 
-If you leave Stripe Checkout without completing payment:
+- Adding a backup card at create does **not** charge you for the campaign itself.
+- The card is used for [wallet top-ups](/learn/wallet/top-up) you choose to run, and for [auto-recharge](/learn/wallet/auto-recharge) when that setting is on.
+- At renewal, copy in the app explains that wallet credits are applied first; if balance is short and auto-recharge is enabled, Soundlink can charge the active backup method (subject to the monthly cap).
 
-- The discount expires after about **one hour**.
-- Unused reserved credits are **refunded** to your wallet shortly after expiry (usually within a few minutes).
+Manage methods anytime under **Settings → Credit wallet & payment methods**. See [Payment methods](/learn/wallet/payment-methods).
 
-<Warning>
-  Do not close checkout after applying credits unless you intend to abandon the payment. Credits are reserved as soon as you apply them.
-</Warning>
+## Insufficient balance at create
 
-You cannot combine wallet credit discount with other coupon types on the same checkout in the way the app enforces mutual exclusion — selecting a traditional coupon clears wallet credit selection.
-
-## Option 2: Pay with wallet
-
-Choose **Pay with wallet** when your balance covers the **entire first cycle total**.
-
-- The full cycle amount is deducted from your wallet when the campaign is created.
-- No Stripe subscription is created for that cycle's upfront payment.
-- If balance is insufficient, this option is disabled until you top up or pay by card.
-
-Requirements shown in the app:
-
-- Balance must be **greater than or equal to** the cycle total.
-
-## Insufficient balance
-
-If you try to pay with wallet without enough credits, Soundlink blocks creation and shows how much you need versus what you have.
+Partial wallet balance alone is **not** enough. You must top up so the balance covers **100%** of the first cycle total before create succeeds.
 
 You can:
 
-- **Top up wallet** from the Review step without leaving campaign creation
-- Top up from **Settings → Credit wallet & payment methods**
-- Switch to card payment (with or without partial credit)
+- Click **Top up wallet** (or **Add backup card & top up**) on the Review step
+- Top up from **Settings → Credit wallet & payment methods**, then return to finish create
 
 ## After the campaign is live
 
-- **Wallet campaigns** — ongoing spend and renewals draw from your wallet. See [Renewals](/learn/wallet/renewals). With [auto-recharge](/learn/wallet/auto-recharge) on, Soundlink can charge your active payment method when balance is short at renewal.
-- **Card campaigns** — renewals follow your Stripe subscription and auto-renew settings for subscription-backed campaigns.
+- Spend and renewals draw from your **credit wallet**.
+- Turn **auto-renew** on or off in campaign insights while the campaign is active and the cycle end date is still in the future.
+- With [auto-recharge](/learn/wallet/auto-recharge) on, Soundlink can charge your active payment method when balance is short at renewal.
+- Raise or lower daily budget with wallet credits — see [Campaign budget changes](/learn/wallet/campaign-budget-top-up).
+
+<Note>
+  Card charges for top-ups and auto-recharge are processed securely by Stripe. That is separate from campaign billing: new campaigns are not created as per-campaign Stripe subscriptions in this flow.
+</Note>

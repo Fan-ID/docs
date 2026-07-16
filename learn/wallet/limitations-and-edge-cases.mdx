@@ -17,32 +17,37 @@ This page collects product limits and non-obvious behavior confirmed in Soundlin
 
 ## Payment methods and auto-recharge
 
-- Only one payment method can be **Active** per workspace.
+- Only one payment method can be **Active** per workspace (used for auto-recharge).
+- Manual top-up can charge any saved method that is not detached.
 - Auto-recharge requires an active payment method.
 - Deactivating or removing the last active method turns auto-recharge **off**.
 - Detached or expired methods cannot be reactivated — add a new method.
 - Monthly cap (optional) limits auto-charges per **calendar month**.
 - Auto-recharge does not turn on only because you saved a card — you enable it (or Soundlink enables it when you add a first active method in some flows).
 
-## Pay with wallet at creation
+## Paying at campaign creation
 
-- Balance must cover **100%** of the first cycle total (`daily budget × duration`).
-- Partial balance alone is **not** enough for full wallet payment — use card checkout with partial credit instead, or [top up](/learn/wallet/top-up) from the Review step.
+- New campaigns are **wallet-first** — there is no Stripe subscription checkout option on Review.
+- Balance must cover **100%** of the first cycle total (`daily budget × duration`) before create succeeds.
+- If balance is short, [top up](/learn/wallet/top-up) from the Review step (add a backup payment method first if you have none).
+- A backup card is **not** charged for the campaign create itself; it is for top-ups and renewal auto-recharge.
 
-## Partial credit on card checkout
+## Campaign budget changes
 
-- Maximum applicable credit: `min(wallet balance, cycle total)`.
-- Credits reserve **immediately** when you apply them.
-- Abandoned checkout: discount expires in about **one hour**; reserved credits are refunded to your wallet shortly after expiry (usually within a few minutes, not necessarily the instant the hour ends).
-- UI copy may mention ~60 minutes; the discount expires after about **one hour**.
-
-## Campaign budget top-up
+**Increase**
 
 - Wallet campaigns only, **active** status
 - Requires **more than two days** left in the cycle
 - Minimum **$1/day** effective increase
 - **Next renewal only** mode does not debit the wallet for the current cycle
-- Cannot mix wallet and card funding on the same campaign
+
+**Lower**
+
+- Wallet campaigns only, **active** status
+- Requires **more than three days** left in the cycle
+- Minimum target daily budget in the app is **$10/day**
+- Unused remaining-cycle budget is refunded to the wallet
+- Modes: current cycle only, or current cycle and renewals
 
 ## Stopping a wallet campaign
 
@@ -87,14 +92,14 @@ Disabled when the campaign is **stopped**, **ended**, **creating**, **renewing**
 
 ## Workspace plan (upgrade / downgrade)
 
-- Plan tier changes **Ad fees**, which affects **renewal debits** and **campaign budget top-up** math.
+- Plan tier changes **Ad fees**, which affects **renewal debits** and **campaign budget** math.
 - Plan changes do **not** automatically credit or debit your wallet balance.
 
 ## Campaign statuses to know
 
 | Status | Wallet relevance |
 | --- | --- |
-| **active** | Normal operation; top-up and stop available |
+| **active** | Normal operation; budget changes and stop available |
 | **renewing** | Renewal in progress; wait before stopping |
 | **renew_failed** | Needs top-up (or successful auto-recharge); stop still available |
 | **stopped** | Terminal; no further wallet charges for new cycles |
@@ -106,7 +111,8 @@ Disabled when the campaign is **stopped**, **ended**, **creating**, **renewing**
 - Top-up or balance not updating after successful payment
 - Renew failed after topping up or with auto-recharge enabled
 - Refund missing after stop or end
-- Budget top-up debited but budget unchanged
+- Budget increase debited but budget unchanged
+- Budget lowered but refund missing
 - Payment method or auto-recharge not behaving as expected
 
 Contact [hello@getsoundlink.com](mailto:hello@getsoundlink.com) with your workspace name, campaign name, and approximate time of the transaction.
