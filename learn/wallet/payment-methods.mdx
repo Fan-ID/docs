@@ -1,0 +1,58 @@
+---
+title: Payment methods
+description: Save and manage payment methods for wallet top-ups and auto-recharge.
+---
+
+You can save multiple payment methods to your workspace. Soundlink uses the **active** method for manual top-ups and for [auto-recharge](/learn/wallet/auto-recharge).
+
+## Where to manage them
+
+Go to **Settings → Credit wallet & payment methods**. The **Saved payment methods** section lists every method on your workspace.
+
+## Labels
+
+Each saved method is labeled as either:
+
+| Label | Meaning |
+| --- | --- |
+| **Active** | Currently used for top-ups and auto-recharge |
+| **Inactive** | Saved but not currently in use |
+
+Only one payment method can be **Active** at a time.
+
+## What you see on each method
+
+- **Cards** — last four digits and expiration date
+- **PayPal** — linked email address (when available)
+
+## Add a payment method
+
+1. Click **Add payment method**.
+2. Choose **Card** to add a card, or **Pay with more methods** for Apple Pay, Google Pay, PayPal, and similar options.
+3. Complete the Stripe setup flow.
+
+If the card form or other methods do not appear, use **Pay without Link** when Stripe shows that option.
+
+After setup succeeds, the new method appears in the list. If you had no active method, Soundlink typically activates the new one and can enable [auto-recharge](/learn/wallet/auto-recharge) for your workspace.
+
+## Manage an existing method
+
+Use the **⋯** menu next to a saved method to:
+
+- Set it as your **active** method
+- Set it as **inactive**
+- **Remove** it from the workspace
+
+<Warning>
+  If you deactivate or remove your only active payment method, Soundlink turns **auto-recharge** off until you activate another method.
+</Warning>
+
+## Detached or expired methods
+
+If Stripe removes a method (for example, the card is detached or expires), Soundlink marks it so it cannot be reactivated. Add a new payment method instead.
+
+## Related pages
+
+- [Top up](/learn/wallet/top-up) — charge a saved method to add credits
+- [Auto-recharge](/learn/wallet/auto-recharge) — automatic charges from the active method
+- [Limitations & edge cases](/learn/wallet/limitations-and-edge-cases)

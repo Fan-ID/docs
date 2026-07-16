@@ -1,40 +1,39 @@
 ---
 title: Top up
-description: Add credits to your workspace credit wallet with a one-time card payment.
+description: Add credits to your workspace credit wallet with a one-time payment from a saved payment method.
 ---
 
-Top up adds credits to your workspace balance through **Stripe Checkout**. Each top-up is a separate one-time payment — it is not a subscription.
-
-<Frame caption="Top up wallet — choose an amount and continue to Stripe Checkout">
-  <img
-    src="/images/wallet/top-up-dialog.png"
-    alt="Top up wallet dialog with preset amounts, custom amount field, and Continue to payment button"
-  />
-</Frame>
+Top up adds credits to your workspace balance. Each top-up is a **one-time payment** — it is not a subscription. You only pay when you choose to add credits, or when [auto-recharge](/learn/wallet/auto-recharge) charges your active card for you.
 
 ## How to top up
 
-1. Go to **Settings → Credit wallet**.
-2. Click **Top up** (or the equivalent action on the balance card).
+1. Go to **Settings → Credit wallet & payment methods**.
+2. Click **Top up wallet**.
 3. Choose a preset amount or enter a custom amount.
-4. Complete payment in Stripe Checkout.
-5. After success, you return to the Credit wallet page and your balance updates.
+4. Select a payment method from the list.
+5. Click **Pay**.
 
-Preset amounts in the app are **$100**, **$250**, **$500**, and **$1,000**. You can also enter a custom amount within the limits below.
+Credits are added after payment succeeds. Your balance and [ledger](/learn/wallet/balance-and-ledger) update shortly after.
+
+If you have no saved method yet, Soundlink prompts you to [add a payment method](/learn/wallet/payment-methods) first, then continue to top up.
 
 ## Amount limits
+
+Preset amounts in the app are **$100**, **$250**, **$500**, and **$1,000**. You can also enter a custom amount within the limits below.
 
 | Limit | Value |
 | --- | --- |
 | Minimum | **$50** |
 | Maximum | **$100,000** |
 
-Amounts outside this range cannot proceed to checkout.
+Amounts outside this range cannot proceed.
+
+## Top up during campaign creation
+
+You can also top up without leaving the campaign creation flow. If you choose **Pay with wallet** at checkout and your balance is too low, a **Top up wallet** option appears in the Review step. Completing the top-up brings you back to finish creating the campaign.
 
 ## After payment
 
-- Stripe may calculate tax automatically depending on your billing details.
-- An invoice can be generated for the payment.
 - Credits appear in your ledger as a **topup** event.
 - If you have wallet campaigns in **renew failed** status with **auto-renew still on**, Soundlink may retry renewal after your balance increases.
 
@@ -42,10 +41,12 @@ Amounts outside this range cannot proceed to checkout.
   Top-up credits are for your workspace only. They cannot be transferred to another workspace or withdrawn as cash.
 </Note>
 
-## Cancelled checkout
+## Cancelled or failed payment
 
-If you cancel Stripe Checkout, no credits are added and your balance stays the same. You can start a new top-up at any time.
+If you cancel before paying, or payment fails, no credits are added and your balance stays the same. Try again or contact support if the problem continues.
 
-## Failed verification
+## Related pages
 
-If you return from checkout but payment verification fails, the Credit wallet page shows a failure state. Your balance is unchanged until payment succeeds. Try topping up again or contact support if the problem continues.
+- [Payment methods](/learn/wallet/payment-methods)
+- [Auto-recharge](/learn/wallet/auto-recharge)
+- [Balance & ledger](/learn/wallet/balance-and-ledger)

@@ -144,20 +144,22 @@ Example: a new topic **“Campaign insights”** under Learn.
 
 ## Screenshots
 
+Screenshots are optional. When you add them:
+
 1. Save images under `images/<topic>/` (e.g. `images/wallet/top-up-dialog.png`).
 2. Use PNG or WebP; keep file sizes reasonable (compress if needed).
 3. Insert with a caption:
 
 ```mdx
-<Frame caption="Top up wallet — choose an amount and continue to Stripe Checkout">
+<Frame caption="Top up wallet — choose an amount and select a payment method">
   <img
     src="/images/wallet/top-up-dialog.png"
-    alt="Top up dialog with preset amounts and Continue to payment button"
+    alt="Top up dialog with preset amounts, payment method list, and Pay button"
   />
 </Frame>
 ```
 
-Always write a descriptive **alt** text (accessibility).
+Always write a descriptive **alt** text (accessibility). Wallet Learn pages currently ship without screenshots — add updated captures when available.
 
 ---
 
