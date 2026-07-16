@@ -97,6 +97,8 @@
                 "pages": [
                   "learn/wallet/index",
                   "learn/wallet/balance-and-ledger",
+                  "learn/wallet/payment-methods",
+                  "learn/wallet/auto-recharge",
                   "learn/wallet/top-up",
                   "learn/wallet/paying-for-campaigns",
                   "learn/wallet/renewals",

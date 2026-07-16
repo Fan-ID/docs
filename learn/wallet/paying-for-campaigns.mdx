@@ -5,13 +5,6 @@ description: Pay with card, pay fully from your wallet, or apply wallet credits 
 
 When you finish campaign setup, the review step shows how you will pay for the **first cycle**. Your daily budget and campaign duration determine the cycle total shown in the app.
 
-<Frame caption="Campaign checkout — Stripe card payment or pay with wallet">
-  <img
-    src="/images/wallet/checkout-payment-options.png"
-    alt="Review step payment options showing Stripe card checkout, Pay with wallet, and apply credits to Stripe checkout"
-  />
-</Frame>
-
 ## Cycle total at creation
 
 For the first cycle at checkout, the total is:
@@ -53,7 +46,7 @@ Choose **Pay with wallet** when your balance covers the **entire first cycle tot
 
 - The full cycle amount is deducted from your wallet when the campaign is created.
 - No Stripe subscription is created for that cycle's upfront payment.
-- If balance is insufficient, this option is disabled and you must top up or pay by card.
+- If balance is insufficient, this option is disabled until you top up or pay by card.
 
 Requirements shown in the app:
 
@@ -61,9 +54,15 @@ Requirements shown in the app:
 
 ## Insufficient balance
 
-If you try to pay with wallet without enough credits, Soundlink blocks creation and shows how much you need versus what you have. Top up from **Settings → Credit wallet** or switch to card payment (with or without partial credit).
+If you try to pay with wallet without enough credits, Soundlink blocks creation and shows how much you need versus what you have.
+
+You can:
+
+- **Top up wallet** from the Review step without leaving campaign creation
+- Top up from **Settings → Credit wallet & payment methods**
+- Switch to card payment (with or without partial credit)
 
 ## After the campaign is live
 
-- **Wallet campaigns** — ongoing spend and renewals draw from your wallet. See [Renewals](/learn/wallet/renewals).
+- **Wallet campaigns** — ongoing spend and renewals draw from your wallet. See [Renewals](/learn/wallet/renewals). With [auto-recharge](/learn/wallet/auto-recharge) on, Soundlink can charge your active payment method when balance is short at renewal.
 - **Card campaigns** — renewals follow your Stripe subscription and auto-renew settings for subscription-backed campaigns.

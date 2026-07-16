@@ -1,0 +1,54 @@
+---
+title: Auto-recharge
+description: Automatically top up your credit wallet when balance is insufficient for renewals.
+---
+
+**Auto-recharge** tops up your wallet from your **active** saved payment method when your balance is insufficient for automation actions such as campaign renewals.
+
+It is a setting you control. Saving a payment method alone does **not** turn auto-recharge on — you enable it explicitly (Soundlink may also enable it when you add your first active method, depending on the flow you use).
+
+## Requirements
+
+- At least one [payment method](/learn/wallet/payment-methods) with status **Active**
+- Auto-recharge enabled on **Settings → Credit wallet & payment methods**
+
+## How to configure
+
+1. Go to **Settings → Credit wallet & payment methods**.
+2. In **Auto-recharge**, turn on **Enable auto-recharge**.
+3. Optionally turn on **Monthly cap (USD)** and enter a maximum amount Soundlink can auto-charge per calendar month.
+4. Click **Save settings** if you changed the monthly cap.
+
+Leave the monthly cap off if you do not want a monthly limit.
+
+## What happens at renewal
+
+When a wallet campaign is due to renew and your balance cannot cover the next cycle:
+
+1. If **auto-recharge is on**, Soundlink charges your active payment method for the amount needed (subject to the monthly cap).
+2. Credits are added to your wallet, then the renewal continues.
+3. If the charge fails, the cap is exceeded, or auto-recharge is off, the campaign can move to **renew failed** — top up manually to recover. See [Renewals](/learn/wallet/renewals).
+
+## Monthly cap
+
+The monthly cap limits how much Soundlink can auto-charge your active card in a **single calendar month**, so unexpected spend cannot run away.
+
+| Setting | Behavior |
+| --- | --- |
+| Cap **off** | No monthly auto-charge limit |
+| Cap **on** | Auto-charges stop once the month’s auto-recharge total would exceed the cap |
+
+If a needed auto-charge would exceed the cap, Soundlink does not charge. Top up manually or raise the cap.
+
+## Turn off auto-recharge
+
+Toggle **Enable auto-recharge** off at any time. Running campaigns are not stopped by this change — they keep using your current wallet balance until the next renewal needs more credits.
+
+Turning auto-recharge off can also deactivate active payment methods so cards stay in sync with the setting. You can activate a method again later when you re-enable auto-recharge.
+
+## Related pages
+
+- [Payment methods](/learn/wallet/payment-methods)
+- [Renewals](/learn/wallet/renewals)
+- [Top up](/learn/wallet/top-up)
+- [Upcoming renewals](/learn/wallet/renewals#upcoming-renewals)

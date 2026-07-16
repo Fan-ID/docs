@@ -5,33 +5,31 @@ description: Prepaid workspace balance you use to fund Soundlink campaigns witho
 
 The **credit wallet** is a prepaid balance in US dollars for your **workspace** (organization). You add credits by topping up, then spend them when you launch or renew campaigns.
 
-Credits live at the workspace level — they are shared by everyone in the organization, not tied to a single user account.
-
-<Frame caption="Credit wallet — balance and transaction history">
-  <img
-    src="/images/wallet/overview-ledger.png"
-    alt="Credit wallet settings page showing current balance, Top up wallet button, and transaction history table"
-  />
-</Frame>
+Credits live at the workspace level — they are shared by everyone in the organization, not tied to a single user account. The Credit Wallet is available to every Soundlink organization.
 
 ## Where to find it
 
-Open **Settings → Credit wallet** in your workspace. You will see:
+Open **Settings → Credit wallet & payment methods**. This page combines:
 
-- **Current balance** — available credits right now
-- **Transaction history** — top-ups, deductions, and refunds with running balance
+- **Current balance** — available credits right now, with the date last updated
+- **Saved payment methods** — cards and other methods saved to your workspace
+- **Auto-recharge** — settings for automatically topping up your wallet
+- **Upcoming renewals** — wallet-funded campaigns renewing in the next 7 days
+- **Activity** — a full log of top-ups and deductions, with the date, event, related campaign (if any), amount, and running balance after each transaction
 
-You can also see your balance when creating a campaign or managing a wallet-funded campaign from campaign insights.
+You can also see your wallet balance when creating a new campaign, or on a wallet-funded campaign's row in your dashboard.
 
 ## What you can do with credits
 
 | Action | Summary |
 | --- | --- |
-| [Top up](/learn/wallet/top-up) | Buy credits with a one-time card payment |
+| [Top up](/learn/wallet/top-up) | Add credits with a one-time payment from a saved payment method |
+| [Save payment methods](/learn/wallet/payment-methods) | Store cards (and other methods) for top-ups and auto-recharge |
+| [Auto-recharge](/learn/wallet/auto-recharge) | Automatically top up when balance is short for renewals |
 | [Pay for a campaign](/learn/wallet/paying-for-campaigns) | Fund a full cycle from the wallet, or apply credits as a discount at Stripe checkout |
-| [Renew automatically](/learn/wallet/renewals) | Wallet campaigns can renew each cycle if auto-renew is on and balance is sufficient |
+| [Renew automatically](/learn/wallet/renewals) | Wallet campaigns renew each cycle if auto-renew is on and balance is sufficient (or auto-recharge covers the gap) |
 | [Increase campaign budget](/learn/wallet/campaign-budget-top-up) | Spend credits to raise daily budget on an active wallet campaign |
-| [Stop a campaign](/learn/wallet/limitations-and-edge-cases#stopping-a-wallet-campaign) | Unused credits for the current cycle can return to your wallet |
+| [Stop a campaign](/learn/wallet/limitations-and-edge-cases#stopping-a-wallet-campaign) | Unused credits for the current cycle return to your wallet |
 
 ## Payment options at checkout
 
@@ -42,17 +40,25 @@ When you create a paid growth campaign, Soundlink offers:
 
 You must have enough balance for the option you choose. See [Paying for campaigns](/learn/wallet/paying-for-campaigns) for details.
 
+If you choose wallet payment and your balance is too low, a **Top up wallet** option appears in the Review step so you can add credits without leaving campaign creation.
+
 ## Related pages
 
 <CardGroup cols={2}>
   <Card title="Balance & ledger" icon="list" href="/learn/wallet/balance-and-ledger">
     How balance is calculated and how to read transaction history.
   </Card>
-  <Card title="Top up" icon="credit-card" href="/learn/wallet/top-up">
+  <Card title="Payment methods" icon="credit-card" href="/learn/wallet/payment-methods">
+    Save and manage cards used for top-ups and auto-recharge.
+  </Card>
+  <Card title="Auto-recharge" icon="bolt" href="/learn/wallet/auto-recharge">
+    Keep renewals running when balance runs short.
+  </Card>
+  <Card title="Top up" icon="plus" href="/learn/wallet/top-up">
     Add credits to your workspace.
   </Card>
   <Card title="Renewals" icon="rotate" href="/learn/wallet/renewals">
-    Auto-renew, failed renewals, and low-balance alerts.
+    Auto-renew, failed renewals, and upcoming renewals.
   </Card>
   <Card title="Limitations" icon="triangle-exclamation" href="/learn/wallet/limitations-and-edge-cases">
     Rules, statuses, and edge cases.

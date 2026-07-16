@@ -3,34 +3,25 @@ title: Balance & ledger
 description: How your credit wallet balance works and how to read transaction history.
 ---
 
-Your **current balance** is the amount of credits available to spend right now. Every change — top-up, campaign charge, or refund — is recorded in your **ledger** (transaction history).
-
-<Frame caption="Transaction history — topup, deduct, and refund events">
-  <img
-    src="/images/wallet/ledger-balance-history.png"
-    alt="Credit wallet ledger table with date, event type, amount, and balance after each transaction"
-  />
-</Frame>
+Your **current balance** is the amount of credits available to spend right now. Every change — top-up, campaign charge, or refund — is recorded in your **ledger** (Activity on **Settings → Credit wallet & payment methods**).
 
 ## Balance basics
 
 - Balance is stored **per workspace**, not per user.
 - Amounts are in **US dollars**, shown with two decimal places.
-- The balance on the Credit wallet page updates after successful top-ups, campaign charges, and refunds.
+- The balance updates after successful top-ups (manual or auto-recharge), campaign charges, and refunds.
 
 If the page cannot load balance or history, you may see a partial-error banner. Retry refreshing the page or contact support if the issue persists.
 
 ## Ledger events
 
-Each row in transaction history includes a date, event type, amount, and **balance after** that transaction.
+Each row in Activity includes a date, event type, amount, and **balance after** that transaction. Campaign-linked rows may include a link to the related campaign when available.
 
 | Event type | Meaning |
 | --- | --- |
-| **topup** | Credits added to your wallet (for example, after a successful top-up checkout) |
+| **topup** | Credits added (manual top-up or auto-recharge) |
 | **deduct** | Credits spent (campaign allocation, budget top-up, or credit reserved for a Stripe checkout discount) |
 | **refund** | Credits returned (unused spend after stop/end, expired checkout discount, or reversed campaign top-up) |
-
-Campaign-linked rows may include a link to the related campaign in insights when available.
 
 ## What reduces balance
 
@@ -39,13 +30,15 @@ Credits are deducted when you:
 - **Create a wallet campaign** — the full first cycle is charged upfront (`daily budget × campaign duration`).
 - **Apply credits at Stripe checkout** — the amount you choose is reserved immediately and applied as a discount on the card payment.
 - **Top up an active wallet campaign's budget** — credits pay for the budget increase (see [Campaign budget top-up](/learn/wallet/campaign-budget-top-up)).
+- **Renew a wallet campaign** — the next cycle total (including Ad fees) is debited when renewal succeeds.
 
 ## What increases balance
 
 Credits are added when you:
 
-- **Complete a wallet top-up** — Stripe checkout succeeds and credits are applied to your workspace.
-- **Stop or end a campaign with unused spend** — unspent credits for the cycle can return to your wallet based on actual ad spend.
+- **Complete a wallet top-up** — payment from a saved method succeeds.
+- **Auto-recharge runs** — Soundlink charges your active method because balance was short for a renewal (or similar automation).
+- **Stop or end a campaign with unused spend** — unspent credits for the cycle return to your wallet based on actual ad spend.
 - **Abandon a Stripe checkout after applying credits** — reserved credits are refunded after the checkout discount expires (typically within about an hour).
 - **Reverse an unapplied campaign budget top-up** — if a budget top-up could not be applied, credits may be refunded.
 
