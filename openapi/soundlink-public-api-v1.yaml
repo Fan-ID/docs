@@ -1234,19 +1234,7 @@ components:
 
     CampaignSummary:
       type: object
-      required:
-        [
-          campaignId,
-          organizationId,
-          status,
-          socialPlatform,
-          dailyBudget,
-          totalBudget,
-          campaignDuration,
-          apiManageable,
-          createdAt,
-          updatedAt,
-        ]
+      required: [campaignId, organizationId, status, socialPlatform, dailyBudget, totalBudget, campaignDuration, apiManageable, createdAt, updatedAt]
       properties:
         campaignId:
           type: string
@@ -1760,19 +1748,7 @@ components:
         Campaign-level totals aggregated across all countries for the requested
         date range. Field names align with the `campaign_country_daily` row
         schema — values here are the sum of country rows.
-      required:
-        [
-          listeners,
-          streams,
-          followers,
-          spend_media,
-          spend_total,
-          fees,
-          currency,
-          cpl,
-          cpf,
-          streams_per_listener,
-        ]
+      required: [listeners, streams, followers, spend_media, spend_total, fees, currency, cpl, cpf, streams_per_listener]
       properties:
         listeners:
           type: integer
