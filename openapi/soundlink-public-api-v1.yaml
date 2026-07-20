@@ -37,6 +37,7 @@ tags:
     description: Partner video library import for Full Control campaigns
 
 paths:
+
   /v1/ping:
     get:
       operationId: ping
@@ -151,8 +152,8 @@ paths:
                       dailyBudget: 20.0
                       totalBudget: 140.0
                       campaignDuration: 7
-                      createdAt: '2026-04-01T10:00:00Z'
-                      updatedAt: '2026-04-08T12:00:00Z'
+                      createdAt: "2026-04-01T10:00:00Z"
+                      updatedAt: "2026-04-08T12:00:00Z"
                   pagination:
                     page: 1
                     pageSize: 10
@@ -193,55 +194,55 @@ paths:
               trackCampaign:
                 summary: Campaign promoting a single track
                 value:
-                  spotifyUrl: 'https://open.spotify.com/track/6habFhsOp2NvndAvgiJ01P'
+                  spotifyUrl: "https://open.spotify.com/track/6habFhsOp2NvndAvgiJ01P"
                   dailyBudget: 25
                   durationDays: 14
                   genre: Pop
-                  campaignName: 'My Summer Single'
+                  campaignName: "My Summer Single"
                   strategyType: maximum_growth
                   creativeDirection:
                     type: do_it_for_me
                   trackOptions:
-                    artistIdFollow: 'artist-uuid'
-                  clonedFromCampaignId: 'campaign-uuid'
+                    artistIdFollow: "artist-uuid"
+                  clonedFromCampaignId: "campaign-uuid"
               playlistCampaign:
                 summary: Campaign promoting a playlist
                 value:
-                  spotifyUrl: 'https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M'
+                  spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
                   dailyBudget: 25
                   durationDays: 14
                   genre: Pop
-                  campaignName: 'Summer Vibes Playlist'
+                  campaignName: "Summer Vibes Playlist"
                   strategyType: maximum_growth
                   creativeDirection:
                     type: do_it_for_me
               fullControlCampaign:
                 summary: Campaign with partner-supplied creative (full control)
                 value:
-                  spotifyUrl: 'https://open.spotify.com/track/6habFhsOp2NvndAvgiJ01P'
+                  spotifyUrl: "https://open.spotify.com/track/6habFhsOp2NvndAvgiJ01P"
                   dailyBudget: 40
                   durationDays: 21
                   genre: Hip-Hop/R&B
-                  campaignName: 'My Summer Single'
+                  campaignName: "My Summer Single"
                   strategyType: custom
                   creativeDirection:
                     type: full_control
                     selectedCreatives:
-                      - videoId: '8f14e45f-ceea-467e-9de5-e7d0b4d4e6bb'
-                      - videoId: '3c9b1a2d-1a2f-4a1e-9c3b-0a1b2c3d4e5f'
+                      - videoId: "8f14e45f-ceea-467e-9de5-e7d0b4d4e6bb"
+                      - videoId: "3c9b1a2d-1a2f-4a1e-9c3b-0a1b2c3d4e5f"
                   tierTargeting:
                     customTierIds: [123, 456]
                     customTiers:
-                      - name: 'US/UK'
-                        countries: ['US', 'GB']
+                      - name: "US/UK"
+                        countries: ["US", "GB"]
                         language: en
                         percentBudget: 60
                       - name: LatAm
-                        countries: ['MX', 'AR']
+                        countries: ["MX", "AR"]
                         language: es
                         percentBudget: 40
                   trackOptions:
-                    artistIdFollow: 'artist-uuid'
+                    artistIdFollow: "artist-uuid"
       responses:
         '201':
           description: Campaign created
@@ -292,8 +293,8 @@ paths:
                   totalBudget: 140.0
                   campaignDuration: 7
                   strategyType: custom
-                  createdAt: '2026-04-01T10:00:00Z'
-                  updatedAt: '2026-04-08T12:00:00Z'
+                  createdAt: "2026-04-01T10:00:00Z"
+                  updatedAt: "2026-04-08T12:00:00Z"
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -498,7 +499,7 @@ paths:
                 $ref: '#/components/schemas/CampaignTiersResponse'
               example:
                 data:
-                  lastUpdate: '2026-01-01T00:00:00Z'
+                  lastUpdate: "2026-01-01T00:00:00Z"
                   tiers:
                     - tierId: 1
                       tierName: US
@@ -571,14 +572,14 @@ paths:
                   value:
                     error:
                       code: invalid_request
-                      message: 'Tier updates are only supported for wallet campaigns.'
+                      message: "Tier updates are only supported for wallet campaigns."
                     meta:
                       requestId: 550e8400-e29b-41d4-a716-446655440000
                 invalid_tier_status:
                   value:
                     error:
                       code: invalid_tier_status
-                      message: 'At least one tier must be enabled'
+                      message: "At least one tier must be enabled"
                     meta:
                       requestId: 550e8400-e29b-41d4-a716-446655440000
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -681,14 +682,14 @@ paths:
                 $ref: '#/components/schemas/MetricsBreakdownResponse'
               example:
                 data:
-                  schemaVersion: '1.0'
+                  schemaVersion: "1.0"
                   items:
                     - provider: soundlink
                       account_id: a7ac3173-2f71-4e79-921f-d15d7112dd11
-                      schema_version: '1.0'
-                      report_date: '2026-04-01'
+                      schema_version: "1.0"
+                      report_date: "2026-04-01"
                       report_date_timezone: UTC
-                      exported_at: '2026-05-20T03:00:00Z'
+                      exported_at: "2026-05-20T03:00:00Z"
                       campaign_id: f1e28d31-c358-4284-9bef-00a2334625fd
                       campaign_name: Sleep Playlist
                       campaign_target_type: track
@@ -857,14 +858,14 @@ paths:
                 $ref: '#/components/schemas/EngagementBreakdownResponse'
               example:
                 data:
-                  schemaVersion: '1.0'
+                  schemaVersion: "1.0"
                   items:
                     - provider: soundlink
                       account_id: a7ac3173-2f71-4e79-921f-d15d7112cc9a
-                      schema_version: '1.0'
-                      report_date: '2026-04-08'
+                      schema_version: "1.0"
+                      report_date: "2026-04-08"
                       report_date_timezone: UTC
-                      exported_at: '2026-05-22T10:12:11Z'
+                      exported_at: "2026-05-22T10:12:11Z"
                       campaign_id: 8ccd7b88-2591-4b94-848f-f142f5c6bba1
                       campaign_name: 9 To 5
                       campaign_target_type: track
@@ -1003,7 +1004,7 @@ paths:
             schema:
               $ref: '#/components/schemas/VideoImportRequest'
             example:
-              url: 'https://cdn.example.com/promo.mp4'
+              url: "https://cdn.example.com/promo.mp4"
       responses:
         '200':
           description: Duplicate video already in the organization's library
@@ -1867,7 +1868,7 @@ components:
         schema_version:
           type: string
           description: Schema version. Pin your ingest pipeline to this value.
-          example: '1.0'
+          example: "1.0"
         report_date:
           type: string
           format: date
@@ -1983,7 +1984,7 @@ components:
             schemaVersion:
               type: string
               description: Version of the `campaign_country_daily` row schema. Pin your ingest pipeline to this.
-              example: '1.0'
+              example: "1.0"
             items:
               type: array
               items:
@@ -2036,7 +2037,7 @@ components:
         schema_version:
           type: string
           description: Schema version string. Pin your ingest pipeline to this value.
-          example: '1.0'
+          example: "1.0"
         report_date:
           type: string
           format: date
@@ -2157,7 +2158,7 @@ components:
             schemaVersion:
               type: string
               description: Version of the `campaign_engagement_daily` row schema. Pin your ingest pipeline to this.
-              example: '1.0'
+              example: "1.0"
             items:
               type: array
               items:
@@ -2247,14 +2248,14 @@ components:
               value:
                 error:
                   code: invalid_query_parameter
-                  message: 'pageSize must be an integer between 1 and 500.'
+                  message: "pageSize must be an integer between 1 and 500."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             invalid_date_range:
               value:
                 error:
                   code: invalid_date_range
-                  message: 'endDate must not be before startDate.'
+                  message: "endDate must not be before startDate."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2271,14 +2272,14 @@ components:
               value:
                 error:
                   code: invalid_request
-                  message: 'Missing required field: spotifyUrl.'
+                  message: "Missing required field: spotifyUrl."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             missing_idempotency_key:
               value:
                 error:
                   code: invalid_request
-                  message: 'Idempotency-Key header is required and must not be empty.'
+                  message: "Idempotency-Key header is required and must not be empty."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2298,14 +2299,14 @@ components:
               value:
                 error:
                   code: invalid_api_key
-                  message: 'Authorization header is missing or malformed.'
+                  message: "Authorization header is missing or malformed."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             api_key_revoked:
               value:
                 error:
                   code: api_key_revoked
-                  message: 'This API key has been revoked. Contact Soundlink Engineering to mint a new key.'
+                  message: "This API key has been revoked. Contact Soundlink Engineering to mint a new key."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2318,7 +2319,7 @@ components:
           example:
             error:
               code: insufficient_scope
-              message: 'This key does not have the metrics:read scope.'
+              message: "This key does not have the metrics:read scope."
             meta:
               requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2335,14 +2336,14 @@ components:
               value:
                 error:
                   code: insufficient_scope
-                  message: 'This key does not have the campaigns:write scope.'
+                  message: "This key does not have the campaigns:write scope."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             wallet_not_enabled:
               value:
                 error:
                   code: wallet_not_enabled
-                  message: 'This organization does not have wallet billing enabled.'
+                  message: "This organization does not have wallet billing enabled."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2355,7 +2356,7 @@ components:
           example:
             error:
               code: insufficient_credit
-              message: 'Insufficient wallet balance for this campaign.'
+              message: "Insufficient wallet balance for this campaign."
               details:
                 available: 120.00
                 required: 350.00
@@ -2373,49 +2374,49 @@ components:
               value:
                 error:
                   code: invalid_genre
-                  message: 'genre must be one of the supported values.'
+                  message: "genre must be one of the supported values."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             invalid_duration_or_budget:
               value:
                 error:
                   code: invalid_duration_or_budget
-                  message: 'dailyBudget and durationDays must be greater than 0.'
+                  message: "dailyBudget and durationDays must be greater than 0."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             invalid_daily_budget:
               value:
                 error:
                   code: invalid_daily_budget
-                  message: 'dailyBudget must be at least 10 (USD per day).'
+                  message: "dailyBudget must be at least 10 (USD per day)."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             invalid_duration_days:
               value:
                 error:
                   code: invalid_duration_days
-                  message: 'durationDays must be an integer from 7 to 30, or 60, or 90.'
+                  message: "durationDays must be an integer from 7 to 30, or 60, or 90."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             invalid_spotify_url:
               value:
                 error:
                   code: invalid_spotify_url
-                  message: 'spotifyUrl must be a valid Spotify track or playlist URL.'
+                  message: "spotifyUrl must be a valid Spotify track or playlist URL."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             invalid_tier_budget_allocation:
               value:
                 error:
                   code: invalid_tier_budget_allocation
-                  message: 'tierTargeting.customTiers[].percentBudget must sum to 100.'
+                  message: "tierTargeting.customTiers[].percentBudget must sum to 100."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             invalid_request_tier_targeting:
               value:
                 error:
                   code: invalid_request
-                  message: 'tierTargeting is only allowed when strategyType is custom.'
+                  message: "tierTargeting is only allowed when strategyType is custom."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2432,14 +2433,14 @@ components:
               value:
                 error:
                   code: idempotency_key_conflict
-                  message: 'This Idempotency-Key was already used with a different request body.'
+                  message: "This Idempotency-Key was already used with a different request body."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             in_progress:
               value:
                 error:
                   code: idempotency_key_conflict
-                  message: 'A request with this Idempotency-Key is still processing. Retry after a short delay.'
+                  message: "A request with this Idempotency-Key is still processing. Retry after a short delay."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2454,7 +2455,7 @@ components:
           example:
             error:
               code: tier_update_cooldown
-              message: 'Campaign tiers were updated in the last 72 hours. Wait for the cooldown to end before updating again.'
+              message: "Campaign tiers were updated in the last 72 hours. Wait for the cooldown to end before updating again."
             meta:
               requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2467,7 +2468,7 @@ components:
           example:
             error:
               code: campaign_not_found
-              message: 'Campaign not found.'
+              message: "Campaign not found."
             meta:
               requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2486,7 +2487,7 @@ components:
           example:
             error:
               code: rate_limit_exceeded
-              message: 'Rate limit exceeded. Retry after the number of seconds indicated in the Retry-After header.'
+              message: "Rate limit exceeded. Retry after the number of seconds indicated in the Retry-After header."
             meta:
               requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2499,6 +2500,6 @@ components:
           example:
             error:
               code: internal_error
-              message: 'An unexpected error occurred. Contact support with the requestId.'
+              message: "An unexpected error occurred. Contact support with the requestId."
             meta:
               requestId: 550e8400-e29b-41d4-a716-446655440000
