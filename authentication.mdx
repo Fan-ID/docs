@@ -99,13 +99,15 @@ Do **not** send Firebase Bearer tokens or legacy product headers on this host. M
 
 Scopes limit which endpoints a key can call. Select them when you create the key; they cannot be changed without minting a new key.
 
-| Scope             | Access                                               | Self-serve UI |
-| ----------------- | ---------------------------------------------------- | ------------- |
-| `campaigns:read`  | List campaigns, campaign detail                      | Yes           |
-| `metrics:read`    | Metrics overview, breakdown, exports                 | Yes           |
-| `campaigns:write` | Reserved for v2 (not available to customer keys yet) | No            |
+| Scope             | Access                                                                 | Self-serve UI |
+| ----------------- | ---------------------------------------------------------------------- | ------------- |
+| `campaigns:read`  | List campaigns, campaign detail, strategy catalog, campaign tiers      | Yes           |
+| `metrics:read`    | Metrics overview, breakdown, exports                                   | Yes           |
+| `campaigns:write` | Create/stop wallet campaigns, budget increase/decrease, tier updates   | Yes           |
+| `videos:write`    | Import partner videos for Full Control creatives                       | Yes           |
 
-Typical integrations enable **both** `campaigns:read` and `metrics:read`.
+Typical read-only integrations enable **both** `campaigns:read` and `metrics:read`.
+Add `campaigns:write` only when the integration should spend wallet credit or manage delivery.
 
 <Note>
   `GET /v1/ping` accepts any valid v1 key regardless of which read scopes you
@@ -140,10 +142,13 @@ Revoked keys stay visible in the list with status and date so you can audit past
 
 ## Ping vs data endpoints
 
-| Endpoint                           | Scope required                |
-| ---------------------------------- | ----------------------------- |
-| `GET /v1/ping`                     | Valid key only (any v1 scope) |
-| `GET /v1/campaigns`, metrics, etc. | Matching scope on the key     |
+| Endpoint                                      | Scope required                |
+| --------------------------------------------- | ----------------------------- |
+| `GET /v1/ping`                                | Valid key only (any v1 scope) |
+| `GET /v1/campaigns`, `/v1/strategies`, etc.   | `campaigns:read`              |
+| Metrics overview / breakdown / exports        | `metrics:read`                |
+| Create / stop / budget / tier write routes    | `campaigns:write`             |
+| Video import routes                           | `videos:write`                |
 
 ## Next
 
