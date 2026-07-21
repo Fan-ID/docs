@@ -1,0 +1,126 @@
+---
+title: Importing videos
+description: Build your organization's video library via the API — import MP4s by URL, poll processing status, and use videoIds in campaigns.
+---
+
+The Videos API lets you stock your organization's video library programmatically: import an MP4 by URL, wait for processing, and get back a `videoId`. You can do this independently of any campaign — for example, to sync your creative library ahead of time — and later use the `videoId` in [Full Control campaigns](/creating-campaigns#creative-direction).
+
+Requires the `videos:write` scope on your key (see [Authentication](/authentication#scopes-v1)).
+
+## Import a video
+
+`POST /v1/videos/import`
+
+Provide a **public HTTPS URL to an MP4 file (max 50 MB)**. Soundlink downloads the file, stages it, and starts the background processing pipeline:
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/videos/import' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{ "url": "https://cdn.example.com/creatives/summer-teaser.mp4" }'
+```
+
+Two possible success responses:
+
+- **`202`** — import accepted, processing in the background (`videoId` is omitted until ready):
+
+```json
+{
+  "data": { "sessionId": "session-uuid", "status": "processing" },
+  "meta": { "requestId": "..." }
+}
+```
+
+- **`200`** — your organization already has this exact video (content duplicate detected by hash). No reprocessing; the existing `videoId` is returned immediately:
+
+```json
+{
+  "data": { "sessionId": "session-uuid", "status": "ready", "videoId": "video-uuid" },
+  "meta": { "requestId": "..." }
+}
+```
+
+<Note>
+  Duplicate detection makes imports safe to repeat: re-importing the same file returns the existing
+  `videoId` instead of creating a copy or consuming extra plan quota.
+</Note>
+
+### URL requirements
+
+- **HTTPS only** — plain `http://` URLs are rejected
+- Must be **publicly reachable** (no auth walls, no private/internal addresses)
+- Content must be **MP4**, up to **50 MB**
+- The download must complete within ~45 seconds — very slow hosts fail; redirects are followed (up to 5 hops)
+
+Violations return `400 invalid_video_url` with a specific message.
+
+## Poll import status
+
+`GET /v1/videos/import/{sessionId}`
+
+Poll until `status` is `ready` or `failed`:
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/videos/import/SESSION_ID' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+| `status`     | Meaning                                                       |
+| ------------ | ------------------------------------------------------------- |
+| `processing` | Still ingesting — poll again in a few seconds                  |
+| `ready`      | Done — `videoId` is set and usable in campaigns                |
+| `failed`     | Ingestion failed — `error` contains the failure reason         |
+
+```json
+{
+  "data": { "sessionId": "session-uuid", "status": "ready", "videoId": "video-uuid" },
+  "meta": { "requestId": "..." }
+}
+```
+
+Session lookups are scoped to your organization — an unknown or foreign `sessionId` returns `404 video_import_session_not_found`.
+
+## Use the videoId in campaigns
+
+Once `ready`, pass the `videoId` in `creativeDirection.selectedCreatives` when [creating a campaign](/creating-campaigns#creative-direction) with `full_control`:
+
+```json
+{
+  "creativeDirection": {
+    "type": "full_control",
+    "selectedCreatives": [{ "videoId": "video-uuid" }]
+  }
+}
+```
+
+Imported videos also appear in your video library in the Soundlink app, alongside videos uploaded there.
+
+## Limits
+
+| Limit                | Value                            | On violation                        |
+| -------------------- | -------------------------------- | ----------------------------------- |
+| Rate limit           | **5 imports/hour** per API key   | `429` — honor `Retry-After`         |
+| File size            | **50 MB** per video              | `400 invalid_video_url`             |
+| Plan video quota     | Your plan's custom videos limit  | `403 video_import_limit_exceeded`   |
+| Organization storage | **2 GB** total                   | `403 video_import_limit_exceeded`   |
+
+<Note>
+  The video import rate limit (5/hour) is stricter than the general Public API rate limit and is
+  counted separately per API key.
+</Note>
+
+## Errors
+
+| HTTP | Code                              | When                                                              |
+| ---- | --------------------------------- | ------------------------------------------------------------------ |
+| 400  | `invalid_video_url`               | Not HTTPS, unreachable, not MP4, over 50 MB, or download timed out |
+| 403  | `insufficient_scope`              | Key missing the `videos:write` scope                               |
+| 403  | `video_import_limit_exceeded`     | Plan video quota or 2 GB organization storage exceeded             |
+| 404  | `video_import_session_not_found`  | Unknown session or another organization's session                  |
+| 429  | `rate_limit_exceeded`             | More than 5 imports in an hour (honor `Retry-After`)               |
+
+See [Errors](/errors) for the full list.
+
+## Next
+
+[Creating campaigns](/creating-campaigns) — use your `videoId` in a Full Control campaign · [API Reference](/api-reference)
