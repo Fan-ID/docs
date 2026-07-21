@@ -204,7 +204,6 @@ paths:
                     type: do_it_for_me
                   trackOptions:
                     artistIdFollow: "artist-uuid"
-                  clonedFromCampaignId: "campaign-uuid"
               playlistCampaign:
                 summary: Campaign promoting a playlist
                 value:
@@ -1525,7 +1524,9 @@ components:
               description: Pass-through artist identifier.
         clonedFromCampaignId:
           type: string
-          description: Campaign ID this campaign is cloned from. Must belong to the calling organization.
+          description: |
+            Reserved for future use — campaign cloning is not yet supported.
+            Sending this field currently returns `400 invalid_request`.
 
     CreateCampaignRequestWithoutTiers:
       allOf:
@@ -1663,7 +1664,8 @@ components:
           $ref: '#/components/schemas/BudgetIncreaseMode'
         targetDailyBudget:
           type: number
-          exclusiveMinimum: 0
+          minimum: 0
+          exclusiveMinimum: true
           description: |
             Optional absolute next-cycle daily budget (USD). Most useful with
             `mode: next_renewal`.

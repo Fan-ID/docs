@@ -36,6 +36,24 @@ Using the TypeScript SDK? API errors arrive as `{ data: null, error }` on every 
 | 429  | `rate_limit_exceeded`     | Per-key rate limit (honor `Retry-After`)    |
 | 500  | `internal_error`          | Unexpected failure — retry with backoff     |
 
+## Write endpoint codes
+
+Returned by campaign creation and management routes (`campaigns:write`). See [Creating campaigns](/creating-campaigns) and [Managing campaigns](/managing-campaigns).
+
+| HTTP | Code                             | When                                                              |
+| ---- | -------------------------------- | ------------------------------------------------------------------ |
+| 400  | `invalid_request`                | Missing/malformed body field, missing `Idempotency-Key`, non-wallet campaign, or a decrease rule violated |
+| 400  | `invalid_tier_status`            | Tier update items invalid (missing tiers, sum ≠ 100, none enabled) |
+| 402  | `insufficient_credit`            | Wallet balance too low — `details.available` / `details.required`  |
+| 403  | `wallet_not_enabled`             | Organization not enabled for wallet billing                        |
+| 409  | `idempotency_key_conflict`       | `Idempotency-Key` reused with a different body, or still processing |
+| 409  | `tier_update_cooldown`           | Tier update within 72 hours of the previous one                    |
+| 422  | `invalid_genre`                  | Genre not in the supported list                                    |
+| 422  | `invalid_daily_budget`           | `dailyBudget` below $10/day                                        |
+| 422  | `invalid_duration_days`          | `durationDays` outside 7–30 and not 60/90                          |
+| 422  | `invalid_spotify_url`            | Not a Spotify track or playlist link                               |
+| 422  | `invalid_tier_budget_allocation` | Tier percentages invalid (sum, count, or per-tier minimum)         |
+
 ## Pagination limits
 
 - Campaign list: `pageSize` max **100**

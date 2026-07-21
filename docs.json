@@ -82,6 +82,8 @@
                 "group": "API guides",
                 "pages": [
                   "syncing-campaigns",
+                  "creating-campaigns",
+                  "managing-campaigns",
                   "understanding-metrics",
                   "jsonl-exports"
                 ]
