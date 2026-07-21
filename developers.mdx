@@ -3,7 +3,7 @@ title: For Developers
 description: Sync Soundlink campaigns and metrics into your tools, warehouses, and apps.
 ---
 
-Soundlink's Public API lets partner organizations sync **campaigns** and **metrics** into their own tools and data warehouses.
+Soundlink's Public API lets partner organizations sync **campaigns** and **metrics** into their own tools and data warehouses — and **create and manage wallet-funded campaigns** programmatically.
 
 ## Get started
 
@@ -25,6 +25,13 @@ Not sure which to pick? See [SDK overview](/sdks) for a side-by-side comparison.
 <CardGroup cols={2}>
   <Card title="Syncing campaigns" icon="database" href="/syncing-campaigns">
     List campaigns, pagination, and warehouse join patterns.
+  </Card>
+  <Card title="Creating campaigns" icon="rocket" href="/creating-campaigns">
+    Create wallet-funded campaigns — strategies, budget rules, creatives, and
+    idempotent retries.
+  </Card>
+  <Card title="Managing campaigns" icon="sliders" href="/managing-campaigns">
+    Budget increase/decrease, geographic tier updates, and stopping delivery.
   </Card>
   <Card
     title="Understanding metrics"
@@ -93,7 +100,7 @@ Not sure which to pick? See [SDK overview](/sdks) for a side-by-side comparison.
   <Accordion title="Timestamps and v1 scope">
     All `createdAt` and `updatedAt` fields are **UTC** (ISO 8601 with `Z` suffix).
 
-    v1 covers campaigns and metrics. Write endpoints (including campaign creation) are on the roadmap.
+    v1 covers campaign and metrics reads plus wallet campaign writes: [create](/creating-campaigns), [budget changes, tier updates, and stop](/managing-campaigns).
 
   </Accordion>
 </AccordionGroup>

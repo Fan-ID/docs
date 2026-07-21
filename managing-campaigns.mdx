@@ -1,0 +1,165 @@
+---
+title: Managing campaigns
+description: Increase or decrease budget, update geographic tiers, and stop wallet campaigns via the API.
+---
+
+Once a campaign is running, the API lets you adjust its daily budget, reallocate geographic tiers, and stop delivery. All management endpoints require the `campaigns:write` scope and work on **wallet-funded campaigns only**.
+
+## Which campaigns can you manage?
+
+Campaign list and detail responses include an `apiManageable` boolean. It is `true` only for wallet-funded campaigns — the ones these endpoints accept. Calling a management endpoint on a non-manageable campaign returns `400 invalid_request` (for example, "Stopping is only supported for wallet campaigns.").
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
+# → check data.apiManageable before managing
+```
+
+<Note>
+  Stop and budget endpoints require the same [`Idempotency-Key`
+  header](/creating-campaigns#idempotency) as campaign creation: unique string up to 255
+  characters, honored for 24 hours, same key + same body replays the original response.
+</Note>
+
+## Increase budget
+
+`POST /v1/campaigns/{campaignId}/budget/increase`
+
+Adds budget using credits already in your wallet — there is no new card payment.
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/budget/increase' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Idempotency-Key: budget-inc-2026-07-21-01' \
+  -H 'Content-Type: application/json' \
+  -d '{ "amount": 100, "mode": "current_and_renewals" }'
+```
+
+| Mode                            | Effect                                                                                                 |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `current_cycle`                 | Spreads `amount` across the remaining days of this cycle; debits the wallet                            |
+| `next_renewal`                  | Sets a higher daily budget starting next cycle; no wallet debit now                                    |
+| `current_and_renewals` (default) | Both: raises the current cycle **and** keeps the higher daily budget on future renewals               |
+
+- `amount` is the total USD debit for the current cycle. With `mode: next_renewal` you may send `amount: 0` together with `targetDailyBudget` to set an absolute next-cycle daily budget.
+- The wallet is debited whenever the current cycle is increased. If the balance is too low, you get `402 insufficient_credit` with `details.available` and `details.required`.
+
+The response returns the wallet balance after the debit:
+
+```json
+{
+  "data": {
+    "campaignId": "campaign-uuid",
+    "mode": "current_and_renewals",
+    "amount": 100,
+    "walletBalance": 250,
+    "walletNextCycleDailyBudget": 35
+  },
+  "meta": { "requestId": "..." }
+}
+```
+
+## Decrease budget
+
+`POST /v1/campaigns/{campaignId}/budget/decrease`
+
+Lowers the campaign's daily budget to `targetDailyBudget` and refunds unused budget to your wallet.
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/budget/decrease' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Idempotency-Key: budget-dec-2026-07-21-01' \
+  -H 'Content-Type: application/json' \
+  -d '{ "targetDailyBudget": 15, "mode": "current_and_renewals" }'
+```
+
+Rules (violations return `400 invalid_request`):
+
+- `targetDailyBudget` must be at least **$10/day** and **lower** than the current daily budget
+- More than **3 days** must remain in the current billing cycle
+- Modes: `current_cycle` or `current_and_renewals` (default) — `next_renewal` is **not** supported for decreases
+
+A success response returns `accepted: true`. The refund of unused budget is applied to your wallet **asynchronously** after acceptance — it may take a moment to appear in your balance.
+
+## Update geographic tiers
+
+`GET /v1/campaigns/{campaignId}/tiers` (requires `campaigns:read`) returns the current allocation:
+
+```json
+{
+  "data": {
+    "lastUpdate": "2026-07-18T10:00:00Z",
+    "tiers": [
+      { "tierId": 1, "tierName": "US + UK", "isEnabled": true, "allocationPercent": 60 },
+      { "tierId": 2, "tierName": "DACH", "isEnabled": true, "allocationPercent": 40 }
+    ]
+  },
+  "meta": { "requestId": "..." }
+}
+```
+
+`PATCH /v1/campaigns/{campaignId}/tiers` enables/disables tiers and reallocates budget shares:
+
+```bash
+curl -sS -X PATCH 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/tiers' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "items": [
+      { "targetingTierId": 1, "isEnabled": true, "newAllocationPercent": 100 },
+      { "targetingTierId": 2, "isEnabled": false, "newAllocationPercent": 0 }
+    ]
+  }'
+```
+
+Request rules:
+
+- Include **all** of the campaign's tiers in `items` — not just the ones you change
+- `newAllocationPercent` values must sum to exactly **100**
+- At least one tier must have `isEnabled: true`
+
+<Warning>
+  After a successful update, further tier changes on that campaign are blocked for **72 hours**.
+  During the cooldown, `PATCH` returns `409 tier_update_cooldown`. Use `lastUpdate` from the `GET`
+  response to know when the last change happened.
+</Warning>
+
+## Stop a campaign
+
+`POST /v1/campaigns/{campaignId}/stop`
+
+Stops delivery and refunds the unspent budget to your wallet.
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/stop' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Idempotency-Key: stop-2026-07-21-01'
+```
+
+Expected (`200`):
+
+```json
+{
+  "data": { "campaignId": "campaign-uuid", "status": "stopped" },
+  "meta": { "requestId": "..." }
+}
+```
+
+Stopping is idempotent at the campaign level: stopping an already-stopped campaign succeeds without a second refund. Stopped campaigns cannot be restarted via the API — create a new campaign instead.
+
+## Common management errors
+
+| HTTP | Code                       | When                                                                |
+| ---- | -------------------------- | ------------------------------------------------------------------- |
+| 400  | `invalid_request`          | Non-wallet campaign, invalid body, or decrease rule violated         |
+| 400  | `invalid_tier_status`      | Tier items invalid (missing tiers, sum ≠ 100, none enabled)          |
+| 402  | `insufficient_credit`      | Wallet balance too low for the budget increase                       |
+| 404  | `campaign_not_found`       | Unknown campaign or a campaign in another organization               |
+| 409  | `tier_update_cooldown`     | Tier update within 72 hours of the previous one                      |
+| 409  | `idempotency_key_conflict` | `Idempotency-Key` reused with a different body, or still processing  |
+
+See [Errors](/errors) for the full list.
+
+## Next
+
+[Creating campaigns](/creating-campaigns) · [Understanding metrics](/understanding-metrics) · [Credit wallet](/learn/wallet)

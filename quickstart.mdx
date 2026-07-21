@@ -47,7 +47,7 @@ Expected:
 }
 ```
 
-Ping accepts any valid key scope (`campaigns:read` and/or `metrics:read`).
+Ping accepts any valid key regardless of scopes — useful as a smoke test right after creating a key.
 
 ## 2. List campaigns
 
@@ -58,10 +58,31 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns?page=1&pageSize=10' \
   -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
-## 3. Use requestId for support
+## 3. Create a campaign (optional)
+
+With the `campaigns:write` scope you can also create a wallet-funded campaign. The `Idempotency-Key` header is required — retries with the same key never double-charge:
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Idempotency-Key: my-first-campaign-01' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "spotifyUrl": "https://open.spotify.com/track/YOUR_TRACK_ID",
+    "dailyBudget": 25,
+    "durationDays": 14,
+    "genre": "Pop",
+    "strategyType": "maximum_growth"
+  }'
+```
+
+This deducts `dailyBudget × durationDays` from your wallet balance. See [Creating campaigns](/creating-campaigns) for all fields and rules, and [Managing campaigns](/managing-campaigns) to adjust budget or stop it later.
+
+## 4. Use requestId for support
 
 If something fails, include `meta.requestId` from the error response when contacting Soundlink support. See [Errors](/errors) for common codes.
 
 ## Next
 
-Continue with [Syncing campaigns](/syncing-campaigns) → [Understanding metrics](/understanding-metrics) → [JSONL exports](/jsonl-exports) for warehouse pipelines.
+- **Read pipelines:** [Syncing campaigns](/syncing-campaigns) → [Understanding metrics](/understanding-metrics) → [JSONL exports](/jsonl-exports)
+- **Write flows:** [Creating campaigns](/creating-campaigns) → [Managing campaigns](/managing-campaigns)

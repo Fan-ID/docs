@@ -1,0 +1,177 @@
+---
+title: Creating campaigns
+description: Create wallet-funded campaigns via the API — strategies, budget rules, creatives, tier targeting, and idempotent retries.
+---
+
+`POST /v1/campaigns` creates a campaign funded from your organization's **credit wallet**. Requires the `campaigns:write` scope, and your organization must be enabled for wallet billing.
+
+<Note>
+  Campaign creation has a financial side effect: `dailyBudget × durationDays` is deducted from your
+  wallet balance at creation. The [`Idempotency-Key` header](#idempotency) is **required** so
+  retries never double-charge.
+</Note>
+
+## Prerequisites
+
+- An API key with the `campaigns:write` scope — see [Authentication](/authentication#scopes-v1)
+- Enough wallet balance to cover `dailyBudget × durationDays` (otherwise `402 insufficient_credit`)
+- A Spotify **track** or **playlist** URL to promote
+
+## 1. Pick a strategy
+
+`GET /v1/strategies` (requires `campaigns:read`) returns the static catalog of `strategyType` values:
+
+| `strategyType`         | `tierTargetingAllowed` |
+| ---------------------- | ---------------------- |
+| `maximum_growth`       | No                     |
+| `market_discovery`     | No                     |
+| `revenue_maximization` | No                     |
+| `custom`               | Yes                    |
+
+Built-in strategies apply Soundlink's default geographic tiering internally. Only `custom` accepts a `tierTargeting` object on create — sending `tierTargeting` with any other strategy returns `400 invalid_request`.
+
+## 2. Create the campaign
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns' \
+  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Idempotency-Key: create-2026-07-21-mytrack-01' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "spotifyUrl": "https://open.spotify.com/track/6habFhsOp2NvndAvgiJ01P",
+    "dailyBudget": 25,
+    "durationDays": 14,
+    "genre": "Pop",
+    "strategyType": "maximum_growth",
+    "campaignName": "Summer single push"
+  }'
+```
+
+Expected (`201`):
+
+```json
+{
+  "data": { "campaignId": "campaign-uuid", "status": "creating" },
+  "meta": { "requestId": "..." }
+}
+```
+
+The campaign starts in status `creating` and moves to `active` once setup completes (or `failed` if setup could not complete). Poll `GET /v1/campaigns/{campaignId}` to follow it.
+
+### Request fields
+
+| Field               | Required | Rules                                                                                       |
+| ------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `spotifyUrl`        | Yes      | Spotify **track** or **playlist** link only                                                  |
+| `dailyBudget`       | Yes      | USD, minimum **$10**/day; subject to a platform-configured maximum                           |
+| `durationDays`      | Yes      | Integer **7–30**, or exactly **60** or **90**                                                |
+| `genre`             | Yes      | One of the [supported genres](#supported-genres)                                             |
+| `strategyType`      | Yes      | Value from `GET /v1/strategies`                                                              |
+| `campaignName`      | No       | Display name; when omitted the server generates one (track title + short suffix)            |
+| `creativeDirection` | No       | `do_it_for_me` (default) or `full_control` with `selectedCreatives`                          |
+| `trackOptions`      | No       | `artistIdFollow` — artist to attribute follows to (track campaigns)                          |
+| `tierTargeting`     | No       | Only with `strategyType: custom` — see [Custom tier targeting](#custom-tier-targeting)       |
+
+### Supported genres
+
+`Alternative/Indie`, `Ambient/Sleep`, `Chill/Background`, `Classical`, `Country`, `Electronic/Dance`, `Hip-Hop/R&B`, `Latin/Reggaeton`, `Pop`, `Rock`, `Christmas`
+
+Any other value returns `422 invalid_genre`.
+
+## Creative direction
+
+- **`do_it_for_me`** (default when omitted) — Soundlink generates the ad creatives.
+- **`full_control`** — you supply your own videos. `selectedCreatives` must contain at least one `videoId`:
+
+```json
+{
+  "creativeDirection": {
+    "type": "full_control",
+    "selectedCreatives": [{ "videoId": "video-uuid" }]
+  }
+}
+```
+
+To get a `videoId`, upload videos in the Soundlink app or import them via `POST /v1/videos/import` (requires the `videos:write` scope): submit a public HTTPS MP4 URL, then poll `GET /v1/videos/import/{sessionId}` until `status` is `ready`. See the [API Reference](/api-reference) for both endpoints.
+
+## Custom tier targeting
+
+With `strategyType: custom` you can control geographic budget allocation via `tierTargeting`:
+
+- **`customTierIds`** — reuse tier definitions your organization already created in the app
+- **`customTiers`** — define tiers inline: each needs `name` and `percentBudget`, plus optional `countries` (ISO codes) and `language`
+
+```json
+{
+  "strategyType": "custom",
+  "tierTargeting": {
+    "customTiers": [
+      { "name": "US + UK", "countries": ["US", "GB"], "percentBudget": 60 },
+      { "name": "DACH", "countries": ["DE", "AT", "CH"], "percentBudget": 40 }
+    ]
+  }
+}
+```
+
+Allocation rules (violations return `422 invalid_tier_budget_allocation`):
+
+- `percentBudget` values must sum to exactly **100**
+- At most **5** active tiers (`percentBudget > 0`)
+- Each active tier must receive at least **$1.50/day** of `dailyBudget` (gross)
+
+Omitting `tierTargeting` on a `custom` campaign applies platform default tiering.
+
+## Idempotency
+
+The `Idempotency-Key` header is **required** on `POST /v1/campaigns` (and on stop and budget endpoints — see [Managing campaigns](/managing-campaigns)).
+
+- Any unique string up to **255 characters** — a UUID or `<action>-<date>-<ref>` pattern works well
+- Keys are honored for **24 hours**
+- Retrying with the **same key and same body** replays the recorded outcome — success **or** failure. A replayed success never creates a second campaign or a second charge.
+- Reusing a key with a **different body** returns `409 idempotency_key_conflict`
+- If a concurrent request with the same key is still processing, you also get `409` — retry shortly
+
+<Warning>
+  When a request **times out or you never saw the response**, retry with the **same** key — a new
+  key could create a duplicate campaign and a duplicate wallet debit. When a request **failed with
+  a definitive error** (for example `402 insufficient_credit`) and you have fixed the cause, send
+  the retry as a **new request with a new key** — failed outcomes may also be replayed for the
+  original key.
+</Warning>
+
+## Wallet funding and errors
+
+The full cycle cost (`dailyBudget × durationDays`) is reserved from your wallet when the campaign is created. If the balance is too low the API returns `402`:
+
+```json
+{
+  "error": {
+    "code": "insufficient_credit",
+    "message": "Insufficient wallet balance for this campaign.",
+    "details": { "available": 120, "required": 350 }
+  },
+  "meta": { "requestId": "..." }
+}
+```
+
+Top up the wallet in the app (see [Credit wallet](/learn/wallet)) and retry with a **new** `Idempotency-Key` (see [Idempotency](#idempotency)).
+
+Common create errors:
+
+| HTTP | Code                             | When                                                        |
+| ---- | -------------------------------- | ----------------------------------------------------------- |
+| 400  | `invalid_request`                | Missing/malformed field or missing `Idempotency-Key`        |
+| 402  | `insufficient_credit`            | Wallet balance below `dailyBudget × durationDays`           |
+| 403  | `wallet_not_enabled`             | Organization not enabled for wallet billing                 |
+| 409  | `idempotency_key_conflict`       | Key reused with a different body, or still processing       |
+| 422  | `invalid_genre`                  | Genre not in the supported list                             |
+| 422  | `invalid_daily_budget`           | Below $10/day                                               |
+| 422  | `invalid_duration_days`          | Outside 7–30 and not 60/90                                  |
+| 422  | `invalid_spotify_url`            | Not a track or playlist link                                |
+| 422  | `invalid_tier_budget_allocation` | Tier percentages invalid (sum, count, or per-tier minimum)  |
+
+See [Errors](/errors) for the full list.
+
+## Next
+
+[Managing campaigns](/managing-campaigns) — budget changes, tiers, and stopping · [Understanding metrics](/understanding-metrics)
