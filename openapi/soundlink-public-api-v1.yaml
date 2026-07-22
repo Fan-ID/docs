@@ -1035,7 +1035,7 @@ paths:
           schema:
             type: string
             format: uuid
-          description: Upload session ID returned by `POST /v1/videos/import`
+          description: Session ID returned by `POST /v1/videos/import`
       responses:
         '200':
           description: Import session status
