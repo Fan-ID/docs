@@ -982,15 +982,15 @@ paths:
       operationId: importVideo
       summary: Import a video from a public HTTPS MP4 URL
       description: |
-        Downloads a single public HTTPS MP4, stages it for ingestion, and starts
-        the background video pipeline. Returns `202` while processing, or `200`
-        with `videoId` immediately when the organization already has the same video
-        (content duplicate).
+        Accepts a public HTTPS MP4 URL and starts the background video import
+        pipeline. Always returns `202` with `status: processing` and a `sessionId`.
+
+        Poll `GET /v1/videos/import/{sessionId}` until `status` is `ready` or `failed`.
+        Content duplicates resolve to `ready` with the existing `videoId` on the
+        status endpoint (no extra quota usage).
 
         Requires the `videos:write` scope. Subject to a stricter per-key rate limit
         than generic public API routes (default 5 imports per hour per API key).
-
-        Poll `GET /v1/videos/import/{sessionId}` until `status` is `ready` or `failed`.
         Use the returned `videoId` in Full Control campaign `creativeDirection.selectedCreatives`.
       tags: [Videos]
       security:
@@ -1005,14 +1005,8 @@ paths:
             example:
               url: "https://cdn.example.com/promo.mp4"
       responses:
-        '200':
-          description: Duplicate video already in the organization's library
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VideoImportStartResponse'
         '202':
-          description: Import accepted; ingestion in progress
+          description: Import accepted; poll status until ready or failed
           content:
             application/json:
               schema:
@@ -2175,7 +2169,9 @@ components:
           type: string
           format: uuid
           nullable: true
-          description: Present when `status` is `ready` (new or duplicate video)
+          description: |
+            Omitted on `POST` (status is always `processing`). Present on
+            `GET /v1/videos/import/{sessionId}` when `status` is `ready`.
 
     VideoImportStartResponse:
       type: object

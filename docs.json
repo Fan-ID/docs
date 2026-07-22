@@ -47,7 +47,11 @@
       "display": "interactive"
     },
     "examples": {
-      "languages": ["curl", "python", "javascript"],
+      "languages": [
+        "curl",
+        "python",
+        "javascript"
+      ],
       "defaults": "required"
     }
   },
@@ -65,7 +69,9 @@
         "groups": [
           {
             "group": "Get started",
-            "pages": ["index"]
+            "pages": [
+              "index"
+            ]
           },
           {
             "group": "For Developers",
@@ -76,13 +82,17 @@
               "errors",
               {
                 "group": "SDKs",
-                "pages": ["sdks", "typescript-sdk"]
+                "pages": [
+                  "sdks",
+                  "typescript-sdk"
+                ]
               },
               {
                 "group": "API guides",
                 "pages": [
                   "syncing-campaigns",
                   "creating-campaigns",
+                  "importing-videos",
                   "managing-campaigns",
                   "understanding-metrics",
                   "jsonl-exports"
