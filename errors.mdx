@@ -51,7 +51,7 @@ Returned by campaign creation and management routes (`campaigns:write`). See [Cr
 | 422  | `invalid_genre`                  | Genre not in the supported list                                    |
 | 422  | `invalid_daily_budget`           | `dailyBudget` below $10/day                                        |
 | 422  | `invalid_duration_days`          | `durationDays` outside 7–30 and not 60/90                          |
-| 422  | `invalid_spotify_url`            | Not a Spotify track or playlist link                               |
+| 422  | `invalid_spotify_url`            | Malformed Spotify URL, or track/playlist does not exist            |
 | 422  | `invalid_tier_budget_allocation` | Tier percentages invalid (sum, count, or per-tier minimum)         |
 
 ## Video import codes
