@@ -39,7 +39,7 @@ Success is always **`202`** with `status: processing` and a `sessionId` (`videoI
 - **HTTPS only** — plain `http://` URLs are rejected
 - Must be **publicly reachable** (no auth walls, no private/internal addresses)
 - Content must be **MP4**, up to **50 MB**
-- The worker download must complete within ~45 seconds — very slow hosts fail; redirects are followed (up to 5 hops)
+- The download must complete within ~45 seconds — very slow hosts fail; redirects are followed (up to 5 hops)
 
 Violations of URL shape (missing/non-HTTPS) return `400 invalid_video_url` on `POST`.
 Content, size, and reachability problems can appear later as `failed` on status polling.
@@ -109,9 +109,9 @@ Imported videos also appear in your video library in the Soundlink app, alongsid
 | 404  | `video_import_session_not_found`  | Unknown session or another organization's session                    |
 | 429  | `rate_limit_exceeded`             | More than 5 imports in an hour (honor `Retry-After`)                 |
 
-Reachability, content type, size, SSRF, and download failures typically surface as
-`status: failed` (with an `error` message) on `GET /v1/videos/import/{sessionId}`,
-not as a synchronous `400` on `POST`.
+Reachability, content type, size, private/internal hosts, and download failures
+typically surface as `status: failed` (with an `error` message) on
+`GET /v1/videos/import/{sessionId}`, not as a synchronous `400` on `POST`.
 
 See [Errors](/errors) for the full list.
 

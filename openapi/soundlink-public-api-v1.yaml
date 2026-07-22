@@ -2162,7 +2162,7 @@ components:
         sessionId:
           type: string
           format: uuid
-          description: Upload session ID for status polling
+          description: Session ID for status polling
         status:
           $ref: '#/components/schemas/VideoImportStatus'
         videoId:
