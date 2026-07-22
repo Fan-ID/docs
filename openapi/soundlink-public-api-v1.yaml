@@ -194,7 +194,7 @@ paths:
               trackCampaign:
                 summary: Campaign promoting a single track
                 value:
-                  spotifyUrl: "https://open.spotify.com/track/6habFhsOp2NvndAvgiJ01P"
+                  spotifyUrl: "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl"
                   dailyBudget: 25
                   durationDays: 14
                   genre: Pop
@@ -204,6 +204,7 @@ paths:
                     type: do_it_for_me
                   trackOptions:
                     artistIdFollow: "artist-uuid"
+                  clonedFromCampaignId: "3f2504e0-4f89-41d3-9a0c-0305e82c3301"
               playlistCampaign:
                 summary: Campaign promoting a playlist
                 value:
@@ -218,7 +219,7 @@ paths:
               fullControlCampaign:
                 summary: Campaign with partner-supplied creative (full control)
                 value:
-                  spotifyUrl: "https://open.spotify.com/track/6habFhsOp2NvndAvgiJ01P"
+                  spotifyUrl: "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl"
                   dailyBudget: 40
                   durationDays: 21
                   genre: Hip-Hop/R&B
@@ -693,7 +694,7 @@ paths:
                       campaign_name: Sleep Playlist
                       campaign_target_type: track
                       campaign_target_isrc: DEXW62500259
-                      campaign_target_spotify_track_id: 6habFhsOp2NvndAvgiJ01P
+                      campaign_target_spotify_track_id: 11dFghVXANMlKmJXsNCbNl
                       campaign_target_playlist_id: null
                       country_code: US
                       impressions: 4821
@@ -785,8 +786,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/BreakdownRow'
               example: |
-                {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-04-01","report_date_timezone":"UTC","exported_at":"2026-05-20T03:00:00Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"track","campaign_target_isrc":"DEXW62500259","campaign_target_spotify_track_id":"6habFhsOp2NvndAvgiJ01P","campaign_target_playlist_id":null,"country_code":"US","impressions":4821,"ad_clicks":112,"link_clicks":89,"streams":203,"listeners":145,"followers":12,"streams_per_listener":1.4,"spend_media":42.50,"spend_total":53.13,"fees":10.63,"currency":"USD","currency_account":"USD","cpl":0.293,"cpf":3.542,"cpc_linkclick":0.478,"ctr_linkclick":0.0185,"ctr_adclick":0.0232,"cost_per_result":3.542,"result_type":"follow"}
-                {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-04-01","report_date_timezone":"UTC","exported_at":"2026-05-20T03:00:00Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"track","campaign_target_isrc":"DEXW62500259","campaign_target_spotify_track_id":"6habFhsOp2NvndAvgiJ01P","campaign_target_playlist_id":null,"country_code":"DE","impressions":2103,"ad_clicks":48,"link_clicks":31,"streams":87,"listeners":61,"followers":4,"streams_per_listener":1.43,"spend_media":18.20,"spend_total":22.75,"fees":4.55,"currency":"USD","currency_account":"USD","cpl":0.298,"cpf":4.55,"cpc_linkclick":0.587,"ctr_linkclick":0.0148,"ctr_adclick":0.0228,"cost_per_result":4.55,"result_type":"follow"}
+                {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-04-01","report_date_timezone":"UTC","exported_at":"2026-05-20T03:00:00Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"track","campaign_target_isrc":"DEXW62500259","campaign_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","campaign_target_playlist_id":null,"country_code":"US","impressions":4821,"ad_clicks":112,"link_clicks":89,"streams":203,"listeners":145,"followers":12,"streams_per_listener":1.4,"spend_media":42.50,"spend_total":53.13,"fees":10.63,"currency":"USD","currency_account":"USD","cpl":0.293,"cpf":3.542,"cpc_linkclick":0.478,"ctr_linkclick":0.0185,"ctr_adclick":0.0232,"cost_per_result":3.542,"result_type":"follow"}
+                {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-04-01","report_date_timezone":"UTC","exported_at":"2026-05-20T03:00:00Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"track","campaign_target_isrc":"DEXW62500259","campaign_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","campaign_target_playlist_id":null,"country_code":"DE","impressions":2103,"ad_clicks":48,"link_clicks":31,"streams":87,"listeners":61,"followers":4,"streams_per_listener":1.43,"spend_media":18.20,"spend_total":22.75,"fees":4.55,"currency":"USD","currency_account":"USD","cpl":0.298,"cpf":4.55,"cpc_linkclick":0.587,"ctr_linkclick":0.0148,"ctr_adclick":0.0228,"cost_per_result":4.55,"result_type":"follow"}
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -1491,7 +1492,9 @@ components:
         spotifyUrl:
           type: string
           format: uri
-          description: Spotify track or playlist URL to promote.
+          description: |
+            Spotify track or playlist URL to promote. Must be a valid track or
+            playlist link to a resource that currently exists on Spotify.
         dailyBudget:
           type: number
           minimum: 10
@@ -1524,9 +1527,15 @@ components:
               description: Pass-through artist identifier.
         clonedFromCampaignId:
           type: string
-          description: |
-            Reserved for future use — campaign cloning is not yet supported.
-            Sending this field currently returns `400 invalid_request`.
+          format: uuid
+          description: >-
+            Campaign ID this campaign is cloned from. Must be a campaign UUID
+            that belongs to the calling organization, otherwise the request
+            fails with `400 invalid_request`. Does not copy settings from the
+            source campaign — all other fields must still be provided. Records
+            lineage; when the organization has the clone_campaigns feature
+            enabled, ad-render may also reuse do_it_for_me creatives from the
+            source campaign.
 
     CreateCampaignRequestWithoutTiers:
       allOf:
@@ -2377,10 +2386,11 @@ components:
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             invalid_spotify_url:
+              summary: Malformed URL or Spotify track/playlist does not exist
               value:
                 error:
                   code: invalid_spotify_url
-                  message: "spotifyUrl must be a valid Spotify track or playlist URL."
+                  message: "Spotify track not found."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             invalid_tier_budget_allocation:

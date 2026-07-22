@@ -53,7 +53,7 @@ curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns' \
   -H 'Idempotency-Key: create-2026-07-21-mytrack-01' \
   -H 'Content-Type: application/json' \
   -d '{
-    "spotifyUrl": "https://open.spotify.com/track/6habFhsOp2NvndAvgiJ01P",
+    "spotifyUrl": "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl",
     "dailyBudget": 25,
     "durationDays": 14,
     "genre": "Pop",
@@ -182,7 +182,7 @@ Common create errors:
 | 422  | `invalid_genre`                  | Genre not in the supported list                             |
 | 422  | `invalid_daily_budget`           | Below $10/day                                               |
 | 422  | `invalid_duration_days`          | Outside 7–30 and not 60/90                                  |
-| 422  | `invalid_spotify_url`            | Not a track or playlist link                                |
+| 422  | `invalid_spotify_url`            | Malformed Spotify URL, or track/playlist does not exist     |
 | 422  | `invalid_tier_budget_allocation` | Tier percentages invalid (sum, count, or per-tier minimum)  |
 
 See [Errors](/errors) for the full list.
