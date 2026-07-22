@@ -17,6 +17,21 @@ description: Create wallet-funded campaigns via the API — strategies, budget r
 - Enough wallet balance to cover `dailyBudget × durationDays` (otherwise `402 insufficient_credit`)
 - A Spotify **track** or **playlist** URL to promote
 
+## Typical flow
+
+```mermaid
+flowchart LR
+  A[GET /v1/strategies] --> B[POST /v1/campaigns]
+  B --> C[Poll GET /v1/campaigns/id until active]
+  C --> D[Metrics endpoints]
+  C --> E[Budget / tiers / stop]
+```
+
+1. Pick a `strategyType` from the catalog
+2. Create the campaign (wallet is debited)
+3. Poll campaign detail until `status` is `active`
+4. Track performance with [metrics](/understanding-metrics); adjust budget or stop via [Managing campaigns](/managing-campaigns)
+
 ## 1. Pick a strategy
 
 `GET /v1/strategies` (requires `campaigns:read`) returns the static catalog of `strategyType` values:
@@ -92,7 +107,7 @@ Any other value returns `422 invalid_genre`.
 }
 ```
 
-To get a `videoId`, upload videos in the Soundlink app or import them via `POST /v1/videos/import` (requires the `videos:write` scope): submit a public HTTPS MP4 URL, then poll `GET /v1/videos/import/{sessionId}` until `status` is `ready`. See the [API Reference](/api-reference) for both endpoints.
+To get a `videoId`, upload videos in the Soundlink app or import them by URL with the Videos API — see [Importing videos](/importing-videos) for the full flow (import, poll, limits).
 
 ## Custom tier targeting
 
