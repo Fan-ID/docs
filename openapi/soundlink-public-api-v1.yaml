@@ -1362,8 +1362,9 @@ components:
     TierTargeting:
       type: object
       description: |
-        Custom tier targeting. Only valid when `strategyType` is `custom`.
-        Omit entirely for non-custom strategies (platform default tiering applies).
+        Custom tier targeting. Required when `strategyType` is `custom`: provide a
+        non-empty `customTierIds` and/or `customTiers` array. Omit entirely for
+        non-custom strategies (platform default tiering applies).
       properties:
         customTierIds:
           type: array
@@ -1449,22 +1450,23 @@ components:
       allOf:
         - $ref: '#/components/schemas/CreateCampaignRequestShared'
         - type: object
-          required: [strategyType]
+          required: [strategyType, tierTargeting]
           properties:
             strategyType:
               type: string
               enum: [custom]
               description: |
-                Custom growth strategy. Optional `tierTargeting` is allowed only
-                with this value.
+                Custom growth strategy. Requires `tierTargeting` with a non-empty
+                `customTierIds` and/or `customTiers` array.
             tierTargeting:
               $ref: '#/components/schemas/TierTargeting'
 
     CreateCampaignRequest:
       description: |
-        Create a wallet-funded campaign. `tierTargeting` is only allowed when
-        `strategyType` is `custom`. For `maximum_growth`, `market_discovery`,
-        or `revenue_maximization`, do not send `tierTargeting`.
+        Create a wallet-funded campaign. When `strategyType` is `custom`,
+        `tierTargeting` is required. For `maximum_growth`, `market_discovery`,
+        or `revenue_maximization`, do not send `tierTargeting` (platform default
+        tiering applies).
       oneOf:
         - $ref: '#/components/schemas/CreateCampaignRequestWithoutTiers'
         - $ref: '#/components/schemas/CreateCampaignRequestCustom'
