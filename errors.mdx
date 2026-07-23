@@ -60,10 +60,13 @@ Returned by video import routes (`videos:write`). See [Importing videos](/import
 
 | HTTP | Code                             | When                                                               |
 | ---- | -------------------------------- | ------------------------------------------------------------------ |
-| 400  | `invalid_video_url`              | Not HTTPS, unreachable, not MP4, over 50 MB, or download timed out |
+| 400  | `invalid_video_url`              | Missing or non-HTTPS URL on `POST`                                 |
 | 403  | `video_import_limit_exceeded`    | Plan video quota or organization storage limit exceeded            |
 | 404  | `video_import_session_not_found` | Unknown session or another organization's session                  |
 | 429  | `rate_limit_exceeded`            | Stricter per-key limit: 5 imports/hour (honor `Retry-After`)       |
+
+Content, size, reachability, and download failures usually appear as `failed` when
+polling import status — see [Importing videos](/importing-videos).
 
 ## Pagination limits
 
