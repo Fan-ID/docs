@@ -2024,27 +2024,6 @@ components:
           type: number
           description: Streams per listener (`streams / listeners`). Zero if `listeners` is zero.
 
-    EngagementBreakdownResponse:
-      type: object
-      required: [data, meta]
-      properties:
-        data:
-          type: object
-          required: [schemaVersion, items, pagination]
-          properties:
-            schemaVersion:
-              type: string
-              description: Version of the `campaign_engagement_daily` row schema. Pin your ingest pipeline to this.
-              example: "1.0"
-            items:
-              type: array
-              items:
-                $ref: '#/components/schemas/EngagementRow'
-            pagination:
-              $ref: '#/components/schemas/Pagination'
-        meta:
-          $ref: '#/components/schemas/Meta'
-
     # --- Videos ---
 
     VideoImportRequest:
