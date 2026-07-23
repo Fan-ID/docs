@@ -78,14 +78,15 @@ The campaign starts in status `creating` and moves to `active` once setup comple
 | Field               | Required | Rules                                                                                       |
 | ------------------- | -------- | ------------------------------------------------------------------------------------------- |
 | `spotifyUrl`        | Yes      | Spotify **track** or **playlist** link only                                                  |
-| `dailyBudget`       | Yes      | USD, minimum **$10**/day; subject to a platform-configured maximum                           |
-| `durationDays`      | Yes      | Integer **7–30**, or exactly **60** or **90**                                                |
-| `genre`             | Yes      | One of the [supported genres](#supported-genres)                                             |
-| `strategyType`      | Yes      | Value from `GET /v1/strategies`                                                              |
-| `campaignName`      | No       | Display name; when omitted the server generates one (track title + short suffix)            |
-| `creativeDirection` | No       | `do_it_for_me` (default) or `full_control` with `selectedCreatives`                          |
-| `trackOptions`      | No       | `artistIdFollow` — artist to attribute follows to (track campaigns)                          |
-| `tierTargeting`     | No       | Only with `strategyType: custom` — see [Custom tier targeting](#custom-tier-targeting)       |
+| `dailyBudget`           | Yes      | USD, minimum **$10**/day                                                                     |
+| `durationDays`          | Yes      | Integer **7–30**, or exactly **60** or **90**                                                |
+| `genre`                 | Yes      | One of the [supported genres](#supported-genres)                                             |
+| `strategyType`          | Yes      | Value from `GET /v1/strategies`                                                              |
+| `campaignName`          | No       | Display name; when omitted the server generates one (track title + short suffix)            |
+| `creativeDirection`     | No       | `do_it_for_me` (default) or `full_control` with `selectedCreatives`                          |
+| `trackOptions`          | No       | `artistIdFollow` — artist to attribute follows to (track campaigns)                          |
+| `tierTargeting`         | No       | Only with `strategyType: custom` — see [Custom tier targeting](#custom-tier-targeting)       |
+| `clonedFromCampaignId`  | No       | UUID of a campaign in your organization this create is cloned from. Records lineage only — it does **not** copy settings; you still send the full create body. Unknown or other-org IDs return `400 invalid_request`. |
 
 ### Supported genres
 

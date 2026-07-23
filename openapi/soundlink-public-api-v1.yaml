@@ -132,7 +132,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [createdAt, status]
+            enum: [createdAt]
             default: createdAt
         - $ref: '#/components/parameters/sortOrder'
       responses:
@@ -145,7 +145,7 @@ paths:
               example:
                 data:
                   items:
-                    - campaignId: camp_abc123
+                    - campaignId: f1e28d31-c358-4284-9bef-00a2334625fd
                       organizationId: org_xyz
                       status: active
                       socialPlatform: meta
@@ -285,7 +285,7 @@ paths:
                 $ref: '#/components/schemas/CampaignDetailResponse'
               example:
                 data:
-                  campaignId: camp_abc123
+                  campaignId: f1e28d31-c358-4284-9bef-00a2334625fd
                   organizationId: org_xyz
                   status: active
                   socialPlatform: meta
@@ -750,9 +750,10 @@ paths:
         Accept: application/x-ndjson
         ```
 
-        **Date range:** defaults to the full campaign active period. Override
-        with `startDate` / `endDate`. **Responses are capped at 90 days** —
-        use `startDate` / `endDate` to slice through longer windows manually.
+        **Date range:** if you omit both dates, defaults to the last **90 days**
+        ending today. Override with `startDate` / `endDate`. **Responses are
+        capped at 90 days** — a wider range returns `400 invalid_query_parameter`.
+        Page longer histories in 90-day slices.
 
         **Mutability:** rows for a given `report_date` can be revised for up
         to 7 days after the date closes due to delayed events from Meta and
@@ -795,110 +796,6 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
-  /v1/campaigns/{campaignId}/metrics/engagement:
-    get:
-      operationId: getCampaignEngagement
-      summary: Campaign engagement breakdown
-      description: |
-        Per-day, per-track engagement metrics for a campaign. One row per
-        `(provider, account_id, report_date, campaign_id, engagement_context, country_code, engaged_spotify_track_id)`.
-
-        **Key difference from `/metrics/breakdown`:** this endpoint covers the
-        full engagement window — including post-campaign streaming activity —
-        not just dates when the campaign was actively running. Use this for
-        catalog spillover analysis and long-tail retention.
-
-        **`engagement_context` values:**
-        - `catalog` — same-artist spillover (and direct promoted-track plays)
-          on track campaigns. `engaged_track_isrc` may equal
-          `campaign_target_isrc` (the promoted track itself) or differ
-          (spillover tracks).
-        - `playlist` — per-track performance inside the promoted playlist on
-          playlist campaigns. One row per track in the playlist per day.
-
-        **`listeners` is deduplicated within each row only.** Do not sum
-        `listeners` across days to get a campaign total — the same listener
-        can appear on multiple `report_date` rows.
-
-        Row schema: `campaign_engagement_daily` v1.0. Rows are idempotent on
-        the primary key; re-ingesting is safe.
-
-        **Mutability window:** rows for a given `report_date` can be revised
-        for up to 7 days after the date closes due to delayed Spotify
-        playback events.
-      tags: [Metrics]
-      security:
-        - apiKeyAuth: []
-      parameters:
-        - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/startDate'
-        - $ref: '#/components/parameters/endDate'
-        - name: engagementContext
-          in: query
-          schema:
-            type: string
-            enum: [catalog, playlist]
-          description: |
-            Filter to a single engagement context. Omit to return both.
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize500'
-        - name: sortBy
-          in: query
-          schema:
-            type: string
-            enum: [report_date, streams, listeners]
-            default: report_date
-        - $ref: '#/components/parameters/sortOrder'
-      responses:
-        '200':
-          description: Paginated per-day per-track engagement rows (`campaign_engagement_daily` schema)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EngagementBreakdownResponse'
-              example:
-                data:
-                  schemaVersion: "1.0"
-                  items:
-                    - provider: soundlink
-                      account_id: a7ac3173-2f71-4e79-921f-d15d7112cc9a
-                      schema_version: "1.0"
-                      report_date: "2026-04-08"
-                      report_date_timezone: UTC
-                      exported_at: "2026-05-22T10:12:11Z"
-                      campaign_id: 8ccd7b88-2591-4b94-848f-f142f5c6bba1
-                      campaign_name: 9 To 5
-                      campaign_target_type: track
-                      campaign_target_isrc: DEXW62500272
-                      campaign_target_spotify_track_id: 2RkZ5WPkKyBf0u8vN3dNgb
-                      campaign_target_playlist_id: null
-                      status: ended
-                      engagement_context: catalog
-                      country_code: US
-                      engaged_track_isrc: DEXW62500001
-                      engaged_spotify_track_id: 4cOdK2wGLETKBW3PvgPWqT
-                      engaged_track_name: Till The Sunrise
-                      playlist_position: null
-                      new_listeners: 42
-                      returning_listeners: 18
-                      listeners: 60
-                      new_listener_streams: 58
-                      returning_listener_streams: 31
-                      streams: 89
-                      spl: 1.48
-                  pagination:
-                    page: 1
-                    pageSize: 50
-                    totalCount: 210
-                    totalPages: 5
-                meta:
-                  requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
 
   /v1/campaigns/{campaignId}/metrics/engagement/export:
     get:
@@ -907,9 +804,7 @@ paths:
       description: |
         Streams the full engagement dataset for a campaign as
         **newline-delimited JSON (JSONL)**. Every line is a complete, valid
-        JSON object conforming to the `campaign_engagement_daily` v1.0 schema
-        — identical to the rows returned by `GET /metrics/engagement` but
-        without pagination or an envelope wrapper.
+        JSON object conforming to the `campaign_engagement_daily` v1.0 schema.
 
         Designed for data pipeline consumers: load directly into BigQuery,
         Snowflake, or any JSONL-aware ingest tool without cursor logic.
@@ -926,15 +821,14 @@ paths:
         {"provider":"soundlink","report_date":"2026-04-02","streams":104,...}
         ```
 
-        **Date range:** defaults to the full campaign lifetime plus 30 days
-        post-end to capture tail engagement. Override with `startDate` /
-        `endDate`. **Responses are capped at 90 days** — if the requested
-        range exceeds 90 days, the most recent 90 days are returned. Use
-        `startDate` / `endDate` to page through longer windows in 90-day
-        slices.
+        **Date range:** if you omit both dates, defaults to the last **90 days**
+        ending today. Override with `startDate` / `endDate`. **Responses are
+        capped at 90 days** — a wider range returns `400 invalid_query_parameter`.
+        Page longer histories in 90-day slices.
 
-        **Mutability:** same 7-day revision window as the paginated endpoint.
-        Re-fetching and re-ingesting on the primary key is safe (idempotent).
+        **Mutability:** rows for a given `report_date` can be revised for up to
+        7 days after the date closes. Re-fetching and re-ingesting on the
+        primary key is safe (idempotent).
       tags: [Metrics]
       security:
         - apiKeyAuth: []
@@ -1073,7 +967,7 @@ components:
       required: true
       schema:
         type: string
-      description: Campaign identifier (e.g. `camp_abc123`)
+      description: Campaign identifier (UUID)
 
     idempotencyKey:
       name: Idempotency-Key
@@ -1500,7 +1394,6 @@ components:
           minimum: 10
           description: |
             USD, per day. Must be at least 10 (same floor as the Soundlink UI).
-            Subject to a platform-configured maximum.
         durationDays:
           description: |
             Campaign duration in days. Must be an integer from 7 to 30 (UI custom
@@ -1529,13 +1422,10 @@ components:
           type: string
           format: uuid
           description: >-
-            Campaign ID this campaign is cloned from. Must be a campaign UUID
-            that belongs to the calling organization, otherwise the request
-            fails with `400 invalid_request`. Does not copy settings from the
-            source campaign — all other fields must still be provided. Records
-            lineage; when the organization has the clone_campaigns feature
-            enabled, ad-render may also reuse do_it_for_me creatives from the
-            source campaign.
+            Optional UUID of a campaign in your organization this create is
+            cloned from. Records lineage only — it does not copy settings from
+            the source; all other create fields must still be provided. Unknown
+            or other-organization IDs return `400 invalid_request`.
 
     CreateCampaignRequestWithoutTiers:
       allOf:
@@ -2286,7 +2176,7 @@ components:
               value:
                 error:
                   code: invalid_api_key
-                  message: "Authorization header is missing or malformed."
+                  message: "Missing or malformed x-api-key header."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             api_key_revoked:

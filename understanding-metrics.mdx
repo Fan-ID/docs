@@ -34,13 +34,13 @@ Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and d
 
 ## Engagement (by track)
 
-`GET /v1/campaigns/{campaignId}/metrics/engagement` (paginated)
-
 `GET /v1/campaigns/{campaignId}/metrics/engagement/export` (JSONL)
 
 Per-day, per-track rows (`campaign_engagement_daily` v1.0). Primary key:
 
 `(provider, account_id, report_date, campaign_id, engagement_context, country_code, engaged_spotify_track_id)`
+
+Engagement covers the full engagement window — including post-campaign streaming — not only days when the campaign was actively running. Use for catalog spillover and long-tail retention.
 
 Engagement rows also include `campaign_target_isrc` and `campaign_target_spotify_track_id` for the promoted track when `campaign_target_type = track`.
 

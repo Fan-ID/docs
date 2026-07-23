@@ -68,7 +68,9 @@ if (listError) {
   console.error(listError.code, listError.message);
 }
 
-const { data: campaign } = await soundlink.campaigns.get("camp_abc123");
+const { data: campaign } = await soundlink.campaigns.get(
+  "f1e28d31-c358-4284-9bef-00a2334625fd",
+);
 ```
 
 List and get require the `campaigns:read` scope. Equivalent `curl` examples are in [Quickstart](/quickstart).
@@ -94,13 +96,16 @@ Every method returns `{ data, error, meta? }` — the same envelope as the REST 
 ## Metrics and exports
 
 ```typescript
-const { data: overview } = await soundlink.metrics.overview("camp_abc123", {
-  startDate: "2026-01-01",
-  endDate: "2026-03-31",
-});
+const { data: overview } = await soundlink.metrics.overview(
+  "f1e28d31-c358-4284-9bef-00a2334625fd",
+  {
+    startDate: "2026-01-01",
+    endDate: "2026-03-31",
+  },
+);
 
 const { data: stream } = await soundlink.metrics.breakdown.export(
-  "camp_abc123",
+  "f1e28d31-c358-4284-9bef-00a2334625fd",
   {
     startDate: "2026-01-01",
     endDate: "2026-03-31",
@@ -114,7 +119,7 @@ if (stream) {
 }
 ```
 
-For smaller datasets: `await soundlink.metrics.breakdown.export.collect('camp_abc123')`.
+For smaller datasets: `await soundlink.metrics.breakdown.export.collect('f1e28d31-c358-4284-9bef-00a2334625fd')`.
 
 Engagement exports work the same way: `soundlink.metrics.engagement.export` and `.export.collect`.
 
@@ -152,7 +157,7 @@ Requires `campaigns:read`.
 | `soundlink.campaigns.get(campaignId)`  | `GET /v1/campaigns/{id}` | `ApiResponse<CampaignDetail>`     |
 | `soundlink.campaigns.listAll(params?)` | Paginated `list`         | `AsyncGenerator<CampaignSummary>` |
 
-`list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt` \| `status`), `sortOrder` (`asc` \| `desc`).
+`list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
 
 ### Metrics
 
@@ -164,16 +169,10 @@ Requires `metrics:read`.
 | `soundlink.metrics.breakdown.list(id, params?)`            | `GET .../metrics/breakdown`         | `ApiResponse<BreakdownListData>`               |
 | `soundlink.metrics.breakdown.export(id, params?)`          | `GET .../metrics/breakdown/export`  | `ApiResponse<JsonlStream<BreakdownRow>>`       |
 | `soundlink.metrics.breakdown.export.collect(id, params?)`  | Same export route                   | `ApiResponse<ExportCollection<BreakdownRow>>`  |
-| `soundlink.metrics.engagement.list(id, params?)`           | `GET .../metrics/engagement`        | `ApiResponse<EngagementListData>`              |
 | `soundlink.metrics.engagement.export(id, params?)`         | `GET .../metrics/engagement/export` | `ApiResponse<JsonlStream<EngagementRow>>`      |
 | `soundlink.metrics.engagement.export.collect(id, params?)` | Same export route                   | `ApiResponse<ExportCollection<EngagementRow>>` |
 
-Date params use inclusive `YYYY-MM-DD`. Export windows are capped at **90 days** per request. List `pageSize` max is **500**.
-
-<Note>
-  `metrics.engagement.list` is spec-ready in the SDK; the backend route may
-  return `404` until it ships.
-</Note>
+Date params use inclusive `YYYY-MM-DD`. Export windows are capped at **90 days** per request. Breakdown list `pageSize` max is **500**.
 
 ## Types
 
@@ -194,8 +193,6 @@ import type {
   BreakdownListData,
   BreakdownListParams,
   EngagementRow,
-  EngagementListData,
-  EngagementListParams,
   ExportCollection,
   JsonlStream,
   SoundlinkClientOptions,
@@ -203,14 +200,14 @@ import type {
 } from "soundlink";
 ```
 
-| Group         | Types                                                                                                               |
-| ------------- | ------------------------------------------------------------------------------------------------------------------- |
-| **Envelope**  | `ApiResponse<T>`, `ApiError`, `ApiMeta`, `PublicApiErrorCode`                                                       |
-| **Campaigns** | `CampaignSummary`, `CampaignDetail`, `CampaignListData`, `CampaignListParams`, `CampaignStatus`                     |
-| **Metrics**   | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`, `EngagementListData`                       |
-| **Params**    | `DateRangeParams`, `BreakdownListParams`, `EngagementListParams`, `BreakdownExportParams`, `EngagementExportParams` |
-| **Exports**   | `JsonlStream<T>`, `ExportCollection<T>`                                                                             |
-| **Client**    | `Soundlink`, `SoundlinkClientOptions`                                                                               |
+| Group         | Types                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------ |
+| **Envelope**  | `ApiResponse<T>`, `ApiError`, `ApiMeta`, `PublicApiErrorCode`                                    |
+| **Campaigns** | `CampaignSummary`, `CampaignDetail`, `CampaignListData`, `CampaignListParams`, `CampaignStatus`  |
+| **Metrics**   | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
+| **Params**    | `DateRangeParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`      |
+| **Exports**   | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
+| **Client**    | `Soundlink`, `SoundlinkClientOptions`                                                            |
 
 Row shapes match the warehouse schemas documented in [Understanding metrics](/understanding-metrics). For full field lists, use the [API Reference](/api-reference) or your IDE hover hints on the imported types.
 
