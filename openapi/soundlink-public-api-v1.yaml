@@ -7,7 +7,7 @@ info:
 
     **Base URL:** `https://api.getsoundlink.com`
 
-    **Authentication:** `x-api-key` header using a `sk_*` API key issued by Soundlink Engineering.
+    **Authentication:** `x-api-key` header using a `sk_*` API key created in the Soundlink app (Settings → Developer → API keys).
     ```
     x-api-key: sk_abc123_<token>
     ```
@@ -801,7 +801,7 @@ paths:
       summary: Campaign engagement breakdown
       description: |
         Per-day, per-track engagement metrics for a campaign. One row per
-        `(report_date, campaign_id, engagement_context, engaged_spotify_track_id)`.
+        `(provider, account_id, report_date, campaign_id, engagement_context, country_code, engaged_spotify_track_id)`.
 
         **Key difference from `/metrics/breakdown`:** this endpoint covers the
         full engagement window — including post-campaign streaming activity —
@@ -2293,7 +2293,7 @@ components:
               value:
                 error:
                   code: api_key_revoked
-                  message: "This API key has been revoked. Contact Soundlink Engineering to mint a new key."
+                  message: "This API key has been revoked. Create a new key in Settings → Developer → API keys."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -2448,7 +2448,7 @@ components:
               requestId: 550e8400-e29b-41d4-a716-446655440000
 
     NotFound:
-      description: Campaign not found, belongs to another org, or feature flag is off
+      description: Campaign not found or belongs to another organization
       content:
         application/json:
           schema:
