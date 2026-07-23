@@ -41,7 +41,7 @@ Organization **owners** and **admins** can create keys in the Soundlink app — 
     |-------|---------|
     | **Name** | A label you'll recognize later (e.g. `Warehouse sync`, `Staging`). |
     | **Expiration** | Required. Presets: **7 days**, **30 days**, **90 days**, or **1 year**. When the date passes, the API returns `401` with `api_key_expired`. |
-    | **Scopes** | `campaigns:read` and/or `metrics:read` for v1. See [Scopes](#scopes-v1) below. |
+    | **Scopes** | Any combination of the v1 scopes below — at least one required. See [Scopes](#scopes-v1). |
 
     <Frame caption="Create key — name, expiration, and scopes">
       <img

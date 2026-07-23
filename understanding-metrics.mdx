@@ -9,9 +9,9 @@ The Metrics API exposes three layers of campaign performance. Pick the endpoint 
 
 `GET /v1/campaigns/{campaignId}/metrics/overview`
 
-Campaign-level totals for a date range: spend, streams, listeners, followers, and efficiency metrics (CPL, CPF, CTR). One row per campaign per request window.
+Campaign-level totals for a date range: listeners, streams, followers, delivery (`impressions`, `ad_clicks`, `link_clicks`), spend (`spend_media`, `spend_total`, `fees`), and efficiency metrics (`cpl`, `cpf`, `streams_per_listener`). One row per campaign per request window.
 
-Use for dashboards, executive summaries, and quick health checks. Not broken down by country or track.
+Use for dashboards, executive summaries, and quick health checks. Not broken down by country or track. CTR fields (`ctr_linkclick`, `ctr_adclick`) are on [breakdown](#breakdown-by-country) rows, not overview.
 
 ## Breakdown (by country)
 
@@ -34,13 +34,13 @@ Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and d
 
 ## Engagement (by track)
 
-`GET /v1/campaigns/{campaignId}/metrics/engagement` (paginated)
-
 `GET /v1/campaigns/{campaignId}/metrics/engagement/export` (JSONL)
 
 Per-day, per-track rows (`campaign_engagement_daily` v1.0). Primary key:
 
 `(provider, account_id, report_date, campaign_id, engagement_context, country_code, engaged_spotify_track_id)`
+
+Engagement covers the full engagement window — including post-campaign streaming — not only days when the campaign was actively running. Use for catalog spillover and long-tail retention.
 
 Engagement rows also include `campaign_target_isrc` and `campaign_target_spotify_track_id` for the promoted track when `campaign_target_type = track`.
 
