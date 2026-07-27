@@ -311,7 +311,7 @@ paths:
         Stops delivery for a wallet-funded campaign and refunds unspent budget
         to the organization wallet. Requires the `campaigns:write` scope.
 
-        **Wallet campaigns only** (`apiManageable: true`).
+        **Wallet campaigns only** (`generation: 3`).
 
         Stopping is idempotent at the campaign level: a second stop on an
         already-stopped campaign succeeds without double-refunding. The
@@ -353,7 +353,7 @@ paths:
         Raises budget for a wallet-funded campaign. Requires the
         `campaigns:write` scope and an `Idempotency-Key` header.
 
-        **Wallet campaigns only** (`apiManageable: true`).
+        **Wallet campaigns only** (`generation: 3`).
 
         **Modes** (default `current_and_renewals`):
         - `current_cycle` — applies to the current billing cycle only
@@ -421,7 +421,7 @@ paths:
         `targetDailyBudget`. Requires the `campaigns:write` scope and an
         `Idempotency-Key` header.
 
-        **Wallet campaigns only** (`apiManageable: true`).
+        **Wallet campaigns only** (`generation: 3`).
 
         **Modes** (default `current_and_renewals`):
         - `current_cycle` — lowers current-cycle spend only
@@ -483,7 +483,7 @@ paths:
         which tiers are enabled, their budget share, and when tiers were last
         updated (`lastUpdate`). Use this before `PATCH` to build a valid request.
 
-        Wallet campaigns only.
+        **Wallet campaigns only** (`generation: 3`).
       tags: [Campaigns]
       x-required-scope: campaigns:read
       security:
@@ -525,7 +525,7 @@ paths:
         Enable or disable geographic tiers and optionally reallocate budget
         shares for a wallet campaign.
 
-        **Wallet campaigns only.**
+        **Wallet campaigns only** (`generation: 3`).
 
         **Request rules:**
         - Include **all** tiers on the campaign in `items`
@@ -1128,7 +1128,7 @@ components:
 
     CampaignSummary:
       type: object
-      required: [campaignId, organizationId, status, socialPlatform, dailyBudget, totalBudget, campaignDuration, apiManageable, createdAt, updatedAt]
+      required: [campaignId, organizationId, status, socialPlatform, dailyBudget, totalBudget, campaignDuration, generation, createdAt, updatedAt]
       properties:
         campaignId:
           type: string
@@ -1148,13 +1148,14 @@ components:
         campaignDuration:
           type: integer
           description: Duration in days
-        apiManageable:
-          type: boolean
+        generation:
+          type: integer
+          enum: [1, 2, 3]
           description: |
-            Eligibility marker for Public API management operations (budget
-            changes, stopping delivery, and tier updates). Currently `true`
-            only for wallet-funded campaigns. Stop, tier updates, and budget
-            increase/decrease enforce this rule.
+            Campaign resource generation. `1` = Stripe / one-time / subscription /
+            legacy; `2` = Soundlink managed; `3` = wallet. Public API write
+            operations (budget changes, stop, tier updates) are supported for
+            generation `3` only.
         createdAt:
           type: string
           format: date-time
@@ -2025,27 +2026,6 @@ components:
         spl:
           type: number
           description: Streams per listener (`streams / listeners`). Zero if `listeners` is zero.
-
-    EngagementBreakdownResponse:
-      type: object
-      required: [data, meta]
-      properties:
-        data:
-          type: object
-          required: [schemaVersion, items, pagination]
-          properties:
-            schemaVersion:
-              type: string
-              description: Version of the `campaign_engagement_daily` row schema. Pin your ingest pipeline to this.
-              example: "1.0"
-            items:
-              type: array
-              items:
-                $ref: '#/components/schemas/EngagementRow'
-            pagination:
-              $ref: '#/components/schemas/Pagination'
-        meta:
-          $ref: '#/components/schemas/Meta'
 
     # --- Videos ---
 
