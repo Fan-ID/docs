@@ -24,6 +24,11 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID' \
 ```
 
 <Note>
+  TypeScript: `soundlink.campaigns.increaseBudget` / `decreaseBudget` / `tiers` / `stop` —
+  see [TypeScript SDK](/typescript-sdk#create-and-manage-wallet-campaigns).
+</Note>
+
+<Note>
   Stop and budget endpoints require the same [`Idempotency-Key`
   header](/creating-campaigns#idempotency) as campaign creation: unique string up to 255
   characters, honored for 24 hours, same key + same body replays the original response.

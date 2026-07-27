@@ -1,6 +1,6 @@
 ---
 title: Access the API with TypeScript
-description: Install the soundlink SDK and call campaigns and metrics from Node.js or Edge.
+description: Install the soundlink SDK and call campaigns, write methods, and metrics from Node.js or Edge.
 ---
 
 Install the official **`soundlink`** package to call the Public API with full TypeScript types. For raw HTTP, see [Quickstart](/quickstart). Not sure which approach fits your stack? See [SDK overview](/sdks).
@@ -71,6 +71,7 @@ if (listError) {
 const { data: campaign } = await soundlink.campaigns.get(
   "f1e28d31-c358-4284-9bef-00a2334625fd",
 );
+// campaign?.generation === 3 → wallet (writable)
 ```
 
 List and get require the `campaigns:read` scope. Equivalent `curl` examples are in [Quickstart](/quickstart).
@@ -79,8 +80,53 @@ List and get require the `campaigns:read` scope. Equivalent `curl` examples are 
 
 ```typescript
 for await (const campaign of soundlink.campaigns.listAll({ pageSize: 100 })) {
-  console.log(campaign.campaignId);
+  console.log(campaign.campaignId, campaign.generation);
 }
+```
+
+## Create and manage wallet campaigns
+
+Requires `campaigns:write`. Write methods take `{ idempotencyKey }` — the SDK sends the `Idempotency-Key` header. Only **`generation: 3`** (wallet) campaigns support budget, tiers, and stop. See [Creating campaigns](/creating-campaigns) and [Managing campaigns](/managing-campaigns).
+
+```typescript
+const { data: catalog } = await soundlink.strategies.list();
+
+const { data: created, error: createError } = await soundlink.campaigns.create(
+  {
+    spotifyUrl: "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl",
+    dailyBudget: 25,
+    durationDays: 14,
+    genre: "Pop",
+    strategyType: "maximum_growth",
+    campaignName: "Summer single push",
+  },
+  { idempotencyKey: "create-2026-07-21-mytrack-01" },
+);
+
+if (createError || !created) {
+  console.error(createError?.code, createError?.message);
+  return;
+}
+
+await soundlink.campaigns.increaseBudget(
+  created.campaignId,
+  { amount: 100, mode: "current_and_renewals" },
+  { idempotencyKey: "budget-inc-01" },
+);
+
+// GET returns `tierId`; PATCH expects the same value as `targetingTierId`
+const { data: tiers } = await soundlink.campaigns.tiers.get(created.campaignId);
+await soundlink.campaigns.tiers.update(created.campaignId, {
+  items: (tiers?.tiers ?? []).map((tier) => ({
+    targetingTierId: tier.tierId,
+    isEnabled: tier.isEnabled,
+    newAllocationPercent: tier.allocationPercent,
+  })),
+});
+
+await soundlink.campaigns.stop(created.campaignId, {
+  idempotencyKey: "stop-01",
+});
 ```
 
 ## Response pattern
@@ -132,7 +178,7 @@ const soundlink = new Soundlink({
   apiKey: process.env.SOUNDLINK_API_KEY!,
   baseUrl: "https://api.getsoundlink.com", // default
   timeout: 30_000,
-  maxRetries: 2,
+  maxRetries: 2, // retries on 429/5xx; writes reuse the same Idempotency-Key
   fetch: customFetch, // optional — tests or Edge
 });
 ```
@@ -147,7 +193,15 @@ Every method maps 1:1 to a Public API route. All return `Promise<ApiResponse<T>>
 | ------------------ | -------------- | ----------------------- |
 | `soundlink.ping()` | `GET /v1/ping` | `ApiResponse<PingData>` |
 
-### Campaigns
+### Strategies
+
+Requires `campaigns:read`.
+
+| Method                        | REST endpoint       | Returns                               |
+| ----------------------------- | ------------------- | ------------------------------------- |
+| `soundlink.strategies.list()` | `GET /v1/strategies` | `ApiResponse<StrategiesCatalogData>` |
+
+### Campaigns (read)
 
 Requires `campaigns:read`.
 
@@ -157,7 +211,20 @@ Requires `campaigns:read`.
 | `soundlink.campaigns.get(campaignId)`  | `GET /v1/campaigns/{id}` | `ApiResponse<CampaignDetail>`     |
 | `soundlink.campaigns.listAll(params?)` | Paginated `list`         | `AsyncGenerator<CampaignSummary>` |
 
-`list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
+`list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt` \| `status`), `sortOrder` (`asc` \| `desc`).
+
+### Campaigns (write)
+
+Requires `campaigns:write`. Pass `{ idempotencyKey }` on create, stop, and budget methods. Wallet campaigns only (`generation: 3`) for budget / tiers / stop.
+
+| Method | REST endpoint | Returns |
+| ------ | ------------- | ------- |
+| `soundlink.campaigns.create(body, { idempotencyKey })` | `POST /v1/campaigns` | `ApiResponse<CampaignCreateData>` |
+| `soundlink.campaigns.stop(id, { idempotencyKey })` | `POST .../stop` | `ApiResponse<CampaignStopData>` |
+| `soundlink.campaigns.increaseBudget(id, body, { idempotencyKey })` | `POST .../budget/increase` | `ApiResponse<IncreaseCampaignBudgetData>` |
+| `soundlink.campaigns.decreaseBudget(id, body, { idempotencyKey })` | `POST .../budget/decrease` | `ApiResponse<DecreaseCampaignBudgetData>` |
+| `soundlink.campaigns.tiers.get(id)` | `GET .../tiers` | `ApiResponse<CampaignTiersData>` |
+| `soundlink.campaigns.tiers.update(id, body)` | `PATCH .../tiers` | `ApiResponse<CampaignTiersData>` |
 
 ### Metrics
 
@@ -186,8 +253,12 @@ import type {
   PingData,
   CampaignSummary,
   CampaignDetail,
+  CampaignGeneration,
   CampaignListData,
   CampaignListParams,
+  CreateCampaignRequest,
+  CampaignCreateData,
+  StrategiesCatalogData,
   MetricsOverview,
   BreakdownRow,
   BreakdownListData,
@@ -203,9 +274,10 @@ import type {
 | Group         | Types                                                                                            |
 | ------------- | ------------------------------------------------------------------------------------------------ |
 | **Envelope**  | `ApiResponse<T>`, `ApiError`, `ApiMeta`, `PublicApiErrorCode`                                    |
-| **Campaigns** | `CampaignSummary`, `CampaignDetail`, `CampaignListData`, `CampaignListParams`, `CampaignStatus`  |
+| **Campaigns** | `CampaignSummary`, `CampaignDetail`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
+| **Strategies** | `StrategiesCatalogData`, `StrategyCatalogItem`, `StrategyType`                                  |
 | **Metrics**   | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
-| **Params**    | `DateRangeParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`      |
+| **Params**    | `DateRangeParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
 | **Exports**   | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
 | **Client**    | `Soundlink`, `SoundlinkClientOptions`                                                            |
 
@@ -228,9 +300,15 @@ if (error) {
   // error.status  — HTTP status (404, 429, …)
   // error.requestId — same as meta?.requestId
   // error.retryAfter — seconds, on 429 only
+  // error.details — code-specific context when present
+  //                 (e.g. available/required on insufficient_credit)
 
   if (error.code === "rate_limit_exceeded" && error.retryAfter) {
     await sleep(error.retryAfter * 1000);
+  }
+
+  if (error.code === "insufficient_credit") {
+    console.error("wallet", error.details);
   }
 }
 ```
@@ -263,4 +341,4 @@ Use `try/catch` for client setup and rare transport failures. Use `{ data, error
 
 ## Next
 
-[Syncing campaigns](/syncing-campaigns) → [Understanding metrics](/understanding-metrics) → [JSONL exports](/jsonl-exports)
+[Creating campaigns](/creating-campaigns) → [Managing campaigns](/managing-campaigns) → [Syncing campaigns](/syncing-campaigns) → [Understanding metrics](/understanding-metrics)
