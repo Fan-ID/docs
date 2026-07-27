@@ -483,7 +483,7 @@ paths:
         which tiers are enabled, their budget share, and when tiers were last
         updated (`lastUpdate`). Use this before `PATCH` to build a valid request.
 
-        Wallet campaigns only.
+        **Wallet campaigns only** (`generation: 3`).
       tags: [Campaigns]
       x-required-scope: campaigns:read
       security:
@@ -525,7 +525,7 @@ paths:
         Enable or disable geographic tiers and optionally reallocate budget
         shares for a wallet campaign.
 
-        **Wallet campaigns only.**
+        **Wallet campaigns only** (`generation: 3`).
 
         **Request rules:**
         - Include **all** tiers on the campaign in `items`
