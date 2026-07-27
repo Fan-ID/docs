@@ -114,14 +114,14 @@ await soundlink.campaigns.increaseBudget(
   { idempotencyKey: "budget-inc-01" },
 );
 
+// GET returns `tierId`; PATCH expects the same value as `targetingTierId`
+const { data: tiers } = await soundlink.campaigns.tiers.get(created.campaignId);
 await soundlink.campaigns.tiers.update(created.campaignId, {
-  items: [
-    {
-      targetingTierId: 1,
-      isEnabled: true,
-      newAllocationPercent: 100,
-    },
-  ],
+  items: (tiers?.tiers ?? []).map((tier) => ({
+    targetingTierId: tier.tierId,
+    isEnabled: tier.isEnabled,
+    newAllocationPercent: tier.allocationPercent,
+  })),
 });
 
 await soundlink.campaigns.stop(created.campaignId, {
@@ -300,9 +300,15 @@ if (error) {
   // error.status  — HTTP status (404, 429, …)
   // error.requestId — same as meta?.requestId
   // error.retryAfter — seconds, on 429 only
+  // error.details — code-specific context when present
+  //                 (e.g. available/required on insufficient_credit)
 
   if (error.code === "rate_limit_exceeded" && error.retryAfter) {
     await sleep(error.retryAfter * 1000);
+  }
+
+  if (error.code === "insufficient_credit") {
+    console.error("wallet", error.details);
   }
 }
 ```
