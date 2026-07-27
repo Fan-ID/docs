@@ -7,12 +7,20 @@ Once a campaign is running, the API lets you adjust its daily budget, reallocate
 
 ## Which campaigns can you manage?
 
-Campaign list and detail responses include an `apiManageable` boolean. It is `true` only for wallet-funded campaigns — the ones these endpoints accept. Calling a management endpoint on a non-manageable campaign returns `400 invalid_request` (for example, "Stopping is only supported for wallet campaigns.").
+Campaign list and detail responses include a `generation` field:
+
+| Generation | Meaning | Manageable via API? |
+| ---------- | ------- | ------------------- |
+| `1` | Stripe / one-time / subscription / legacy | No |
+| `2` | Soundlink managed | No |
+| `3` | Wallet-funded | Yes — budget, tiers, stop |
+
+Calling a management endpoint on a non-generation-`3` campaign returns `400 invalid_request` (for example, "Stopping is only supported for wallet campaigns.").
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID' \
   -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
-# → check data.apiManageable before managing
+# → check data.generation === 3 before managing
 ```
 
 <Note>
