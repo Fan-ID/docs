@@ -19,13 +19,13 @@ New here? Start with [Quickstart](/quickstart) (REST) or jump to [Access the API
 | **JSONL exports** | Stream `application/x-ndjson` yourself | `for await` + `.collect()` |
 | **Retries** | Implement backoff on `429` / `5xx` | Built-in (configurable) |
 
-Both hit the same base URL and return the same JSON envelope. The SDK does not add capabilities beyond what the API exposes.
+Both hit the same base URL and return the same JSON envelope. The SDK does not add capabilities beyond what the API exposes — including create, budget, stop, and tiers for wallet campaigns (`generation: 3`).
 
 ## TypeScript SDK
 
 Install from npm: [`soundlink`](https://www.npmjs.com/package/soundlink) · Source: [github.com/Fan-ID/lib](https://github.com/Fan-ID/lib)
 
-Requires **Node.js 18+** (native `fetch`). See the [TypeScript guide](/typescript-sdk) for install, examples, and configuration.
+Requires **Node.js 18+** (native `fetch`). See the [TypeScript guide](/typescript-sdk) for install, write examples (`Idempotency-Key`), metrics, and configuration.
 
 <Warning>
   Server-side only. Never expose your `sk_*` API key in a browser or mobile app — call Soundlink from your backend and keep the key in environment variables.

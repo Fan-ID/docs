@@ -73,6 +73,11 @@ Expected (`201`):
 
 The campaign starts in status `creating` and moves to `active` once setup completes (or `failed` if setup could not complete). Poll `GET /v1/campaigns/{campaignId}` to follow it.
 
+<Note>
+  TypeScript: `soundlink.strategies.list()` then `soundlink.campaigns.create(body, { idempotencyKey })` —
+  see [TypeScript SDK](/typescript-sdk#create-and-manage-wallet-campaigns).
+</Note>
+
 ### Request fields
 
 | Field               | Required | Rules                                                                                       |
