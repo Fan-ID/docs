@@ -29,7 +29,7 @@ Walk pages until `pagination.page >= pagination.totalPages`.
 
 Returns full metadata for one campaign: name, status, target type (track or playlist), dates, and identifiers you need to join metrics rows.
 
-Both list and detail rows include `apiManageable` — `true` only for wallet-funded campaigns, which are the ones you can [manage via the API](/managing-campaigns) (budget changes, tier updates, stop).
+Both list and detail rows include `generation` — `3` only for wallet-funded campaigns, which are the ones you can [manage via the API](/managing-campaigns) (budget changes, tier updates, stop). Generations `1` and `2` are read-only via these write endpoints.
 
 Use the `campaignId` from the list response in all `/metrics/*` paths.
 
