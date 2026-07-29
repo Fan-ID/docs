@@ -175,7 +175,15 @@ The full cycle cost (`dailyBudget × durationDays`) is reserved from your wallet
 }
 ```
 
-Top up the wallet in the app (see [Credit wallet](/learn/wallet)) and retry with a **new** `Idempotency-Key` (see [Idempotency](#idempotency)).
+Campaign creation does not automatically charge a saved payment method when the wallet balance is too low. Let the user top up the wallet in Soundlink by linking them to:
+
+```text
+https://www.getsoundlink.com/settings/ledger
+```
+
+The user must be signed in. Soundlink resolves their organization from the current session (last-used org when they belong to more than one) and opens the wallet page. After the top-up, retry the request with a **new** `Idempotency-Key` (see [Idempotency](#idempotency)).
+
+If you already know the organization id and need a direct deep link, use `/orgs/{organizationId}/settings/ledger` instead.
 
 Common create errors:
 
