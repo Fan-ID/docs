@@ -110,18 +110,6 @@ You will receive a `client_id` and a `client_secret`.
   Because redirect URIs must be HTTPS, local development needs an HTTPS tunnel (ngrok, Cloudflare Tunnel, or similar). Register the tunnel URL as an additional redirect URI.
 </Tip>
 
-### Feature-flag enablement
-
-Every organization that will authorize your client must have the `THIRD_PARTY_INTEGRATIONS_ENABLED` feature flag switched on by Soundlink. It is **off by default**.
-
-Until it is enabled, that organization will see:
-
-| Where | Result |
-| --- | --- |
-| Consent approval | `403` — integrations disabled |
-| Token request (`client_credentials`) | `400 invalid_grant` |
-| Any request using a bearer token | `403 access_denied` |
-
 ---
 
 ## 3. Authorization Code \+ PKCE
@@ -157,8 +145,6 @@ Until it is enabled, that organization will see:
       &code_challenge_method=S256
       &state=Wv6bQ2xKpN8sT1yZ
     ```
-
-          
 
     On success the user is redirected (`302`) to the Soundlink consent screen. This endpoint sends `Cache-Control: no-store`.
   </Step>
@@ -223,8 +209,6 @@ Until it is enabled, that organization will see:
 <ResponseField name="sub" type="string">
   The user's id for `authorization_code` tokens; your **client id** for `client_credentials` tokens — those have no user.
 </ResponseField>
-
-      
 
 <Warning>
   Access tokens are signed with a symmetric key and **no JWKS endpoint is published**, so you cannot verify their signature. Decode claims only for values you need (such as `organization_id`) from a token you have just received over TLS, and never treat a decoded claim as proof of anything. Treat tokens as opaque credentials otherwise.
@@ -319,7 +303,7 @@ Failures return `{ "error": "…" }` with a `WWW-Authenticate` header:
 | --- | --- | --- |
 | `401` | `invalid_token` | Missing, malformed, expired, or unparseable token |
 | `403` | `insufficient_scope` | Token lacks `openid` |
-| `403` | `access_denied` | Wrong grant type, or the organization's feature flag is off |
+| `403` | `access_denied` | Wrong grant type |
 
 Send exactly one `Authorization` header — two are rejected rather than merged.
 
@@ -575,14 +559,14 @@ All OAuth errors return `{ "error": "<code>" }`.
 | --- | --- | --- |
 | `invalid_request` | `400` | Missing/malformed parameter, or a JSON body where form encoding is required |
 | `invalid_client` | `401` | `client_id`/`client_secret` rejected |
-| `invalid_grant` | `400` | Code invalid, reused or expired; or no active grant; or feature flag off |
+| `invalid_grant` | `400` | Code invalid, reused or expired; or no active grant |
 | `unauthorized_client` | `400` | Client not allowed to use this grant type |
 | `unsupported_grant_type` | `400` | `grant_type` is not one of the two supported values |
 | `unsupported_response_type` | `400` | `response_type` is not `code` |
 | `invalid_scope` | `400` | Scope unknown, duplicated, or outside what was granted |
 | `invalid_token` | `401` | Bearer token missing, malformed or expired |
 | `insufficient_scope` | `403` | Token lacks a required scope |
-| `access_denied` | `403` (or redirect) | User declined; or wrong grant type; or feature flag off |
+| `access_denied` | `403` (or redirect) | User declined; or wrong grant type |
 | `temporarily_unavailable` | `429` | Rate limited |
 
 ### Resource errors have a different shape
