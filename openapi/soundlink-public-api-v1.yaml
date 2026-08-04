@@ -7,10 +7,19 @@ info:
 
     **Base URL:** `https://api.getsoundlink.com`
 
-    **Authentication:** `x-api-key` header using a `sk_*` API key created in the Soundlink app (Settings → Developer → API keys).
-    ```
-    x-api-key: sk_abc123_<token>
-    ```
+    **Authentication:** send a `sk_*` API key created in the Soundlink app (Settings → Developer → API keys) using one of:
+
+    1. **`Authorization: Bearer` (recommended)**:
+       ```
+       Authorization: Bearer sk_abc123_<token>
+       ```
+
+    2. **`x-api-key` header (deprecated, retiring 2026-08-17)** — migrate to Bearer above before then:
+       ```
+       x-api-key: sk_abc123_<token>
+       ```
+
+    Sending both headers returns `401 mixed_credentials`.
 
     All responses are wrapped in a standard envelope:
     ```json
@@ -25,6 +34,7 @@ servers:
 
 security:
   - apiKeyAuth: []
+  - apiKeyBearerAuth: []
 
 tags:
   - name: System
@@ -49,6 +59,7 @@ paths:
       tags: [System]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       responses:
         '200':
           description: Authenticated and reachable
@@ -89,6 +100,7 @@ paths:
       tags: [Campaigns]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       x-required-scope: campaigns:read
       responses:
         '200':
@@ -125,6 +137,7 @@ paths:
       tags: [Campaigns]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/page'
         - $ref: '#/components/parameters/pageSize100'
@@ -181,6 +194,7 @@ paths:
       tags: [Campaigns]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       x-required-scope: campaigns:write
       parameters:
         - $ref: '#/components/parameters/idempotencyKey'
@@ -274,6 +288,7 @@ paths:
       tags: [Campaigns]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/campaignId'
       responses:
@@ -321,6 +336,7 @@ paths:
       x-required-scope: campaigns:write
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/idempotencyKey'
@@ -366,6 +382,7 @@ paths:
       x-required-scope: campaigns:write
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/idempotencyKey'
@@ -438,6 +455,7 @@ paths:
       x-required-scope: campaigns:write
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/idempotencyKey'
@@ -488,6 +506,7 @@ paths:
       x-required-scope: campaigns:read
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/campaignId'
       responses:
@@ -538,6 +557,7 @@ paths:
       x-required-scope: campaigns:write
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/campaignId'
       requestBody:
@@ -602,6 +622,7 @@ paths:
       tags: [Metrics]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/startDate'
@@ -660,6 +681,7 @@ paths:
       tags: [Metrics]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/startDate'
@@ -762,6 +784,7 @@ paths:
       tags: [Metrics]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/startDate'
@@ -832,6 +855,7 @@ paths:
       tags: [Metrics]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/startDate'
@@ -890,6 +914,7 @@ paths:
       tags: [Videos]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       x-required-scope: videos:write
       requestBody:
         required: true
@@ -928,6 +953,7 @@ paths:
       tags: [Videos]
       security:
         - apiKeyAuth: []
+        - apiKeyBearerAuth: []
       x-required-scope: videos:write
       parameters:
         - name: sessionId
@@ -959,6 +985,17 @@ components:
       description: |
         Pass your Soundlink `sk_*` API key in the `x-api-key` header.
         Keys can carry explicit scopes (for example `campaigns:read`, `metrics:read`, `videos:write`) enforced by the backend.
+
+        **Deprecated, retiring 2026-08-17** — migrate to `Authorization: Bearer sk_...` (see `apiKeyBearerAuth`) before then.
+
+    apiKeyBearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Pass your Soundlink `sk_*` API key as a Bearer token:
+        `Authorization: Bearer sk_<prefix>_<token>`. Verified with the exact
+        same key as `apiKeyAuth` — just the recommended header for the same
+        `sk_*` credential. Do not combine with `x-api-key`.
 
   parameters:
     campaignId:
@@ -2158,7 +2195,7 @@ components:
               value:
                 error:
                   code: invalid_api_key
-                  message: "Missing or malformed x-api-key header."
+                  message: "Missing or malformed API key. Expected: sk_<prefix>_<token> (sent via x-api-key or Authorization: Bearer)."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
             api_key_revoked:

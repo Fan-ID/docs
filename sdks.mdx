@@ -12,7 +12,7 @@ New here? Start with [Quickstart](/quickstart) (REST) or jump to [Access the API
 | | **REST API** | **TypeScript SDK** |
 | --- | --- | --- |
 | **Best for** | Any language, data pipelines, one-off scripts | Node.js, TypeScript, Edge runtimes |
-| **Auth** | Set `x-api-key` on every request | Set once on the client constructor |
+| **Auth** | Set `Authorization: Bearer` on every request | Set once on the client constructor |
 | **Types** | [API Reference](/api-reference) schemas | Built-in TypeScript types |
 | **Errors** | Parse the JSON envelope yourself | `{ data, error, meta? }` on every method |
 | **Pagination** | Follow `pagination` cursors manually | `listAll()` async iterators |

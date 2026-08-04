@@ -49,7 +49,7 @@ Built-in strategies apply Soundlink's default geographic tiering internally. Onl
 
 ```bash
 curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   -H 'Idempotency-Key: create-2026-07-21-mytrack-01' \
   -H 'Content-Type: application/json' \
   -d '{

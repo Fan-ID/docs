@@ -15,7 +15,7 @@ Provide a **public HTTPS URL to an MP4 file (max 50 MB)**. Soundlink downloads t
 
 ```bash
 curl -sS -X POST 'https://api.getsoundlink.com/v1/videos/import' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   -H 'Content-Type: application/json' \
   -d '{ "url": "https://cdn.example.com/creatives/summer-teaser.mp4" }'
 ```
@@ -62,7 +62,7 @@ Poll until `status` is `ready` or `failed`:
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/videos/import/SESSION_ID' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
 | `status`     | Meaning                                                       |

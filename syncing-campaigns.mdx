@@ -18,7 +18,7 @@ Requires `campaigns:read`. Supports pagination:
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/campaigns?page=1&pageSize=100' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
 Walk pages until `pagination.page >= pagination.totalPages`.
