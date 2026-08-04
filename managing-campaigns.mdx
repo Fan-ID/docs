@@ -19,7 +19,7 @@ Calling a management endpoint on a non-generation-`3` campaign returns `400 inva
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 # → check data.generation === 3 before managing
 ```
 
@@ -42,7 +42,7 @@ Adds budget using credits already in your wallet — there is no new card paymen
 
 ```bash
 curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/budget/increase' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   -H 'Idempotency-Key: budget-inc-2026-07-21-01' \
   -H 'Content-Type: application/json' \
   -d '{ "amount": 100, "mode": "current_and_renewals" }'
@@ -80,7 +80,7 @@ Lowers the campaign's daily budget to `targetDailyBudget` and refunds unused bud
 
 ```bash
 curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/budget/decrease' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   -H 'Idempotency-Key: budget-dec-2026-07-21-01' \
   -H 'Content-Type: application/json' \
   -d '{ "targetDailyBudget": 15, "mode": "current_and_renewals" }'
@@ -115,7 +115,7 @@ A success response returns `accepted: true`. The refund of unused budget is appl
 
 ```bash
 curl -sS -X PATCH 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/tiers' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   -H 'Content-Type: application/json' \
   -d '{
     "items": [
@@ -145,7 +145,7 @@ Stops delivery and refunds the unspent budget to your wallet.
 
 ```bash
 curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/stop' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   -H 'Idempotency-Key: stop-2026-07-21-01'
 ```
 

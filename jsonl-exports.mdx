@@ -19,7 +19,7 @@ Requires the `metrics:read` scope.
 ```bash
 curl -sS \
   'https://api.getsoundlink.com/v1/campaigns/{campaignId}/metrics/breakdown/export?startDate=2026-04-01&endDate=2026-04-30' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   -H 'Accept: application/x-ndjson'
 ```
 
@@ -56,7 +56,7 @@ If `endDate` is before `startDate`, or the range exceeds 90 days, you get `400` 
 import json
 import requests
 
-resp = requests.get(url, headers={"x-api-key": API_KEY}, stream=True)
+resp = requests.get(url, headers={"Authorization": f"Bearer {API_KEY}"}, stream=True)
 for line in resp.iter_lines():
     if line:
         row = json.loads(line)

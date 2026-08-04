@@ -1,6 +1,6 @@
 ---
 title: Authentication
-description: Create API keys in Soundlink, then use them with scopes, expiration, and x-api-key.
+description: Create API keys in Soundlink, then use them with scopes, expiration, and Authorization Bearer.
 ---
 
 ## Create an API key
@@ -87,13 +87,22 @@ admin to create a key for your integration.
 sk_<prefix>_<secret>
 ```
 
-Pass the full string in the **`x-api-key`** header:
+Pass the full string in the **`Authorization`** header as a Bearer token (recommended):
 
 ```bash
--H 'x-api-key: sk_abc123_...'
+-H 'Authorization: Bearer sk_abc123_...'
 ```
 
-Do **not** send Firebase Bearer tokens or legacy product headers on this host. Mixed credentials return `401` with code `mixed_credentials`.
+<Warning>
+  The **`x-api-key`** header is deprecated and retiring **2026-08-17**. It still works today, but
+  migrate to `Authorization: Bearer` above before then:
+
+  ```bash
+  -H 'x-api-key: sk_abc123_...'
+  ```
+</Warning>
+
+Send exactly one of the two — sending both, or an unrecognized `Authorization` value, returns `401` with code `mixed_credentials`. Do **not** send Firebase Bearer tokens or legacy product headers on this host.
 
 ## Scopes (v1)
 

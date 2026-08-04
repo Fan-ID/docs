@@ -35,7 +35,7 @@ Replace `sk_YOUR_PREFIX_YOUR_SECRET` with the key you copied from the **Save you
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/ping' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
 Expected:
@@ -55,7 +55,7 @@ Requires the `campaigns:read` scope on your key.
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/campaigns?page=1&pageSize=10' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET'
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
 ## 3. Create a campaign (optional)
@@ -64,7 +64,7 @@ With the `campaigns:write` scope you can also create a wallet-funded campaign. T
 
 ```bash
 curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns' \
-  -H 'x-api-key: sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   -H 'Idempotency-Key: my-first-campaign-01' \
   -H 'Content-Type: application/json' \
   -d '{
