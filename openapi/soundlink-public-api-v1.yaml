@@ -2031,9 +2031,9 @@ components:
           description: |
             1-based slot of the engaged track on the promoted playlist for `report_date` (1 = top).
             Populated only when `engagement_context = playlist` and that day's playlist crawl listed the track.
-            `null` for catalog rows, before the day's crawl completes (current UTC day is often null until later morning UTC),
-            when the track was not listed that day, or while historical backfill is still catching up.
-            Treat `null` as unavailable — not an error.
+            `null` for catalog rows; before the day's crawl completes (current UTC day is often null until later morning UTC);
+            when the track was not listed or could not be matched to that day's crawl; or while historical backfill is still catching up.
+            Field is beta until historical backfill finishes. Treat `null` as unavailable — not an error.
         new_listeners:
           type: integer
           minimum: 0
