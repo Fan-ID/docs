@@ -1,0 +1,146 @@
+---
+title: "OAuth: Authorization Code + PKCE"
+sidebarTitle: "Authorization Code"
+description: "Connect a user's Soundlink organization to your app with the Authorization Code + PKCE grant, then read their identity via userinfo."
+icon: "user-check"
+---
+
+This is the **consent-establishing** flow — a user signs in, approves scopes, and your app receives a token that acts as **them**. Run [Discovery and onboarding](/set-up-soundlink-oauth) first if you haven't registered a client yet.
+
+<Steps>
+  <Step title="Generate PKCE values and state">
+    Create a `code_verifier`, derive its `S256` challenge, and generate an unguessable `state`.
+
+    ```ts
+    import { createHash, randomBytes } from "node:crypto";
+    
+    // 43–128 characters from [A-Za-z0-9._~-]
+    const codeVerifier = randomBytes(32).toString("base64url");
+    
+    // Exactly 43 characters from [A-Za-z0-9_-]
+    const codeChallenge = createHash("sha256")
+      .update(codeVerifier)
+      .digest("base64url");
+    
+    const state = randomBytes(16).toString("base64url");
+    ```
+
+    Store `codeVerifier` and `state` server-side, bound to the user's session — for example in a signed, httpOnly cookie with a short TTL. **Never** put the verifier in the browser or in a URL.
+  </Step>
+  <Step title="Redirect the user to the authorization endpoint">
+    ```text
+    GET https://api.getsoundlink.com/api/v1/oauth/authorize
+      ?client_id=YOUR_CLIENT_ID
+      &redirect_uri=https%3A%2F%2Fapp.example.com%2Foauth%2Fcallback
+      &response_type=code
+      &scope=openid%20email%20campaigns%3Aread
+      &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+      &code_challenge_method=S256
+      &state=Wv6bQ2xKpN8sT1yZ
+    ```
+
+    On success the user is redirected (`302`) to the Soundlink consent screen. This endpoint sends `Cache-Control: no-store`.
+  </Step>
+  <Step title="The user approves, and Soundlink returns to your callback">
+    ```text
+    GET https://app.example.com/oauth/callback?code=AUTHORIZATION_CODE&state=Wv6bQ2xKpN8sT1yZ
+    ```
+
+    Compare `state` against the value you stored **before** doing anything else, and reject the request if it does not match. If the user declines, you receive `?error=access_denied&state=…` instead — treat this as a normal outcome, not a failure.
+  </Step>
+  <Step title="Exchange the code for a token">
+    The request is `application/x-www-form-urlencoded`. This grant authenticates with the PKCE verifier and sends **no `client_secret`**.
+
+    <CodeGroup>
+
+    ```bash cURL
+    curl -X POST https://api.getsoundlink.com/api/v1/oauth/token \
+      -H "Content-Type: application/x-www-form-urlencoded" \
+      -d "grant_type=authorization_code" \
+      -d "code=AUTHORIZATION_CODE" \
+      -d "redirect_uri=https://app.example.com/oauth/callback" \
+      -d "client_id=YOUR_CLIENT_ID" \
+      -d "code_verifier=YOUR_STORED_CODE_VERIFIER"
+    ```
+
+    ```ts TypeScript
+    const res = await fetch("https://api.getsoundlink.com/api/v1/oauth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: "https://app.example.com/oauth/callback",
+        client_id: process.env.SOUNDLINK_CLIENT_ID!,
+        code_verifier: storedCodeVerifier,
+      }),
+    });
+    ```
+
+    </CodeGroup>
+
+    ```json 200 Response
+    {
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.PAYLOAD.SIGNATURE",
+      "token_type": "Bearer",
+      "expires_in": 3600,
+      "scope": "openid email campaigns:read"
+    }
+    ```
+
+    `redirect_uri` must be identical to the one used in the previous step. Authorization codes are single-use.
+  </Step>
+  <Step title="Record the organization id">
+    `organization_id` is a claim on the access token, so no extra request is needed to read it.
+
+    **This is the one value you must persist.** Soundlink provides no endpoint that lists which organizations have authorized your client, so an organization whose id you have not stored is one you can no longer act for. Keep it in your own database, keyed to your own user or tenant, along with `grant_id` if you intend to support disconnecting.
+  </Step>
+</Steps>
+
+### Access token claims
+
+<ResponseField name="sub" type="string">
+  The user's id for `authorization_code` tokens; your **client id** for `client_credentials` tokens — those have no user.
+</ResponseField>
+
+<Warning>
+  Access tokens are signed with a symmetric key and **no JWKS endpoint is published**, so you cannot verify their signature. Decode claims only for values you need (such as `organization_id`) from a token you have just received over TLS, and never treat a decoded claim as proof of anything. Treat tokens as opaque credentials otherwise.
+</Warning>
+
+---
+
+## Userinfo
+
+<Info>
+  `GET /api/v1/oauth/userinfo` requires a token from the **`authorization_code`** grant with the **`openid`** scope. A Client Credentials token is rejected with `403 access_denied` regardless of its scopes, because it represents an application rather than a user.
+</Info>
+
+```bash cURL
+curl https://api.getsoundlink.com/api/v1/oauth/userinfo \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json 200 Response
+{
+  "sub": "USER_ID",
+  "organization_id": "ORGANIZATION_UUID",
+  "iss": "https://api.getsoundlink.com",
+  "email": "user@example.com"
+}
+```
+
+`email` is present only when the token carries the `email` scope. Responses send `Cache-Control: no-store`.
+
+Failures return `{ "error": "…" }` with a `WWW-Authenticate` header:
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| `401` | `invalid_token` | Missing, malformed, expired, or unparseable token |
+| `403` | `insufficient_scope` | Token lacks `openid` |
+| `403` | `access_denied` | Wrong grant type |
+
+Send exactly one `Authorization` header — two are rejected rather than merged.
+
+## Next
+
+Once the grant exists, mint unattended tokens with [Client Credentials](/oauth-client-credentials), or jump to [Scopes, endpoints and errors](/oauth-scopes-and-errors) to call campaign and metrics routes.
