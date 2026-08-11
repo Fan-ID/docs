@@ -40,7 +40,7 @@ Organization **owners** and **admins** can create keys in the Soundlink app — 
     | Field | Details |
     |-------|---------|
     | **Name** | A label you'll recognize later (e.g. `Warehouse sync`, `Staging`). |
-    | **Expiration** | Required. Presets: **7 days**, **30 days**, **90 days**, or **1 year**. When the date passes, the API returns `401` with `api_key_expired`. |
+    | **Expiration** | Pick one: **7 days**, **30 days**, **90 days**, **1 year**, or **Never**. When the date passes, the API returns `401` with `api_key_expired`. |
     | **Scopes** | Any combination of the v1 scopes below — at least one required. See [Scopes](#scopes-v1). |
 
     <Frame caption="Create key — name, expiration, and scopes">
@@ -125,17 +125,24 @@ Add `campaigns:write` only when the integration should spend wallet credit or ma
 
 ## Expiration
 
-Every self-serve key has a fixed lifetime chosen at creation:
+Choose a lifetime at creation:
 
-| Preset  | Duration                               |
-| ------- | -------------------------------------- |
-| 7 days  | Short-lived (experiments, CI)          |
-| 30 days | Default-friendly for most integrations |
-| 90 days | Longer-running services                |
-| 1 year  | Maximum preset in the app              |
+| Preset  | Duration                                  |
+| ------- | ------------------------------------------ |
+| 7 days  | Short-lived (experiments, CI)              |
+| 30 days | Default-friendly for most integrations     |
+| 90 days | Longer-running services                    |
+| 1 year  | Maximum fixed preset in the app            |
+| Never   | No expiration — revoke manually when done  |
 
-After `expiresAt`, requests fail with `401` and `api_key_expired`. Create a replacement key before
-the old one lapses, update your integration, then revoke the old key.
+<Tip>
+  Prefer a fixed preset over **Never** for anything you can rotate. A key that never expires only
+  goes away when someone remembers to revoke it.
+</Tip>
+
+After `expiresAt`, requests fail with `401` and `api_key_expired`. Keys created with **Never** have
+no `expiresAt` and only stop working when revoked. Create a replacement key before a fixed-lifetime
+key lapses, update your integration, then revoke the old key.
 
 ## Organization isolation
 

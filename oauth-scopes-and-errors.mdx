@@ -1,0 +1,337 @@
+---
+title: "OAuth: Scopes, Endpoints & Errors"
+sidebarTitle: "Scopes & Errors"
+description: "Which OAuth scope unlocks which resource endpoint, the OAuth and resource error shapes, and a security checklist for your integration."
+icon: "shield-check"
+---
+
+## Reading organization data
+
+Resource endpoints sit under **`/v1/`**, not `/api/v1/` — that prefix belongs to the OAuth endpoints in [Authorization Code + PKCE](/oauth-authorization-code) and [Client Credentials](/oauth-client-credentials). They take a bearer token the same way, and unlike `userinfo` they accept a **Client Credentials** token, which is what makes unattended access possible.
+
+<Tip>
+  `GET /v1/ping` accepts any valid token and touches no organization data — the cheapest way to confirm a token works before debugging anything else.
+</Tip>
+
+<Info>
+  Every response nests its payload under `data`, alongside a `meta.requestId` worth logging — quote it when asking Soundlink about a specific request.
+</Info>
+
+The examples below cover the three read endpoints most integrations start with. See [Scopes and the endpoints they unlock](#scopes-and-the-endpoints-they-unlock) below for the full list — including the write scopes — and the [API reference](https://www.getsoundlink.com/docs/api-reference) for every parameter and response schema.
+
+### List campaigns
+
+`GET /v1/campaigns` · scope `campaigns:read`
+
+<CodeGroup>
+
+```bash cURL
+curl "https://api.getsoundlink.com/v1/campaigns?page=1&pageSize=10" \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Accept: application/json"
+```
+
+```ts TypeScript
+const url = new URL("https://api.getsoundlink.com/v1/campaigns");
+url.searchParams.set("page", "1");
+url.searchParams.set("pageSize", "10");
+
+const res = await fetch(url, {
+  headers: {
+    Authorization: `Bearer ${accessToken}`,
+    Accept: "application/json",
+  },
+});
+
+const { data } = await res.json();
+console.log(data.items, data.pagination.totalCount);
+```
+
+</CodeGroup>
+
+```json 200 Response
+{
+  "data": {
+    "items": [
+      {
+        "campaignId": "f1e28d31-c358-4284-9bef-00a2334625fd",
+        "organizationId": "org_xyz",
+        "status": "active",
+        "socialPlatform": "meta",
+        "dailyBudget": 20.0,
+        "totalBudget": 140.0,
+        "campaignDuration": 7,
+        "generation": 3,
+        "createdAt": "2026-04-01T10:00:00Z",
+        "updatedAt": "2026-04-08T12:00:00Z"
+      }
+    ],
+    "pagination": { "page": 1, "pageSize": 10, "totalCount": 42, "totalPages": 5 }
+  },
+  "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
+}
+```
+
+<ParamField query="page" default="1" type="integer">
+  Minimum `1`.
+</ParamField>
+
+<ParamField query="pageSize" default="10" type="integer">
+  Between `1` and `100`. Values outside the range are rejected with `400`.
+</ParamField>
+
+<ParamField query="sortBy" default="createdAt" type="string">
+  `createdAt` or `status`.
+</ParamField>
+
+<ParamField query="sortOrder" default="desc" type="string">
+  `asc` or `desc`.
+</ParamField>
+
+### One campaign
+
+`GET /v1/campaigns/{campaignId}` · scope `campaigns:read`
+
+```bash cURL
+curl https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+The list summary's fields, plus an optional `strategyType`. A campaign the token's organization does not own answers `404` — the same as one that does not exist, so ownership is not enumerable.
+
+<AccordionGroup>
+  <Accordion title="status values">
+    `creating` · `active` · `paused` · `stopped` · `completed` · `failed` · `ended`
+  </Accordion>
+
+  <Accordion title="generation values">
+    `1`, `2` or `3`. Writes are supported only for generation `3`.
+  </Accordion>
+</AccordionGroup>
+
+### Campaign metrics
+
+`GET /v1/campaigns/{campaignId}/metrics/overview` · scope `metrics:read`
+
+Totals for a date range, with no per-day rows.
+
+```bash cURL
+curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?startDate=2026-04-01&endDate=2026-04-08" \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+```json 200 Response
+{
+  "data": {
+    "listeners": 4821,
+    "streams": 9340,
+    "followers": 312,
+    "impressions": 48210,
+    "ad_clicks": 1120,
+    "link_clicks": 890,
+    "spend_media": 134.5,
+    "spend_total": 168.13,
+    "fees": 33.63,
+    "currency": "USD",
+    "cpl": 0.028,
+    "cpf": 0.43,
+    "streams_per_listener": 1.94
+  },
+  "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
+}
+```
+
+<ParamField query="startDate" default="campaign start" type="string">
+  `YYYY-MM-DD`, inclusive.
+</ParamField>
+
+<ParamField query="endDate" default="today" type="string">
+  `YYYY-MM-DD`, inclusive. Must be greater than or equal to `startDate`, or you get `400`.
+</ParamField>
+
+`cpl`, `cpf` and `streams_per_listener` are derived server-side — media spend per listener, per follower, and streams per listener, each `0` when listeners or followers are `0`. Handle `impressions`, `ad_clicks` and `link_clicks` as **nullable**: a platform that did not report them sends `null`, which is not the same as zero.
+
+<Warning>
+  `campaigns:read` does not imply `metrics:read`. A token holding only the first reads campaigns and gets `403 insufficient_scope` on metrics — so request both if you show them together, and handle each independently if you request them separately.
+</Warning>
+
+---
+
+## Scopes and the endpoints they unlock
+
+| Scope | Grants |
+| --- | --- |
+| `openid` | Verify Soundlink identity; required for `userinfo` |
+| `email` | View the user's email address |
+| `campaigns:read` | View campaigns |
+| `campaigns:write` | Create and manage wallet-funded campaigns |
+| `metrics:read` | View campaign metrics |
+| `videos:write` | Import partner videos for Full Control creatives |
+
+Request the minimum you need — the consent screen shows each scope to the user, and a shorter list converts better. `scope` values are space-separated, must be unique, and must fall within your client's registered `allowedScopes`.
+
+<Note>
+  `scopes_supported` in the [discovery document](/set-up-soundlink-oauth#discovery) is the authoritative list — it currently returns `openid`, `email`, `campaigns:read`, `campaigns:write`, `metrics:read` and `videos:write`.
+</Note>
+
+### No token — client authentication only
+
+| Endpoint | Notes |
+| --- | --- |
+| `GET /.well-known/oauth-authorization-server` | Public. No credentials. |
+| `GET /api/v1/oauth/authorize` | Starts consent. `client_id` \+ PKCE. |
+| `POST /api/v1/oauth/token` | `client_id` \+ `client_secret` (or PKCE verifier). |
+| `POST /api/v1/oauth/grants/revoke` | `client_id` \+ `client_secret` \+ `grant_id`. |
+
+### Any scope
+
+| Endpoint | Notes |
+| --- | --- |
+| `GET /v1/ping` | Verifies connectivity and authentication. Any valid token passes. |
+
+### `openid`
+
+| Endpoint | Notes |
+| --- | --- |
+| `GET /api/v1/oauth/userinfo` | **Authorization Code tokens only.** A Client Credentials token gets `403 access_denied`. |
+
+### `email`
+
+Adds the `email` claim to the `userinfo` response. Unlocks no endpoint of its own.
+
+### `campaigns:read`
+
+| Endpoint | Notes |
+| --- | --- |
+| `GET /v1/strategies` | See reference |
+| `GET /v1/campaigns` | Paginated, `createdAt desc` by default. |
+| `GET /v1/campaigns/{campaignId}` | Adds `strategyType`. `404` when not owned. |
+| `GET /v1/campaigns/{campaignId}/tiers` | See reference |
+
+### `campaigns:write`
+
+Wallet-funded campaigns only. Same endpoints and rules as the API key scope of the same name — see [Creating campaigns](/creating-campaigns) and [Managing campaigns](/managing-campaigns).
+
+| Endpoint | Notes |
+| --- | --- |
+| `POST /v1/campaigns` | Create a campaign. Requires an `Idempotency-Key` header. |
+| `PATCH /v1/campaigns/{campaignId}/tiers` | Enable/disable tiers and reallocate budget shares. |
+| `POST /v1/campaigns/{campaignId}/stop` | Stop delivery. |
+| `POST /v1/campaigns/{campaignId}/budget/increase` | Increase daily budget. |
+| `POST /v1/campaigns/{campaignId}/budget/decrease` | Decrease daily budget. |
+
+### `metrics:read`
+
+| Endpoint | Notes |
+| --- | --- |
+| `GET /v1/campaigns/{campaignId}/metrics/overview` | Totals for a date range. |
+| `GET /v1/campaigns/{campaignId}/metrics/breakdown` | See reference |
+| `GET /v1/campaigns/{campaignId}/metrics/breakdown/export` | See reference |
+| `GET /v1/campaigns/{campaignId}/metrics/engagement/export` | See reference |
+
+### `videos:write`
+
+Same endpoints and rate limit as the API key scope of the same name — see [Importing videos](/importing-videos).
+
+| Endpoint | Notes |
+| --- | --- |
+| `POST /v1/videos/import` | Import a partner video. Stricter per-key rate limit (5 imports/hour). |
+| `GET /v1/videos/import/{id}` | Check import status. |
+
+<Card title="API reference" icon="book-open" href="https://www.getsoundlink.com/docs/api-reference">
+  Request parameters, response schemas and error codes for every endpoint above.
+</Card>
+
+<Note>
+  The reference documents these endpoints with `Authorization: Bearer sk_...` authentication (the
+  `x-api-key` header also still works but is deprecated, retiring 2026-08-17). The same endpoints
+  accept an OAuth bearer token too — send `Authorization: Bearer <access_token>` in place of the
+  API key, and the scopes above apply.
+</Note>
+
+---
+
+## Errors and rate limits
+
+All OAuth errors return `{ "error": "<code>" }`.
+
+| Code | Typical status | Cause |
+| --- | --- | --- |
+| `invalid_request` | `400` | Missing/malformed parameter, or a JSON body where form encoding is required |
+| `invalid_client` | `401` | `client_id`/`client_secret` rejected |
+| `invalid_grant` | `400` | Code invalid, reused or expired; or no active grant |
+| `unauthorized_client` | `400` | Client not allowed to use this grant type |
+| `unsupported_grant_type` | `400` | `grant_type` is not one of the two supported values |
+| `unsupported_response_type` | `400` | `response_type` is not `code` |
+| `invalid_scope` | `400` | Scope unknown, duplicated, or outside what was granted |
+| `invalid_token` | `401` | Bearer token missing, malformed or expired |
+| `insufficient_scope` | `403` | Token lacks a required scope |
+| `access_denied` | `403` (or redirect) | User declined; or wrong grant type |
+| `temporarily_unavailable` | `429` | Rate limited |
+
+### Resource errors have a different shape
+
+The `/v1/` resource endpoints wrap the error in an object and add a request id, rather than returning the flat `{ "error": "<code>" }` the OAuth endpoints use. Branch on the nested `error.code`:
+
+```json 401
+{
+  "error": {
+    "code": "invalid_token",
+    "message": "OAuth access token is invalid or expired."
+  },
+  "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
+}
+```
+
+`400` (bad query), `401`, `403`, `404`, `429` and `500` are all possible. A `404` carries `campaign_not_found` — returned both for a campaign that does not exist and for one your organization does not own.
+
+### Authorize error behaviour
+
+Two distinct behaviours, which affect how you handle failures:
+
+<Tabs>
+  <Tab title="Redirected errors">
+    When `client_id` and `redirect_uri` are both valid, validation failures redirect to your callback with `?error=<code>&state=<state>`. Handle these in your callback route.
+  </Tab>
+  <Tab title="Direct errors">
+    When `client_id` is unknown or revoked, or `redirect_uri` is missing or unregistered, Soundlink responds `400` **without redirecting** — it will not send a user to an unverified URL. These surface as a browser error page, so catch them in staging.
+  </Tab>
+</Tabs>
+
+### Rate limits
+
+`/authorize` and `/token` are rate limited per client; exceeding the limit returns `429` with `temporarily_unavailable` and a `Retry-After` header. Respect it with backoff. Caching Client Credentials tokens for their full hour (see [Client Credentials](/oauth-client-credentials)) keeps normal usage far below any limit.
+
+---
+
+## Security checklist
+
+<AccordionGroup>
+  <Accordion title="Always send and verify state" icon="shield-check">
+    Generate an unguessable `state` per authorization request, bind it to the user's session, and reject any callback whose `state` does not match. This is your CSRF defence on the redirect.
+  </Accordion>
+
+  <Accordion title="Keep the PKCE verifier server-side" icon="lock">
+    The `code_verifier` must never reach the browser, a URL, or client-side storage. Hold it in a signed httpOnly cookie or server session with a short TTL, and consume it once.
+  </Accordion>
+
+  <Accordion title="Store the client secret in a secrets manager" icon="vault">
+    Never commit it, never ship it in a client bundle, never expose it through an API response. Load it from the environment at runtime and rotate by requesting a new client. Exchange codes and request tokens only from your backend.
+  </Accordion>
+
+  <Accordion title="Register exact redirect URIs" icon="link">
+    Use the fewest possible, all HTTPS, each a complete URL. Never build a redirect target from user input or an open redirector, and do not rely on prefix matching — none is performed.
+  </Accordion>
+
+  <Accordion title="Redact tokens and secrets from logs" icon="eye-slash">
+    Treat `code`, `code_verifier`, `client_secret`, `access_token` and full `Authorization` headers as secrets. Log the token's `exp` and `organization_id` if you need traceability, not the token. Watch for accidental capture in request-body logs, error reporters and APM traces — a `400` from the token endpoint often carries the whole form body.
+  </Accordion>
+
+  <Accordion title="Do not trust unverified token claims" icon="triangle-exclamation">
+    No JWKS is published, so token signatures cannot be verified by clients. Decode claims only to read values from a token you just received over TLS, and never as an authorization decision in your own system.
+  </Accordion>
+</AccordionGroup>
+
+## Next
+
+Back to the [OAuth overview](/set-up-soundlink-oauth) for discovery, client onboarding, and the reference app.

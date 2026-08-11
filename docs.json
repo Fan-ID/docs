@@ -93,7 +93,10 @@
               {
                 "group": "OAuth",
                 "pages": [
-                  "set-up-soundlink-oauth"
+                  "set-up-soundlink-oauth",
+                  "oauth-authorization-code",
+                  "oauth-client-credentials",
+                  "oauth-scopes-and-errors"
                 ]
               }
             ]
