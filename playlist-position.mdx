@@ -1,0 +1,45 @@
+---
+title: Playlist position
+description: Read daily track positions on playlist campaigns from the engagement export.
+---
+
+Playlist campaigns include `playlist_position` on engagement export rows. Use it to see which slot each engaged track held on the campaign playlist for that day.
+
+## Get the data
+
+Same endpoint as other engagement rows — no new route:
+
+`GET /v1/campaigns/{campaignId}/metrics/engagement/export?engagementContext=playlist`
+
+Requires the `metrics:read` scope. See [JSONL exports](/jsonl-exports) for streaming and date windows.
+
+```bash
+curl -sS \
+  'https://api.getsoundlink.com/v1/campaigns/{campaignId}/metrics/engagement/export?engagementContext=playlist&startDate=2026-04-01&endDate=2026-04-30' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Accept: application/x-ndjson'
+```
+
+Each line is a JSON object. Read `playlist_position` on rows where `engagement_context` is `playlist`.
+
+## What the value means
+
+| Value | Meaning |
+| ----- | ------- |
+| `1`, `2`, … | 1-based slot that day (`1` = top of the playlist) |
+| `null` | Not available yet, not listed that day, or catalog row |
+
+Position comes from a daily playlist crawl for `report_date`. Historical days with a completed crawl should show a position when the track was listed.
+
+## When `null` is expected
+
+- **Catalog rows** (`engagement_context = catalog`) — position applies to playlist campaigns only
+- **Current UTC day** — often `null` until the morning crawl finishes; it fills on the next data refresh
+- **Track not on the playlist** that day
+- **Historical backfill still pending** — coverage for recent active days is high; older gaps may still catch up
+
+Treat `null` as unavailable — not an error. If a historical day looks wrong after crawl coverage is complete, contact [hello@getsoundlink.com](mailto:hello@getsoundlink.com).
+
+## Next
+
+[Understanding metrics](/understanding-metrics) · [JSONL exports](/jsonl-exports) · [API Reference](/api-reference)

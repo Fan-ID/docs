@@ -51,6 +51,8 @@ Engagement rows also include `campaign_target_isrc` and `campaign_target_spotify
 
 Filter with `?engagementContext=catalog` or `playlist` when you only need one slice.
 
+Playlist engagement rows include `playlist_position` — the track's 1-based slot on the campaign playlist for that `report_date`. See [Playlist position](/playlist-position).
+
 ## Data mutability
 
 Rows for a given `report_date` can change for up to **7 days** after the date closes (delayed Meta and Spotify events). Re-fetch and re-ingest on the primary key — it is idempotent.
@@ -61,4 +63,4 @@ On engagement rows, **do not sum `listeners` across days** — the same listener
 
 ## Next
 
-[JSONL exports](/jsonl-exports) · [API Reference](/api-reference)
+[Playlist position](/playlist-position) · [JSONL exports](/jsonl-exports) · [API Reference](/api-reference)
