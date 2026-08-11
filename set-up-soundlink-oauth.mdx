@@ -110,23 +110,6 @@ You will receive a `client_id` and a `client_secret`.
   Because redirect URIs must be HTTPS, local development needs an HTTPS tunnel (ngrok, Cloudflare Tunnel, or similar). Register the tunnel URL as an additional redirect URI.
 </Tip>
 
-## Next
-
-<CardGroup cols={2}>
-  <Card title="Authorization Code + PKCE" icon="user-check" href="/oauth-authorization-code">
-    Connect a user's organization step by step, then read their identity via `userinfo`.
-  </Card>
-  <Card title="Client Credentials" icon="server" href="/oauth-client-credentials">
-    Mint unattended tokens for an existing grant, and revoke a grant when done.
-  </Card>
-  <Card title="Scopes, endpoints & errors" icon="shield-check" href="/oauth-scopes-and-errors">
-    Which scope unlocks which route, error codes, and a security checklist.
-  </Card>
-  <Card title="soundlink-oauth-example" icon="github" href="https://github.com/Fan-ID/soundlink-oauth-example">
-    A complete, runnable Next.js reference implementation — see below.
-  </Card>
-</CardGroup>
-
 ---
 
 ## Reference application
@@ -169,5 +152,19 @@ Useful entry points:
 
   <Card title="Confidential clients only" icon="user-lock">
     No dynamic client registration and no public-client support.
+  </Card>
+</CardGroup>
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Authorization Code + PKCE" icon="user-check" href="/oauth-authorization-code">
+    Connect a user's organization step by step, then read their identity via `userinfo`.
+  </Card>
+  <Card title="Client Credentials" icon="server" href="/oauth-client-credentials">
+    Mint unattended tokens for an existing grant, and revoke a grant when done.
+  </Card>
+  <Card title="Scopes, endpoints & errors" icon="shield-check" href="/oauth-scopes-and-errors">
+    Which scope unlocks which route, error codes, and a security checklist.
   </Card>
 </CardGroup>
