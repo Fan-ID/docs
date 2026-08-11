@@ -888,7 +888,7 @@ paths:
                 $ref: '#/components/schemas/EngagementRow'
               example: |
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112cc9a","schema_version":"1.0","report_date":"2026-04-08","report_date_timezone":"UTC","exported_at":"2026-05-22T10:12:11Z","campaign_id":"8ccd7b88-2591-4b94-848f-f142f5c6bba1","campaign_name":"9 To 5","campaign_target_type":"track","campaign_target_isrc":"DEXW62500272","campaign_target_spotify_track_id":"2RkZ5WPkKyBf0u8vN3dNgb","campaign_target_playlist_id":null,"status":"ended","engagement_context":"catalog","country_code":"US","engaged_track_isrc":"DEXW62500001","engaged_spotify_track_id":"4cOdK2wGLETKBW3PvgPWqT","engaged_track_name":"Till The Sunrise","playlist_position":null,"new_listeners":42,"returning_listeners":18,"listeners":60,"new_listener_streams":58,"returning_listener_streams":31,"streams":89,"spl":1.48}
-                {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112cc9a","schema_version":"1.0","report_date":"2026-04-08","report_date_timezone":"UTC","exported_at":"2026-05-22T10:12:11Z","campaign_id":"8ccd7b88-2591-4b94-848f-f142f5c6bba1","campaign_name":"9 To 5","campaign_target_type":"track","campaign_target_isrc":"DEXW62500272","campaign_target_spotify_track_id":"2RkZ5WPkKyBf0u8vN3dNgb","campaign_target_playlist_id":null,"status":"ended","engagement_context":"catalog","country_code":"DE","engaged_track_isrc":"DEXW62500001","engaged_spotify_track_id":"4cOdK2wGLETKBW3PvgPWqT","engaged_track_name":"Till The Sunrise","playlist_position":14,"new_listeners":19,"returning_listeners":7,"listeners":26,"new_listener_streams":24,"returning_listener_streams":11,"streams":35,"spl":1.35}
+                {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-04-08","report_date_timezone":"UTC","exported_at":"2026-05-22T10:12:11Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"playlist","campaign_target_isrc":null,"campaign_target_spotify_track_id":null,"campaign_target_playlist_id":"37i9dQZF1DXcBWIGoYBM5M","status":"active","engagement_context":"playlist","country_code":"DE","engaged_track_isrc":"DEXW62500001","engaged_spotify_track_id":"4cOdK2wGLETKBW3PvgPWqT","engaged_track_name":"Till The Sunrise","playlist_position":14,"new_listeners":19,"returning_listeners":7,"listeners":26,"new_listener_streams":24,"returning_listener_streams":11,"streams":35,"spl":1.35}
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2029,9 +2029,11 @@ components:
           nullable: true
           minimum: 1
           description: |
-            1-based slot index of the engaged track in the promoted playlist on `report_date`.
-            Populated for `engagement_context = playlist` when playlist snapshot data is available.
-            `null` for catalog rows and until position data is delivered (reserved for future delivery in v1.0).
+            1-based slot of the engaged track on the promoted playlist for `report_date` (1 = top).
+            Populated only when `engagement_context = playlist` and that day's playlist crawl listed the track.
+            `null` for catalog rows; before the day's crawl completes (current UTC day is often null until later morning UTC);
+            when the track was not listed or could not be matched to that day's crawl; or while historical backfill is still catching up.
+            Field is beta until historical backfill finishes. Treat `null` as unavailable — not an error.
         new_listeners:
           type: integer
           minimum: 0
