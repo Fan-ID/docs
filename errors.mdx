@@ -63,7 +63,7 @@ Returned by video import routes (`videos:write`). See [Importing videos](/import
 | 400  | `invalid_video_url`              | Not HTTPS, unreachable, not MP4, over 50 MB, or download timed out |
 | 403  | `video_import_limit_exceeded`    | Plan video quota or organization storage limit exceeded            |
 | 404  | `video_import_session_not_found` | Unknown session or another organization's session                  |
-| 429  | `rate_limit_exceeded`            | Stricter per-key limit: 5 imports/hour (honor `Retry-After`)       |
+| 429  | `rate_limit_exceeded`            | Stricter per-key limit: 20 imports/hour (honor `Retry-After`)      |
 
 ## Pagination limits
 

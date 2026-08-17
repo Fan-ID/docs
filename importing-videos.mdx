@@ -99,14 +99,15 @@ Imported videos also appear in your video library in the Soundlink app, alongsid
 
 | Limit                | Value                            | On violation                        |
 | -------------------- | -------------------------------- | ----------------------------------- |
-| Rate limit           | **5 imports/hour** per API key   | `429` — honor `Retry-After`         |
+| Rate limit           | **20 imports/hour** per API key  | `429` — honor `Retry-After`         |
 | File size            | **50 MB** per video              | `400 invalid_video_url`             |
 | Plan video quota     | Your plan's custom videos limit  | `403 video_import_limit_exceeded`   |
 | Organization storage | **2 GB** total                   | `403 video_import_limit_exceeded`   |
 
 <Note>
-  The video import rate limit (5/hour) is stricter than the general Public API rate limit and is
-  counted separately per API key.
+  The video import rate limit (20/hour) is stricter than the general Public API rate limit, is
+  counted separately per API key, and applies to how many import requests we accept — not how long
+  ingestion takes.
 </Note>
 
 ## Errors
@@ -117,7 +118,7 @@ Imported videos also appear in your video library in the Soundlink app, alongsid
 | 403  | `insufficient_scope`              | Key missing the `videos:write` scope                               |
 | 403  | `video_import_limit_exceeded`     | Plan video quota or 2 GB organization storage exceeded             |
 | 404  | `video_import_session_not_found`  | Unknown session or another organization's session                  |
-| 429  | `rate_limit_exceeded`             | More than 5 imports in an hour (honor `Retry-After`)               |
+| 429  | `rate_limit_exceeded`             | More than 20 imports in an hour (honor `Retry-After`)              |
 
 See [Errors](/errors) for the full list.
 
