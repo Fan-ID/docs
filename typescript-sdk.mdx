@@ -46,7 +46,7 @@ const soundlink = new Soundlink({
 
 You can also pass the key as a string: `new Soundlink('sk_your_prefix_your_secret')`.
 
-The client sends `x-api-key` on every request. Your organization is determined from the key.
+The client sends `Authorization: Bearer` on every request. Your organization is determined from the key.
 
 ## 3. Ping and list campaigns
 

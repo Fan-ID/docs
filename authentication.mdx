@@ -93,16 +93,7 @@ Pass the full string in the **`Authorization`** header as a Bearer token (recomm
 -H 'Authorization: Bearer sk_abc123_...'
 ```
 
-<Warning>
-  The **`x-api-key`** header is deprecated and retiring **2026-08-17**. It still works today, but
-  migrate to `Authorization: Bearer` above before then:
-
-  ```bash
-  -H 'x-api-key: sk_abc123_...'
-  ```
-</Warning>
-
-Send exactly one of the two — sending both, or an unrecognized `Authorization` value, returns `401` with code `mixed_credentials`. Do **not** send Firebase Bearer tokens or legacy product headers on this host.
+An unrecognized `Authorization` value returns `401` with code `invalid_api_key`. Do **not** send Firebase Bearer tokens or legacy product headers on this host.
 
 ## Scopes (v1)
 
