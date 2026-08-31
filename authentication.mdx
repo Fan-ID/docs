@@ -103,11 +103,17 @@ Scopes limit which endpoints a key can call. Select them when you create the key
 | ----------------- | ---------------------------------------------------------------------- | ------------- |
 | `campaigns:read`  | List campaigns, campaign detail, strategy catalog, campaign tiers      | Yes           |
 | `metrics:read`    | Metrics overview, breakdown, exports                                   | Yes           |
+| `soundlinks:read` | List soundlinks, soundlink detail, soundlink metrics                    | Yes           |
 | `campaigns:write` | Create/stop wallet campaigns, budget increase/decrease, tier updates   | Yes           |
 | `videos:write`    | Import partner videos for Full Control creatives                       | Yes           |
 
 Typical read-only integrations enable **both** `campaigns:read` and `metrics:read`.
+Add `soundlinks:read` when you need self-serve soundlink catalog or Insights metrics.
 Add `campaigns:write` only when the integration should spend wallet credit or manage delivery.
+
+<Note>
+  `soundlinks:read` is minted on **new** keys only. Existing keys keep their original scopes — create a new key to get access. See [Soundlinks](/soundlinks).
+</Note>
 
 <Note>
   `GET /v1/ping` accepts any valid v1 key regardless of which read scopes you
@@ -154,6 +160,7 @@ Revoked keys stay visible in the list with status and date so you can audit past
 | `GET /v1/ping`                                | Valid key only (any v1 scope) |
 | `GET /v1/campaigns`, `/v1/strategies`, etc.   | `campaigns:read`              |
 | Metrics overview / breakdown / exports        | `metrics:read`                |
+| `GET /v1/soundlinks` and soundlink metrics      | `soundlinks:read`            |
 | Create / stop / budget / tier write routes    | `campaigns:write`             |
 | Video import routes                           | `videos:write`                |
 

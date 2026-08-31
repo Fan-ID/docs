@@ -166,6 +166,7 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
 | `campaigns:read` | View campaigns |
 | `campaigns:write` | Create and manage wallet-funded campaigns |
 | `metrics:read` | View campaign metrics |
+| `soundlinks:read` | View self-serve soundlinks and their metrics |
 | `videos:write` | Import partner videos for Full Control creatives |
 
 Request the minimum you need — the consent screen shows each scope to the user, and a shorter list converts better. `scope` values are space-separated, must be unique, and must fall within your client's registered `allowedScopes`.
@@ -228,6 +229,18 @@ Wallet-funded campaigns only. Same endpoints and rules as the API key scope of t
 | `GET /v1/campaigns/{campaignId}/metrics/breakdown` | See reference |
 | `GET /v1/campaigns/{campaignId}/metrics/breakdown/export` | See reference |
 | `GET /v1/campaigns/{campaignId}/metrics/engagement/export` | See reference |
+
+### `soundlinks:read`
+
+Self-serve soundlinks (no Soundlink-funded campaign). Same routes as the API key scope — see [Soundlinks](/soundlinks). `metrics:read` does not unlock these routes.
+
+| Endpoint | Notes |
+| --- | --- |
+| `GET /v1/soundlinks` | Paginated catalog. Campaign-linked soundlinks are omitted. |
+| `GET /v1/soundlinks/{soundlinkId}` | Detail. `404` when not owned or campaign-linked. |
+| `GET /v1/soundlinks/{soundlinkId}/metrics/overview` | Period totals. Maps to Insights **Overview**. |
+| `GET /v1/soundlinks/{soundlinkId}/metrics/timeseries` | Per-day rows (`soundlink_daily`). |
+| `GET /v1/soundlinks/{soundlinkId}/metrics/engagement` | Paginated top tracks for the period. |
 
 ### `videos:write`
 

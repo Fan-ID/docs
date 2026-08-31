@@ -82,6 +82,7 @@
                 "group": "API guides",
                 "pages": [
                   "syncing-campaigns",
+                  "soundlinks",
                   "creating-campaigns",
                   "managing-campaigns",
                   "importing-videos",
