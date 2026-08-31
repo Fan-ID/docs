@@ -1207,6 +1207,9 @@ paths:
 
         Returns period totals per track (not daily rows). Maps to the top
         tracks section of the **Overview** tab in the Soundlink Insights UI.
+        `startDate`/`endDate` snap to the same Insights windows: yesterday,
+        last 7 days (inclusive span ending today), or all-time. Omitting
+        `startDate` always uses all-time (it is not inferred from createdAt).
 
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
       tags: [Soundlinks]
