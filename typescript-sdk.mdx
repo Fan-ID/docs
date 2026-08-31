@@ -1,6 +1,6 @@
 ---
 title: Access the API with TypeScript
-description: Install the soundlink SDK and call campaigns, write methods, and metrics from Node.js or Edge.
+description: Install the soundlink SDK and call campaigns, soundlinks, write methods, and metrics from Node.js or Edge.
 ---
 
 Install the official **`soundlink`** package to call the Public API with full TypeScript types. For raw HTTP, see [Quickstart](/quickstart). Not sure which approach fits your stack? See [SDK overview](/sdks).
@@ -129,6 +129,45 @@ await soundlink.campaigns.stop(created.campaignId, {
 });
 ```
 
+## Soundlinks (self-serve)
+
+Requires `soundlinks:read`. Returns only soundlinks **not** linked to a campaign — campaign-backed links use the Campaigns API. Responses have no spend or fee fields (ads run in your Meta account).
+
+```typescript
+const { data: links, error: linksError } = await soundlink.soundlinks.list({
+  page: 1,
+  pageSize: 100,
+  sortBy: "createdAt",
+  sortOrder: "desc",
+});
+
+if (linksError) {
+  console.error(linksError.code, linksError.message);
+}
+
+const { data: detail } = await soundlink.soundlinks.get("V1StGXR8_Z5jdHi6B-myT");
+// detail?.autoFollow, detail?.metaPixelId, detail?.tiktokPixelId
+
+const { data: overview } = await soundlink.soundlinks.metricsOverview(
+  "V1StGXR8_Z5jdHi6B-myT",
+  { startDate: "2026-08-01", endDate: "2026-08-31" },
+);
+
+const { data: timeseries } = await soundlink.soundlinks.metricsTimeseries(
+  "V1StGXR8_Z5jdHi6B-myT",
+  { page: 1, pageSize: 50 },
+);
+
+// Engagement dates snap to Insights windows only (yesterday / last 7 days /
+// all-time). Omitting startDate uses all-time — not createdAt.
+const { data: engagement } = await soundlink.soundlinks.engagement(
+  "V1StGXR8_Z5jdHi6B-myT",
+  { sortBy: "totalStreams" },
+);
+```
+
+Full REST guide: [Soundlinks](/soundlinks). Scopes: [Authentication](/authentication).
+
 ## Response pattern
 
 Every method returns `{ data, error, meta? }` — the same envelope as the REST API. HTTP errors are **not thrown**; check `error` and use `requestId` when contacting support.
@@ -226,6 +265,21 @@ Requires `campaigns:write`. Pass `{ idempotencyKey }` on create, stop, and budge
 | `soundlink.campaigns.tiers.get(id)` | `GET .../tiers` | `ApiResponse<CampaignTiersData>` |
 | `soundlink.campaigns.tiers.update(id, body)` | `PATCH .../tiers` | `ApiResponse<CampaignTiersData>` |
 
+### Soundlinks
+
+Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
+
+| Method | REST endpoint | Returns |
+| ------ | ------------- | ------- |
+| `soundlink.soundlinks.list(params?)` | `GET /v1/soundlinks` | `ApiResponse<SoundlinkListData>` |
+| `soundlink.soundlinks.get(soundlinkId)` | `GET /v1/soundlinks/{id}` | `ApiResponse<SoundlinkDetail>` |
+| `soundlink.soundlinks.metricsOverview(id, params?)` | `GET .../metrics/overview` | `ApiResponse<SoundlinkMetricsOverview>` |
+| `soundlink.soundlinks.metricsTimeseries(id, params?)` | `GET .../metrics/timeseries` | `ApiResponse<SoundlinkTimeseriesData>` |
+| `soundlink.soundlinks.engagement(id, params?)` | `GET .../metrics/engagement` | `ApiResponse<SoundlinkEngagementData>` |
+
+`list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
+Timeseries `pageSize` max is **500**. Engagement `pageSize` max is **100**; date ranges snap to Insights windows (yesterday / last 7 days ending today / all-time).
+
 ### Metrics
 
 Requires `metrics:read`.
@@ -259,11 +313,23 @@ import type {
   CreateCampaignRequest,
   CampaignCreateData,
   StrategiesCatalogData,
+  SoundlinkSummary,
+  SoundlinkDetail,
+  SoundlinkListData,
+  SoundlinkListParams,
+  SoundlinkMetricsOverview,
+  SoundlinkTimeseriesData,
+  SoundlinkTimeseriesParams,
+  SoundlinkDailyRow,
+  SoundlinkEngagementData,
+  SoundlinkEngagementParams,
   MetricsOverview,
   BreakdownRow,
   BreakdownListData,
   BreakdownListParams,
+  BreakdownExportParams,
   EngagementRow,
+  EngagementExportParams,
   ExportCollection,
   JsonlStream,
   SoundlinkClientOptions,
@@ -271,15 +337,16 @@ import type {
 } from "soundlink";
 ```
 
-| Group         | Types                                                                                            |
-| ------------- | ------------------------------------------------------------------------------------------------ |
-| **Envelope**  | `ApiResponse<T>`, `ApiError`, `ApiMeta`, `PublicApiErrorCode`                                    |
-| **Campaigns** | `CampaignSummary`, `CampaignDetail`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
+| Group          | Types                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| **Envelope**   | `ApiResponse<T>`, `ApiError`, `ApiMeta`, `PublicApiErrorCode`                                    |
+| **Campaigns**  | `CampaignSummary`, `CampaignDetail`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
+| **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkDailyRow`, `SoundlinkEngagementItem` |
 | **Strategies** | `StrategiesCatalogData`, `StrategyCatalogItem`, `StrategyType`                                  |
-| **Metrics**   | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
-| **Params**    | `DateRangeParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
-| **Exports**   | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
-| **Client**    | `Soundlink`, `SoundlinkClientOptions`                                                            |
+| **Metrics**    | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
+| **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkTimeseriesParams`, `SoundlinkEngagementParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
+| **Exports**    | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
+| **Client**     | `Soundlink`, `SoundlinkClientOptions`                                                            |
 
 Row shapes match the warehouse schemas documented in [Understanding metrics](/understanding-metrics). For full field lists, use the [API Reference](/api-reference) or your IDE hover hints on the imported types.
 
@@ -341,4 +408,4 @@ Use `try/catch` for client setup and rare transport failures. Use `{ data, error
 
 ## Next
 
-[Creating campaigns](/creating-campaigns) → [Managing campaigns](/managing-campaigns) → [Syncing campaigns](/syncing-campaigns) → [Understanding metrics](/understanding-metrics)
+[Soundlinks](/soundlinks) → [Creating campaigns](/creating-campaigns) → [Managing campaigns](/managing-campaigns) → [Understanding metrics](/understanding-metrics)
