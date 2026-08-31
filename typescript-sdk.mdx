@@ -320,13 +320,17 @@ import type {
   SoundlinkListParams,
   SoundlinkMetricsOverview,
   SoundlinkTimeseriesData,
+  SoundlinkTimeseriesParams,
+  SoundlinkDailyRow,
   SoundlinkEngagementData,
   SoundlinkEngagementParams,
   MetricsOverview,
   BreakdownRow,
   BreakdownListData,
   BreakdownListParams,
+  BreakdownExportParams,
   EngagementRow,
+  EngagementExportParams,
   ExportCollection,
   JsonlStream,
   SoundlinkClientOptions,
@@ -341,7 +345,7 @@ import type {
 | **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkDailyRow`, `SoundlinkEngagementItem` |
 | **Strategies** | `StrategiesCatalogData`, `StrategyCatalogItem`, `StrategyType`                                  |
 | **Metrics**    | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
-| **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkTimeseriesParams`, `SoundlinkEngagementParams`, `BreakdownListParams`, `IdempotencyOptions` |
+| **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkTimeseriesParams`, `SoundlinkEngagementParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
 | **Exports**    | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
 | **Client**     | `Soundlink`, `SoundlinkClientOptions`                                                            |
 
