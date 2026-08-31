@@ -172,7 +172,7 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
 Request the minimum you need — the consent screen shows each scope to the user, and a shorter list converts better. `scope` values are space-separated, must be unique, and must fall within your client's registered `allowedScopes`.
 
 <Note>
-  `scopes_supported` in the [discovery document](/set-up-soundlink-oauth#discovery) is the authoritative list — it currently returns `openid`, `email`, `campaigns:read`, `campaigns:write`, `metrics:read` and `videos:write`.
+  `scopes_supported` in the [discovery document](/set-up-soundlink-oauth#discovery) is the authoritative list — it currently returns `openid`, `email`, `campaigns:read`, `campaigns:write`, `metrics:read`, `videos:write` and `soundlinks:read`.
 </Note>
 
 ### No token — client authentication only
