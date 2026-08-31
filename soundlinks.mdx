@@ -8,7 +8,7 @@ Use the Soundlinks API when your organization runs soundlinks **without** a Soun
 Requires `soundlinks:read`. See [Authentication](/authentication#scopes-v1).
 
 <Note>
-  Existing API keys keep the scopes they were minted with. Create a **new** key (or re-mint) and select `soundlinks:read` to call these routes.
+  Existing API keys keep the scopes they were minted with. Create a **new** key and add `soundlinks:read` to call these routes.
 </Note>
 
 Campaign-linked soundlinks are the campaign's underlying resource. List and detail them with the Campaigns API. A campaign-backed `soundlinkId` on these routes returns `404`. Missing `soundlinks:read` returns `403 insufficient_scope`. See [Errors](/errors) for the full list.
@@ -51,7 +51,9 @@ Soundlink metrics have no spend, fees, or efficiency fields (`cpl`, `cpf`). Ads 
 | Per-day rows | `/metrics/timeseries` | **Trends** |
 | Top tracks (period totals, not daily) | `/metrics/engagement` | **Overview** top tracks |
 
-`startDate` and `endDate` are inclusive (`YYYY-MM-DD`). They default to the soundlink creation date and today.
+On overview and timeseries, `startDate` and `endDate` are inclusive (`YYYY-MM-DD`). They default to the soundlink creation date and today.
+
+Engagement does **not** use that default. It snaps to the Insights windows: yesterday, the last 7 days ending today, or all-time. Omit `startDate` for all-time — that is not the soundlink creation date. An arbitrary range such as a calendar month snaps to all-time.
 
 ## Overview
 
@@ -93,8 +95,10 @@ Paginated period totals per track — not daily rows, and not the campaign JSONL
 
 Each item includes `trackId`, `trackName`, `totalStreams`, `totalListeners`, and `streamsPerListener`. There is no `playlist_position` on this endpoint.
 
+Omit `startDate` (and `endDate`) for all-time. Pass a single UTC day of yesterday for yesterday, or an inclusive 7-day span whose `endDate` is today for last 7 days. Other ranges snap to all-time.
+
 ```bash
-curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/engagement?startDate=2026-08-01&endDate=2026-08-31&page=1&pageSize=100' \
+curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/engagement?page=1&pageSize=100' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
@@ -109,7 +113,7 @@ flowchart LR
 
 1. **Daily:** `GET /v1/soundlinks` — upsert catalog
 2. **Daily:** overview for dashboards and/or timeseries for warehouse loads
-3. **Optional:** engagement for top tracks in the same window
+3. **Optional:** engagement for top tracks (yesterday, last 7 days, or all-time — not the overview/timeseries date range)
 
 Your organization is determined only from the API key. You never pass `organization_id` in query params — timeseries rows include `account_id` for your org.
 
