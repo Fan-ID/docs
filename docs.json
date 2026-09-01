@@ -148,6 +148,7 @@
               "PATCH /v1/campaigns/{campaignId}/tiers",
               {
                 "group": "Metrics",
+                "expanded": true,
                 "pages": [
                   "GET /v1/campaigns/{campaignId}/metrics/overview",
                   "GET /v1/campaigns/{campaignId}/metrics/breakdown",
