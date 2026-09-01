@@ -1199,7 +1199,7 @@ paths:
   /v1/soundlinks/{soundlinkId}/metrics/engagement:
     get:
       operationId: getSoundlinkEngagement
-      summary: Soundlink engagement (top tracks)
+      summary: Soundlink engagement
       description: |
         Top tracks for a soundlink, aggregated over the requested date range.
         One item per track, sorted by streams by default. Results are
