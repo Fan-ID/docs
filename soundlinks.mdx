@@ -1,9 +1,9 @@
 ---
 title: Soundlinks
-description: List self-serve soundlinks and read Overview, Trends, and top-track metrics.
+description: List soundlinks without a campaign and read overview, timeseries, and engagement metrics.
 ---
 
-Use the Soundlinks API when your organization runs soundlinks **without** a Soundlink-funded campaign. Those soundlinks do not appear in `GET /v1/campaigns`. For paid campaigns, use [Syncing campaigns](/syncing-campaigns) instead.
+Use the Soundlinks API for soundlinks **without** a Soundlink-funded campaign. Those soundlinks do not appear in `GET /v1/campaigns`. For paid campaigns, use [Syncing campaigns](/syncing-campaigns) instead.
 
 Requires `soundlinks:read`. See [Authentication](/authentication#scopes-v1).
 
@@ -43,13 +43,13 @@ Use the `soundlinkId` from the list response in all `/metrics/*` paths.
 
 ## Which metrics endpoint
 
-Soundlink metrics have no spend, fees, or efficiency fields (`cpl`, `cpf`). Ads run in your own Meta account, so those fields are omitted from the schema — they are not `null`. There is no JSONL export or country breakdown in this phase.
+Soundlink metrics omit spend, fees, and efficiency fields (`cpl`, `cpf`) — ads run in your Meta account. There is no JSONL export or country breakdown.
 
 | Use | Endpoint | Maps to Insights |
 |------|----------|------------------|
 | Period totals | `/metrics/overview` | **Overview** |
 | Per-day rows | `/metrics/timeseries` | **Trends** |
-| Top tracks (period totals, not daily) | `/metrics/engagement` | **Overview** top tracks |
+| Per-track period totals | `/metrics/engagement` | **Overview** tracks |
 
 On overview and timeseries, `startDate` and `endDate` are inclusive (`YYYY-MM-DD`). They default to the soundlink creation date and today.
 
@@ -104,19 +104,12 @@ curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/engag
 
 ## Typical sync flow
 
-```mermaid
-flowchart LR
-  A[List soundlinks] --> B[Store soundlink IDs]
-  B --> C[Overview and/or timeseries]
-  C --> D[Optional engagement]
-```
-
 1. **Daily:** `GET /v1/soundlinks` — upsert catalog
-2. **Daily:** overview for dashboards and/or timeseries for warehouse loads
-3. **Optional:** engagement for top tracks (yesterday, last 7 days, or all-time — not the overview/timeseries date range)
+2. **Daily:** overview and/or timeseries
+3. **Optional:** engagement (yesterday, last 7 days, or all-time — not the overview/timeseries date range)
 
-Your organization is determined only from the API key. You never pass `organization_id` in query params — timeseries rows include `account_id` for your org.
+Your organization comes from the API key only. Do not pass `organization_id`. Timeseries rows include `account_id` for your org.
 
 ## Next
 
-[API Reference](/api-reference) · [Campaign metrics](/understanding-metrics) (paid campaigns) · [Authentication](/authentication)
+[API Reference](/api-reference) · [Campaign metrics](/understanding-metrics) · [Authentication](/authentication)

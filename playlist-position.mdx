@@ -1,12 +1,14 @@
 ---
 title: Playlist position
-description: Read daily track positions on playlist campaigns from the campaign engagement export.
+description: Read daily track positions on playlist campaigns from the engagement export.
 ---
 
 Engagement export rows include `playlist_position`. On playlist campaigns, use it to see which slot each engaged track held on the campaign playlist for that day.
 
 <Note>
-  The field is available now and treated as **beta** until historical backfill for older campaign days finishes. Recent active days already have high coverage.
+  The field is available now and treated as **beta** until historical backfill
+  for older campaign days finishes. Recent active days already have high
+  coverage.
 </Note>
 
 ## Get the data
@@ -28,10 +30,10 @@ Each line is a JSON object. Read `playlist_position` when `engagement_context` i
 
 ## What the value means
 
-| Value | Meaning |
-| ----- | ------- |
+| Value       | Meaning                                           |
+| ----------- | ------------------------------------------------- |
 | `1`, `2`, … | 1-based slot that day (`1` = top of the playlist) |
-| `null` | Unavailable for that row — see below |
+| `null`      | Unavailable for that row — see below              |
 
 Position comes from that day's playlist crawl for `report_date`. After the crawl lands, historical days should show a position when the track was listed.
 
