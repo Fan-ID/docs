@@ -159,22 +159,28 @@
             ]
           },
           {
-            "group": "Videos",
-            "openapi": "openapi/soundlink-public-api-v1.yaml",
-            "pages": [
-              "POST /v1/videos/import",
-              "GET /v1/videos/import/{sessionId}"
-            ]
-          },
-          {
             "group": "Soundlinks",
             "openapi": "openapi/soundlink-public-api-v1.yaml",
             "pages": [
               "GET /v1/soundlinks",
               "GET /v1/soundlinks/{soundlinkId}",
-              "GET /v1/soundlinks/{soundlinkId}/metrics/overview",
-              "GET /v1/soundlinks/{soundlinkId}/metrics/timeseries",
-              "GET /v1/soundlinks/{soundlinkId}/metrics/engagement"
+              {
+                "group": "Metrics",
+                "expanded": true,
+                "pages": [
+                  "GET /v1/soundlinks/{soundlinkId}/metrics/overview",
+                  "GET /v1/soundlinks/{soundlinkId}/metrics/timeseries",
+                  "GET /v1/soundlinks/{soundlinkId}/metrics/engagement"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Videos",
+            "openapi": "openapi/soundlink-public-api-v1.yaml",
+            "pages": [
+              "POST /v1/videos/import",
+              "GET /v1/videos/import/{sessionId}"
             ]
           }
         ]
