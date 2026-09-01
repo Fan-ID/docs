@@ -127,7 +127,56 @@
       {
         "tab": "API Reference",
         "icon": "square-terminal",
-        "openapi": "openapi/soundlink-public-api-v1.yaml"
+        "groups": [
+          {
+            "group": "System",
+            "openapi": "openapi/soundlink-public-api-v1.yaml",
+            "pages": ["GET /v1/ping"]
+          },
+          {
+            "group": "Campaigns",
+            "openapi": "openapi/soundlink-public-api-v1.yaml",
+            "pages": [
+              "GET /v1/strategies",
+              "GET /v1/campaigns",
+              "POST /v1/campaigns",
+              "GET /v1/campaigns/{campaignId}",
+              "POST /v1/campaigns/{campaignId}/stop",
+              "POST /v1/campaigns/{campaignId}/budget/increase",
+              "POST /v1/campaigns/{campaignId}/budget/decrease",
+              "GET /v1/campaigns/{campaignId}/tiers",
+              "PATCH /v1/campaigns/{campaignId}/tiers",
+              {
+                "group": "Metrics",
+                "pages": [
+                  "GET /v1/campaigns/{campaignId}/metrics/overview",
+                  "GET /v1/campaigns/{campaignId}/metrics/breakdown",
+                  "GET /v1/campaigns/{campaignId}/metrics/breakdown/export",
+                  "GET /v1/campaigns/{campaignId}/metrics/engagement/export"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Videos",
+            "openapi": "openapi/soundlink-public-api-v1.yaml",
+            "pages": [
+              "POST /v1/videos/import",
+              "GET /v1/videos/import/{sessionId}"
+            ]
+          },
+          {
+            "group": "Soundlinks",
+            "openapi": "openapi/soundlink-public-api-v1.yaml",
+            "pages": [
+              "GET /v1/soundlinks",
+              "GET /v1/soundlinks/{soundlinkId}",
+              "GET /v1/soundlinks/{soundlinkId}/metrics/overview",
+              "GET /v1/soundlinks/{soundlinkId}/metrics/timeseries",
+              "GET /v1/soundlinks/{soundlinkId}/metrics/engagement"
+            ]
+          }
+        ]
       }
     ]
   },
