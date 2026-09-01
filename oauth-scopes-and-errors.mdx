@@ -232,7 +232,7 @@ Wallet-funded campaigns only. Same endpoints and rules as the API key scope of t
 
 ### `soundlinks:read`
 
-Self-serve soundlinks (no Soundlink-funded campaign). Same routes as the API key scope — see [Soundlinks](/soundlinks). `metrics:read` does not unlock these routes.
+Self-serve soundlinks (no Soundlink-funded campaign). Same routes as the API key scope — see [Syncing soundlinks](/soundlinks) and [Soundlink metrics](/soundlink-metrics). `metrics:read` does not unlock these routes.
 
 | Endpoint | Notes |
 | --- | --- |
@@ -240,7 +240,7 @@ Self-serve soundlinks (no Soundlink-funded campaign). Same routes as the API key
 | `GET /v1/soundlinks/{soundlinkId}` | Detail. `404` when not owned or campaign-linked. |
 | `GET /v1/soundlinks/{soundlinkId}/metrics/overview` | Period totals. Maps to Insights **Overview**. |
 | `GET /v1/soundlinks/{soundlinkId}/metrics/timeseries` | Per-day rows (`soundlink_daily`). |
-| `GET /v1/soundlinks/{soundlinkId}/metrics/engagement` | Paginated top tracks for the period. |
+| `GET /v1/soundlinks/{soundlinkId}/metrics/engagement` | Paginated per-track period totals. |
 
 ### `videos:write`
 

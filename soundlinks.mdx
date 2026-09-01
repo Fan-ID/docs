@@ -1,9 +1,9 @@
 ---
-title: Soundlinks
-description: List self-serve soundlinks and read Overview, Trends, and top-track metrics.
+title: Syncing soundlinks
+description: List and detail endpoints for soundlinks without a campaign.
 ---
 
-Use the Soundlinks API when your organization runs soundlinks **without** a Soundlink-funded campaign. Those soundlinks do not appear in `GET /v1/campaigns`. For paid campaigns, use [Syncing campaigns](/syncing-campaigns) instead.
+Use the Soundlinks API to discover soundlinks that belong to your organization and are **not** tied to a Soundlink-funded campaign. Those soundlinks do not appear in `GET /v1/campaigns`. For paid campaigns, use [Syncing campaigns](/syncing-campaigns).
 
 Requires `soundlinks:read`. See [Authentication](/authentication#scopes-v1).
 
@@ -41,82 +41,19 @@ Returns catalog fields plus `autoFollow`, `metaPixelId`, and `tiktokPixelId`. Un
 
 Use the `soundlinkId` from the list response in all `/metrics/*` paths.
 
-## Which metrics endpoint
-
-Soundlink metrics have no spend, fees, or efficiency fields (`cpl`, `cpf`). Ads run in your own Meta account, so those fields are omitted from the schema — they are not `null`. There is no JSONL export or country breakdown in this phase.
-
-| Use | Endpoint | Maps to Insights |
-|------|----------|------------------|
-| Period totals | `/metrics/overview` | **Overview** |
-| Per-day rows | `/metrics/timeseries` | **Trends** |
-| Top tracks (period totals, not daily) | `/metrics/engagement` | **Overview** top tracks |
-
-On overview and timeseries, `startDate` and `endDate` are inclusive (`YYYY-MM-DD`). They default to the soundlink creation date and today.
-
-Engagement does **not** use that default. It snaps to the Insights windows: yesterday, the last 7 days ending today, or all-time. Omit `startDate` for all-time — that is not the soundlink creation date. An arbitrary range such as a calendar month snaps to all-time.
-
-## Overview
-
-`GET /v1/soundlinks/{soundlinkId}/metrics/overview`
-
-Period totals only — no per-day rows. Use timeseries for those.
-
-Fields include `views`, `link_clicks` (nullable), `streams`, `listeners`, new/returning listener and stream splits, `followers`, `streams_per_listener`, and `ctr_lp`.
-
-```bash
-curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/overview?startDate=2026-08-01&endDate=2026-08-31' \
-  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
-```
-
-## Timeseries
-
-`GET /v1/soundlinks/{soundlinkId}/metrics/timeseries`
-
-Paginated per-day rows (`soundlink_daily` v1.0). One row per `report_date`. Rows are aggregated across countries — there is no `country_code`. Default `pageSize` is 50 (max 500). Sort is `report_date`.
-
-Primary key:
-
-`(provider, account_id, report_date, soundlink_id)`
-
-Re-ingest on that key is idempotent. Rows for a given `report_date` can change for up to **7 days** after the date closes (delayed Spotify events). Re-fetch and upsert.
-
-Do not sum `listeners` across days — the same listener can appear on multiple `report_date` rows.
-
-```bash
-curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/timeseries?startDate=2026-08-01&endDate=2026-08-31&page=1&pageSize=50' \
-  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
-```
-
-## Engagement (top tracks)
-
-`GET /v1/soundlinks/{soundlinkId}/metrics/engagement`
-
-Paginated period totals per track — not daily rows, and not the campaign JSONL engagement export. Sort by `totalStreams` (default) or `totalListeners`.
-
-Each item includes `trackId`, `trackName`, `totalStreams`, `totalListeners`, and `streamsPerListener`. There is no `playlist_position` on this endpoint.
-
-Omit `startDate` (and `endDate`) for all-time. Pass a single UTC day of yesterday for yesterday, or an inclusive 7-day span whose `endDate` is today for last 7 days. Other ranges snap to all-time.
-
-```bash
-curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/engagement?page=1&pageSize=100' \
-  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
-```
-
 ## Typical sync flow
 
-```mermaid
-flowchart LR
-  A[List soundlinks] --> B[Store soundlink IDs]
-  B --> C[Overview and/or timeseries]
-  C --> D[Optional engagement]
-```
-
 1. **Daily:** `GET /v1/soundlinks` — upsert catalog
-2. **Daily:** overview for dashboards and/or timeseries for warehouse loads
-3. **Optional:** engagement for top tracks (yesterday, last 7 days, or all-time — not the overview/timeseries date range)
+2. **Daily:** [soundlink metrics](/soundlink-metrics) per active soundlink
 
-Your organization is determined only from the API key. You never pass `organization_id` in query params — timeseries rows include `account_id` for your org.
+## Organization scope
+
+Your organization is determined only from the API key. You never pass `organization_id` in query params — rows already include `account_id` for your org.
+
+<Note>
+  Node.js users can call `soundlink.soundlinks.list` — see [TypeScript SDK](/typescript-sdk).
+</Note>
 
 ## Next
 
-[Syncing campaigns](/syncing-campaigns) · [Understanding metrics](/understanding-metrics) · [API Reference](/api-reference)
+[Soundlink metrics](/soundlink-metrics) → [API Reference](/api-reference)

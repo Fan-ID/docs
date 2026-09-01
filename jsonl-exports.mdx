@@ -1,6 +1,6 @@
 ---
-title: JSONL exports
-description: Bulk metrics downloads for data pipelines without pagination.
+title: Campaign JSONL exports
+description: Bulk campaign metrics downloads for data pipelines without pagination.
 ---
 
 Export endpoints stream **newline-delimited JSON (JSONL)**. Each line is one complete JSON object — load directly into BigQuery, Snowflake, or any JSONL-aware tool without cursor logic.
@@ -65,7 +65,7 @@ for line in resp.iter_lines():
 
 Node.js users can stream the same exports with the [TypeScript SDK](/typescript-sdk) (`for await` over `metrics.breakdown.export`).
 
-Treat each line as an upsert on the schema primary key (documented in [Understanding metrics](/understanding-metrics)). Re-running the same window after the 7-day mutability period is safe.
+Treat each line as an upsert on the schema primary key (documented in [Campaign metrics](/understanding-metrics)). Re-running the same window after the 7-day mutability period is safe.
 
 ## Paginated vs export
 
@@ -77,4 +77,4 @@ Treat each line as an upsert on the schema primary key (documented in [Understan
 
 ## Next
 
-[Understanding metrics](/understanding-metrics) · [Playlist position](/playlist-position) · [Errors](/errors)
+[Campaign metrics](/understanding-metrics) · [Playlist position](/playlist-position) · [Errors](/errors)
