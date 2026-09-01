@@ -97,7 +97,7 @@
                   {
                     "group": "Soundlinks",
                     "expanded": true,
-                    "pages": ["soundlinks"]
+                    "pages": ["soundlinks", "soundlink-metrics"]
                   },
                   {
                     "group": "Videos",
