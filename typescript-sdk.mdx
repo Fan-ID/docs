@@ -178,7 +178,7 @@ Every method returns `{ data, error, meta? }` — the same envelope as the REST 
   [Errors](/errors) for API codes.
 </Note>
 
-## Metrics and exports
+## Campaign metrics and exports
 
 ```typescript
 const { data: overview } = await soundlink.metrics.overview(
@@ -208,7 +208,7 @@ For smaller datasets: `await soundlink.metrics.breakdown.export.collect('f1e28d3
 
 Engagement exports work the same way: `soundlink.metrics.engagement.export` and `.export.collect`.
 
-See [Understanding metrics](/understanding-metrics) and [JSONL exports](/jsonl-exports).
+See [Campaign metrics](/understanding-metrics) and [Campaign JSONL exports](/jsonl-exports).
 
 ## Configuration
 
@@ -280,7 +280,7 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
 Timeseries `pageSize` max is **500**. Engagement `pageSize` max is **100**; date ranges snap to Insights windows (yesterday / last 7 days ending today / all-time).
 
-### Metrics
+### Campaign metrics
 
 Requires `metrics:read`.
 
@@ -343,12 +343,12 @@ import type {
 | **Campaigns**  | `CampaignSummary`, `CampaignDetail`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
 | **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkDailyRow`, `SoundlinkEngagementItem` |
 | **Strategies** | `StrategiesCatalogData`, `StrategyCatalogItem`, `StrategyType`                                  |
-| **Metrics**    | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
+| **Campaign metrics** | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
 | **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkTimeseriesParams`, `SoundlinkEngagementParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
 | **Exports**    | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
 | **Client**     | `Soundlink`, `SoundlinkClientOptions`                                                            |
 
-Row shapes match the warehouse schemas documented in [Understanding metrics](/understanding-metrics). For full field lists, use the [API Reference](/api-reference) or your IDE hover hints on the imported types.
+Row shapes match the warehouse schemas documented in [Campaign metrics](/understanding-metrics). For full field lists, use the [API Reference](/api-reference) or your IDE hover hints on the imported types.
 
 ## Errors
 
@@ -408,4 +408,4 @@ Use `try/catch` for client setup and rare transport failures. Use `{ data, error
 
 ## Next
 
-[Soundlinks](/soundlinks) → [Creating campaigns](/creating-campaigns) → [Managing campaigns](/managing-campaigns) → [Understanding metrics](/understanding-metrics)
+[Soundlinks](/soundlinks) → [Creating campaigns](/creating-campaigns) → [Managing campaigns](/managing-campaigns) → [Campaign metrics](/understanding-metrics)

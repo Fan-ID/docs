@@ -80,15 +80,30 @@
               },
               {
                 "group": "API guides",
+                "expanded": true,
                 "pages": [
-                  "syncing-campaigns",
-                  "soundlinks",
-                  "creating-campaigns",
-                  "managing-campaigns",
-                  "importing-videos",
-                  "understanding-metrics",
-                  "playlist-position",
-                  "jsonl-exports"
+                  {
+                    "group": "Campaigns",
+                    "expanded": true,
+                    "pages": [
+                      "syncing-campaigns",
+                      "creating-campaigns",
+                      "managing-campaigns",
+                      "understanding-metrics",
+                      "playlist-position",
+                      "jsonl-exports"
+                    ]
+                  },
+                  {
+                    "group": "Soundlinks",
+                    "expanded": true,
+                    "pages": ["soundlinks"]
+                  },
+                  {
+                    "group": "Videos",
+                    "expanded": true,
+                    "pages": ["importing-videos"]
+                  }
                 ]
               },
               {

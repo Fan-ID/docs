@@ -1,6 +1,6 @@
 ---
 title: Playlist position
-description: Read daily track positions on playlist campaigns from the engagement export.
+description: Read daily track positions on playlist campaigns from the campaign engagement export.
 ---
 
 Engagement export rows include `playlist_position`. On playlist campaigns, use it to see which slot each engaged track held on the campaign playlist for that day.
@@ -15,7 +15,7 @@ Same endpoint as other engagement rows — no new route:
 
 `GET /v1/campaigns/{campaignId}/metrics/engagement/export?engagementContext=playlist`
 
-Requires the `metrics:read` scope. See [JSONL exports](/jsonl-exports) for streaming and date windows.
+Requires the `metrics:read` scope. See [Campaign JSONL exports](/jsonl-exports) for streaming and date windows.
 
 ```bash
 curl -sS \
@@ -46,4 +46,4 @@ Treat `null` as unavailable — not an error. If a day looks wrong after crawl c
 
 ## Next
 
-[Understanding metrics](/understanding-metrics) · [JSONL exports](/jsonl-exports) · [API Reference](/api-reference)
+[Campaign metrics](/understanding-metrics) · [Campaign JSONL exports](/jsonl-exports) · [API Reference](/api-reference)

@@ -1,9 +1,9 @@
 ---
 title: For Developers
-description: Sync Soundlink campaigns and metrics into your tools, warehouses, and apps.
+description: Sync Soundlink campaigns, self-serve soundlinks, and metrics into your tools, warehouses, and apps.
 ---
 
-Soundlink's Public API lets partner organizations sync **campaigns** and **metrics** into their own tools and data warehouses — and **create and manage wallet-funded campaigns** programmatically.
+Soundlink's Public API lets partner organizations sync **campaigns**, **self-serve soundlinks**, and **metrics** into their own tools and data warehouses — and **create and manage wallet-funded campaigns** programmatically.
 
 ## Get started
 
@@ -20,14 +20,13 @@ Soundlink's Public API lets partner organizations sync **campaigns** and **metri
 
 Not sure which to pick? See [SDK overview](/sdks) for a side-by-side comparison.
 
-## API guides
+## Campaigns
+
+Wallet-funded and managed campaigns — catalog sync, writes, and campaign metrics.
 
 <CardGroup cols={2}>
   <Card title="Syncing campaigns" icon="database" href="/syncing-campaigns">
     List campaigns, pagination, and warehouse join patterns.
-  </Card>
-  <Card title="Soundlinks" icon="link" href="/soundlinks">
-    List self-serve soundlinks and read Overview, Trends, and top-track metrics.
   </Card>
   <Card title="Creating campaigns" icon="rocket" href="/creating-campaigns">
     Create wallet-funded campaigns — strategies, budget rules, creatives, and
@@ -36,25 +35,35 @@ Not sure which to pick? See [SDK overview](/sdks) for a side-by-side comparison.
   <Card title="Managing campaigns" icon="sliders" href="/managing-campaigns">
     Budget increase/decrease, geographic tier updates, and stopping delivery.
   </Card>
-  <Card title="Importing videos" icon="film" href="/importing-videos">
-    Build your video library by URL import and use videoIds in Full Control
-    campaigns.
-  </Card>
-  <Card
-    title="Understanding metrics"
-    icon="chart-bar"
-    href="/understanding-metrics"
-  >
-    Overview vs breakdown vs engagement — which endpoint to call.
+  <Card title="Campaign metrics" icon="chart-bar" href="/understanding-metrics">
+    Overview vs country breakdown vs engagement — which endpoint to call.
   </Card>
   <Card title="Playlist position" icon="list-ol" href="/playlist-position">
     Daily track slots on playlist campaigns from the engagement export.
   </Card>
-  <Card title="JSONL exports" icon="download" href="/jsonl-exports">
-    Bulk metrics downloads, 90-day windows, and ingest patterns.
+  <Card title="Campaign JSONL exports" icon="download" href="/jsonl-exports">
+    Bulk campaign metrics downloads, 90-day windows, and ingest patterns.
   </Card>
-  <Card title="API Reference" icon="square-terminal" href="/api-reference">
-    Full OpenAPI spec, schemas, and interactive playground.
+</CardGroup>
+
+## Soundlinks
+
+Self-serve soundlinks (no Soundlink-funded campaign) — catalog and Insights-style metrics.
+
+<CardGroup cols={2}>
+  <Card title="Soundlinks" icon="link" href="/soundlinks">
+    List soundlinks and read overview, timeseries, and engagement metrics.
+  </Card>
+</CardGroup>
+
+## Videos
+
+Partner video library for Full Control campaigns.
+
+<CardGroup cols={2}>
+  <Card title="Importing videos" icon="film" href="/importing-videos">
+    Build your video library by URL import and use videoIds in Full Control
+    campaigns.
   </Card>
 </CardGroup>
 
@@ -71,6 +80,9 @@ Not sure which to pick? See [SDK overview](/sdks) for a side-by-side comparison.
   </Card>
   <Card title="Errors" icon="triangle-exclamation" href="/errors">
     Error codes, HTTP status mapping, and pagination limits.
+  </Card>
+  <Card title="API Reference" icon="square-terminal" href="/api-reference">
+    Full OpenAPI spec, schemas, and interactive playground.
   </Card>
 </CardGroup>
 
