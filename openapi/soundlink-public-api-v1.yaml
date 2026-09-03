@@ -1751,7 +1751,11 @@ components:
       schema:
         type: string
         format: date
-      description: Inclusive start date (`YYYY-MM-DD`). Defaults to campaign start date.
+      description: |
+        Inclusive start date (`YYYY-MM-DD`). When omitted, the default depends
+        on the endpoint: campaign overview and paginated breakdown use the
+        campaign start date; engagement and JSONL export endpoints use the
+        last 90 days ending today (see each operation).
 
     endDate:
       name: endDate
