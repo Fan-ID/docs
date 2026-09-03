@@ -188,8 +188,7 @@
                   "GET /v1/soundlinks/{soundlinkId}/metrics/breakdown",
                   "GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export",
                   "GET /v1/soundlinks/{soundlinkId}/metrics/engagement",
-                  "GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export",
-                  "GET /v1/soundlinks/{soundlinkId}/metrics/timeseries"
+                  "GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export"
                 ]
               }
             ]

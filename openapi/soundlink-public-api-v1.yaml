@@ -39,7 +39,7 @@ info:
     | Metrics reads (overview, breakdown, exports) | `metrics:read` | API key (Bearer) or OAuth Bearer |
     | Campaign writes (create, stop, budget, tier updates) | `campaigns:write` | API key (Bearer) or OAuth Bearer |
     | Video import / import status | `videos:write` | API key (Bearer) or OAuth Bearer |
-    | Soundlink reads (list, detail, metrics overview/timeseries/breakdown/engagement, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
+    | Soundlink reads (list, detail, metrics overview/breakdown/engagement, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
 
     Per-operation scope requirements are also marked with `x-required-scope`
     (except `GET /v1/ping`, which accepts any valid credential with at least
@@ -1177,9 +1177,8 @@ paths:
         clicks, listeners, streams, followers, and derived ratios. Totals are
         sums of country-day mart rows (`api_smart_link_country_daily`);
         `listeners` is the sum of daily country `new_listeners` (not
-        period-unique). No per-day rows — use `/metrics/timeseries` for those,
-        or `/metrics/breakdown` for country-day rows (including new/returning
-        splits).
+        period-unique). No per-day rows — use `/metrics/breakdown` for
+        country-day rows (including new/returning splits).
 
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
       tags: [Soundlinks]
@@ -1216,95 +1215,6 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
-  /v1/soundlinks/{soundlinkId}/metrics/timeseries:
-    get:
-      operationId: getSoundlinkMetricsTimeseries
-      summary: Soundlink metrics timeseries
-      description: |
-        Per-day metrics for a soundlink. One row per `report_date`. Results
-        are paginated.
-
-        **Row schema:** `soundlink_daily` v1.0. Rows are idempotent on the
-        primary key `(provider, account_id, report_date, soundlink_id)`;
-        re-ingesting is safe.
-
-        **Mutability window:** rows for a given `report_date` can be revised
-        for up to 7 days after the date closes due to delayed Spotify playback
-        events. Re-fetch or re-ingest accordingly.
-
-        Rows are aggregated across countries (no `country_code`) and
-        contain no financial fields. For country-day rows use
-        `/metrics/breakdown` (and `/metrics/breakdown/export`).
-
-        Maps to the **Trends** tab in the Soundlink Insights UI.
-
-        Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
-      tags: [Soundlinks]
-      security:
-        - apiKeyBearerAuth: []
-        - oauthBearer: []
-      x-required-scope: soundlinks:read
-      parameters:
-        - $ref: '#/components/parameters/soundlinkId'
-        - $ref: '#/components/parameters/soundlinkStartDate'
-        - $ref: '#/components/parameters/soundlinkEndDate'
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize500'
-        - name: sortBy
-          in: query
-          schema:
-            type: string
-            enum: [report_date]
-            default: report_date
-        - $ref: '#/components/parameters/sortOrder'
-      responses:
-        '200':
-          description: Paginated per-day rows (`soundlink_daily` schema)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SoundlinkTimeseriesResponse'
-              example:
-                data:
-                  schemaVersion: "1.0"
-                  items:
-                    - provider: soundlink
-                      account_id: a7ac3173-2f71-4e79-921f-d15d7112dd11
-                      schema_version: "1.0"
-                      report_date: "2026-08-01"
-                      report_date_timezone: UTC
-                      exported_at: "2026-08-28T03:00:00Z"
-                      soundlink_id: V1StGXR8_Z5jdHi6B-myT
-                      soundlink_name: Midnight Drive
-                      soundlink_target_type: track
-                      soundlink_target_isrc: DEXW62500259
-                      soundlink_target_spotify_track_id: 11dFghVXANMlKmJXsNCbNl
-                      soundlink_target_playlist_id: null
-                      views: 4821
-                      link_clicks: 890
-                      streams: 203
-                      listeners: 145
-                      new_listeners: 120
-                      returning_listeners: 25
-                      new_listener_streams: 160
-                      returning_listener_streams: 43
-                      followers: 12
-                      streams_per_listener: 1.4
-                      ctr_lp: 0.185
-                  pagination:
-                    page: 1
-                    pageSize: 50
-                    totalCount: 90
-                    totalPages: 2
-                meta:
-                  requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
-
   /v1/soundlinks/{soundlinkId}/metrics/breakdown:
     get:
       operationId: getSoundlinkMetricsBreakdown
@@ -1327,7 +1237,7 @@ paths:
         in your own Meta account, so spend is not visible to Soundlink.
 
         Maps to the **Countries** tab in the Soundlink Insights UI.
-        Use `/metrics/timeseries` for country-aggregated daily Trends rows.
+        Sum country rows for a `report_date` to reconstruct the day total.
 
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
       tags: [Soundlinks]
@@ -1867,7 +1777,7 @@ components:
         format: date
       description: |
         Inclusive start date (`YYYY-MM-DD`) for soundlink overview and
-        timeseries. Defaults to the soundlink creation date when omitted.
+        breakdown. Defaults to the soundlink creation date when omitted.
 
     soundlinkEndDate:
       name: endDate
@@ -3024,153 +2934,6 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/SoundlinkMetricsOverview'
-        meta:
-          $ref: '#/components/schemas/Meta'
-
-    SoundlinkDailyRow:
-      type: object
-      description: |
-        One row of the `soundlink_daily` v1.0 schema.
-        Primary key: `(provider, account_id, report_date, soundlink_id)`.
-        Rows are idempotent — re-ingesting on the primary key is safe.
-        Values for a given `report_date` may be revised for up to 7 days after
-        the date closes due to delayed Spotify playback events.
-        Rows are aggregated across countries (no `country_code` in v1.0) and
-        contain no financial fields.
-      required:
-        - provider
-        - account_id
-        - schema_version
-        - report_date
-        - report_date_timezone
-        - exported_at
-        - soundlink_id
-        - soundlink_name
-        - soundlink_target_type
-        - views
-        - streams
-        - listeners
-        - followers
-        - streams_per_listener
-      properties:
-        provider:
-          type: string
-          enum: [soundlink]
-          description: Always `soundlink`. Identifies the data provider for multi-source warehouses.
-        account_id:
-          type: string
-          description: Soundlink organization ID (UUID).
-        schema_version:
-          type: string
-          description: Schema version. Pin your ingest pipeline to this value.
-          example: "1.0"
-        report_date:
-          type: string
-          format: date
-          description: UTC calendar date the metrics belong to (`YYYY-MM-DD`).
-        report_date_timezone:
-          type: string
-          enum: [UTC]
-          description: Always `UTC`.
-        exported_at:
-          type: string
-          format: date-time
-          description: ISO 8601 UTC timestamp when this row was generated. Use for deduplication if the same `report_date` is re-delivered.
-        soundlink_id:
-          type: string
-          description: Unique ID of this soundlink.
-          example: V1StGXR8_Z5jdHi6B-myT
-        soundlink_name:
-          type: string
-          description: Human-readable soundlink name.
-        soundlink_target_type:
-          type: string
-          nullable: true
-          enum: [track, playlist]
-          description: Whether this soundlink promotes a track or playlist. `null` if undetermined.
-        soundlink_target_isrc:
-          type: string
-          nullable: true
-          description: ISRC of the promoted track. Populated when `soundlink_target_type = track`; otherwise `null`.
-        soundlink_target_spotify_track_id:
-          type: string
-          nullable: true
-          description: Spotify track ID of the promoted track. Populated when `soundlink_target_type = track`; otherwise `null`.
-        soundlink_target_playlist_id:
-          type: string
-          nullable: true
-          description: Spotify playlist ID. Populated when `soundlink_target_type = playlist`; otherwise `null`.
-        views:
-          type: integer
-          description: Soundlink landing page views on this day.
-        link_clicks:
-          type: integer
-          nullable: true
-          description: |
-            Clicks on "Continue with Spotify" on the landing page — outbound
-            clicks to Spotify. Null if not tracked for this soundlink type.
-        streams:
-          type: integer
-          description: |
-            Spotify streams attributed to this soundlink on this day:
-            `new_listener_streams + returning_listener_streams`. Observed
-            Spotify-side events, not modelled estimates. Safe to sum within a
-            day; summing across days counts repeat listens.
-        listeners:
-          type: integer
-          description: |
-            Unique Spotify listeners attributed to this soundlink on this day:
-            `new_listeners + returning_listeners`. **Do not sum across days** —
-            the same listener can appear on multiple `report_date` rows.
-        new_listeners:
-          type: integer
-          nullable: true
-          description: Unique listeners whose first play via this soundlink occurred on `report_date`.
-        returning_listeners:
-          type: integer
-          nullable: true
-          description: Unique listeners who played on `report_date` but whose first play was on an earlier date.
-        new_listener_streams:
-          type: integer
-          nullable: true
-          description: Stream count from new listeners on `report_date`.
-        returning_listener_streams:
-          type: integer
-          nullable: true
-          description: Stream count from returning listeners on `report_date`.
-        followers:
-          type: integer
-          description: Spotify artist follower gains attributed to this soundlink on this day.
-        streams_per_listener:
-          type: number
-          description: streams / listeners for this row. Zero if listeners is zero.
-        ctr_lp:
-          type: number
-          nullable: true
-          description: |
-            Landing page click-through rate (link_clicks / views). Computed
-            against landing page views, not ad impressions — do not combine
-            with `ctr_linkclick` from `campaign_country_daily`. Null if views
-            is zero or link_clicks is null.
-
-    SoundlinkTimeseriesResponse:
-      type: object
-      required: [data, meta]
-      properties:
-        data:
-          type: object
-          required: [schemaVersion, items, pagination]
-          properties:
-            schemaVersion:
-              type: string
-              description: Version of the `soundlink_daily` row schema. Pin your ingest pipeline to this.
-              example: "1.0"
-            items:
-              type: array
-              items:
-                $ref: '#/components/schemas/SoundlinkDailyRow'
-            pagination:
-              $ref: '#/components/schemas/Pagination'
         meta:
           $ref: '#/components/schemas/Meta'
 
