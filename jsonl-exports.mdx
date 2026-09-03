@@ -1,24 +1,46 @@
 ---
-title: Campaign JSONL exports
-description: Bulk campaign metrics downloads for data pipelines without pagination.
+title: JSONL exports
+description: Bulk campaign and soundlink metrics downloads for data pipelines without pagination.
 ---
 
 Export endpoints stream **newline-delimited JSON (JSONL)**. Each line is one complete JSON object — load directly into BigQuery, Snowflake, or any JSONL-aware tool without cursor logic.
 
 ## Endpoints
 
+### Campaigns
+
+Requires `metrics:read`.
+
 | Export | Path |
 |--------|------|
 | Country breakdown | `GET /v1/campaigns/{campaignId}/metrics/breakdown/export` |
 | Track engagement | `GET /v1/campaigns/{campaignId}/metrics/engagement/export` |
 
-Requires the `metrics:read` scope.
+### Soundlinks
+
+Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
+
+| Export | Path |
+|--------|------|
+| Country breakdown | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export` |
+| Track engagement | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export` |
+
+Row schemas match the paginated `breakdown` / `engagement` JSON endpoints for the same resource. See [Campaign metrics](/understanding-metrics) and [Soundlink metrics](/soundlink-metrics) for primary keys.
 
 ## Request
 
 ```bash
 curl -sS \
   'https://api.getsoundlink.com/v1/campaigns/{campaignId}/metrics/breakdown/export?startDate=2026-04-01&endDate=2026-04-30' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Accept: application/x-ndjson'
+```
+
+Soundlink example:
+
+```bash
+curl -sS \
+  'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/engagement/export?startDate=2026-08-01&endDate=2026-08-31' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   -H 'Accept: application/x-ndjson'
 ```
@@ -32,7 +54,7 @@ Optional query params:
 
 Responses are capped at **90 days** per request. If you omit both dates, the API uses a default window of the last 90 days ending today.
 
-For longer campaign histories, page in 90-day slices:
+For longer histories, page in 90-day slices:
 
 ```
 2026-01-01 → 2026-03-31
@@ -63,13 +85,13 @@ for line in resp.iter_lines():
         # upsert on primary key from row schema
 ```
 
-Node.js users can stream the same exports with the [TypeScript SDK](/typescript-sdk) (`for await` over `metrics.breakdown.export`).
+Node.js users can stream **campaign** exports with the [TypeScript SDK](/typescript-sdk) (`for await` over `metrics.breakdown.export`). For soundlink exports, use the HTTP paths above.
 
-Treat each line as an upsert on the schema primary key (documented in [Campaign metrics](/understanding-metrics)). Re-running the same window after the 7-day mutability period is safe.
+Treat each line as an upsert on the schema primary key (documented in [Campaign metrics](/understanding-metrics) and [Soundlink metrics](/soundlink-metrics)). Re-running the same window after the 7-day mutability period is safe.
 
 ## Paginated vs export
 
-| | Paginated (`/metrics/breakdown`) | Export (`/metrics/.../export`) |
+| | Paginated (`/metrics/breakdown` or `/engagement`) | Export (`/metrics/.../export`) |
 |--|----------------------------------|--------------------------------|
 | Format | JSON envelope + `pagination` | Raw JSONL stream |
 | Max rows per call | `pageSize` up to 500 | Full window (≤ 90 days) |
@@ -77,4 +99,4 @@ Treat each line as an upsert on the schema primary key (documented in [Campaign 
 
 ## Next
 
-[Campaign metrics](/understanding-metrics) · [Playlist position](/playlist-position) · [Errors](/errors)
+[Campaign metrics](/understanding-metrics) · [Soundlink metrics](/soundlink-metrics) · [Playlist position](/playlist-position) · [Errors](/errors)

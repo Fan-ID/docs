@@ -153,17 +153,8 @@ const { data: overview } = await soundlink.soundlinks.metricsOverview(
   { startDate: "2026-08-01", endDate: "2026-08-31" },
 );
 
-const { data: timeseries } = await soundlink.soundlinks.metricsTimeseries(
-  "V1StGXR8_Z5jdHi6B-myT",
-  { page: 1, pageSize: 50 },
-);
-
-// Engagement dates snap to Insights windows only (yesterday / last 7 days /
-// all-time). Omitting startDate uses all-time — not createdAt.
-const { data: engagement } = await soundlink.soundlinks.engagement(
-  "V1StGXR8_Z5jdHi6B-myT",
-  { sortBy: "totalStreams" },
-);
+// For country breakdown, engagement, and JSONL exports, use the HTTP
+// endpoints in [Soundlink metrics](/soundlink-metrics) and [JSONL exports](/jsonl-exports).
 ```
 
 Full REST guides: [Syncing soundlinks](/soundlinks) · [Soundlink metrics](/soundlink-metrics). Scopes: [Authentication](/authentication).
@@ -208,7 +199,7 @@ For smaller datasets: `await soundlink.metrics.breakdown.export.collect('f1e28d3
 
 Engagement exports work the same way: `soundlink.metrics.engagement.export` and `.export.collect`.
 
-See [Campaign metrics](/understanding-metrics) and [Campaign JSONL exports](/jsonl-exports).
+See [Campaign metrics](/understanding-metrics) and [JSONL exports](/jsonl-exports).
 
 ## Configuration
 
@@ -274,11 +265,10 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
 | `soundlink.soundlinks.list(params?)` | `GET /v1/soundlinks` | `ApiResponse<SoundlinkListData>` |
 | `soundlink.soundlinks.get(soundlinkId)` | `GET /v1/soundlinks/{id}` | `ApiResponse<SoundlinkDetail>` |
 | `soundlink.soundlinks.metricsOverview(id, params?)` | `GET .../metrics/overview` | `ApiResponse<SoundlinkMetricsOverview>` |
-| `soundlink.soundlinks.metricsTimeseries(id, params?)` | `GET .../metrics/timeseries` | `ApiResponse<SoundlinkTimeseriesData>` |
-| `soundlink.soundlinks.engagement(id, params?)` | `GET .../metrics/engagement` | `ApiResponse<SoundlinkEngagementData>` |
+| `soundlink.soundlinks.engagement(id, params?)` | `GET .../metrics/engagement` | Use REST — see [Soundlink metrics](/soundlink-metrics) |
 
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
-Timeseries `pageSize` max is **500**. Engagement `pageSize` max is **100**; date ranges snap to Insights windows (yesterday / last 7 days ending today / all-time).
+Soundlink breakdown and JSONL export methods are not in the SDK yet — use the HTTP paths in [Soundlink metrics](/soundlink-metrics) and [JSONL exports](/jsonl-exports).
 
 ### Campaign metrics
 
@@ -318,9 +308,6 @@ import type {
   SoundlinkListData,
   SoundlinkListParams,
   SoundlinkMetricsOverview,
-  SoundlinkTimeseriesData,
-  SoundlinkTimeseriesParams,
-  SoundlinkDailyRow,
   SoundlinkEngagementData,
   SoundlinkEngagementParams,
   MetricsOverview,
@@ -341,10 +328,10 @@ import type {
 | -------------- | ------------------------------------------------------------------------------------------------ |
 | **Envelope**   | `ApiResponse<T>`, `ApiError`, `ApiMeta`, `PublicApiErrorCode`                                    |
 | **Campaigns**  | `CampaignSummary`, `CampaignDetail`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
-| **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkDailyRow`, `SoundlinkEngagementItem` |
+| **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkEngagementItem` |
 | **Strategies** | `StrategiesCatalogData`, `StrategyCatalogItem`, `StrategyType`                                  |
 | **Campaign metrics** | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
-| **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkTimeseriesParams`, `SoundlinkEngagementParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
+| **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkEngagementParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
 | **Exports**    | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
 | **Client**     | `Soundlink`, `SoundlinkClientOptions`                                                            |
 

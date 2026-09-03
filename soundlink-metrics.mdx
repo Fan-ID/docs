@@ -1,6 +1,6 @@
 ---
 title: Soundlink metrics
-description: When to use soundlink overview, timeseries, and engagement endpoints.
+description: When to use soundlink overview, country breakdown, and engagement endpoints.
 ---
 
 Three layers of soundlink performance for soundlinks **without** a campaign. Pick the endpoint that matches how you store and report the data.
@@ -9,73 +9,111 @@ For paid campaigns, see [Campaign metrics](/understanding-metrics).
 
 Requires `soundlinks:read`. Use a `soundlinkId` from [Syncing soundlinks](/soundlinks).
 
-Soundlink metrics omit spend, fees, and efficiency fields (`cpl`, `cpf`) — ads run in your Meta account. There is no JSONL export or country breakdown.
+Soundlink metrics omit spend, fees, and efficiency fields (`cpl`, `cpf`) — ads run in your Meta account.
 
 | Use | Endpoint | Maps to Insights |
 |------|----------|------------------|
 | Period totals | `/metrics/overview` | **Overview** |
-| Per-day rows | `/metrics/timeseries` | **Trends** |
-| Per-track period totals | `/metrics/engagement` | **Overview** tracks |
+| Per-day × country | `/metrics/breakdown` (+ `/export`) | **Countries** |
+| Per-day × track | `/metrics/engagement` (+ `/export`) | Catalog / playlist spillover |
 
-On overview and timeseries, `startDate` and `endDate` are inclusive (`YYYY-MM-DD`). They default to the soundlink creation date and today.
+`startDate` and `endDate` are inclusive (`YYYY-MM-DD`).
 
-Engagement does **not** use that default. It snaps to the Insights windows: yesterday, the last 7 days ending today, or all-time. Omit `startDate` for all-time — that is not the soundlink creation date. An arbitrary range such as a calendar month snaps to all-time.
+- **Overview** and paginated **breakdown:** default to the soundlink creation date → today (no 90-day cap).
+- **Engagement** (paginated + export) and **breakdown export:** default to the last 90 days ending today; responses are capped at **90 days** per request. Page longer histories in 90-day slices. See [JSONL exports](/jsonl-exports).
 
 ## Overview
 
 `GET /v1/soundlinks/{soundlinkId}/metrics/overview`
 
-Period totals only — no per-day rows. Use timeseries for those.
+Soundlink-level totals for a date range: `views`, `link_clicks` (nullable), `streams`, `listeners`, `followers`, `streams_per_listener`, and `ctr_lp`. One payload per request window — not broken down by country or track.
 
-Fields include `views`, `link_clicks` (nullable), `streams`, `listeners`, new/returning listener and stream splits, `followers`, `streams_per_listener`, and `ctr_lp`.
+`listeners` is the sum of daily per-country `new_listeners` (not period-unique across days or countries). It is **not** equal to summing breakdown `listeners` (new + returning).
+
+**New and returning splits are not on overview.** Use [breakdown](#breakdown-by-country) or [engagement](#engagement-by-track) rows for `new_listeners`, `returning_listeners`, and the stream splits.
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/overview?startDate=2026-08-01&endDate=2026-08-31' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
-## Timeseries
+## Breakdown (by country)
 
-`GET /v1/soundlinks/{soundlinkId}/metrics/timeseries`
+`GET /v1/soundlinks/{soundlinkId}/metrics/breakdown` (paginated)
 
-Paginated per-day rows (`soundlink_daily` v1.0). One row per `report_date`. Rows are aggregated across countries — there is no `country_code`. Default `pageSize` is 50 (max 500). Sort is `report_date`.
+`GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export` (JSONL)
 
-Primary key:
+Per-day, per-country rows (`soundlink_country_daily` v1.0). Primary key:
 
-`(provider, account_id, report_date, soundlink_id)`
+`(provider, account_id, report_date, soundlink_id, country_code)`
 
-Re-ingest on that key is idempotent. Rows for a given `report_date` can change for up to **7 days** after the date closes (delayed Spotify events). Re-fetch and upsert.
+On track soundlinks (`soundlink_target_type = track`), each row also includes `soundlink_target_isrc` and `soundlink_target_spotify_track_id`.
 
-Do not sum `listeners` across days — the same listener can appear on multiple `report_date` rows.
+Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and daily warehouse loads by territory. Summing country rows for a given `report_date` reconstructs the day total across territories.
+
+| Use case                           | Endpoint              |
+| ---------------------------------- | --------------------- |
+| Interactive sync, small windows    | Paginated `breakdown` |
+| Full backfill, pipelines, BigQuery | `breakdown/export`    |
 
 ```bash
-curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/timeseries?startDate=2026-08-01&endDate=2026-08-31&page=1&pageSize=50' \
+curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/breakdown?startDate=2026-08-01&endDate=2026-08-31&page=1&pageSize=50' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
-## Engagement
+## Engagement (by track)
 
-`GET /v1/soundlinks/{soundlinkId}/metrics/engagement`
+`GET /v1/soundlinks/{soundlinkId}/metrics/engagement` (paginated)
 
-Paginated period totals per track — not daily rows, and not the campaign JSONL engagement export. Sort by `totalStreams` (default) or `totalListeners`.
+`GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export` (JSONL)
 
-Each item includes `trackId`, `trackName`, `totalStreams`, `totalListeners`, and `streamsPerListener`. There is no `playlist_position` on this endpoint.
+Per-day, per-track rows (`soundlink_engagement_daily` v1.0). Primary key:
 
-Omit `startDate` (and `endDate`) for all-time. Pass a single UTC day of yesterday for yesterday, or an inclusive 7-day span whose `endDate` is today for last 7 days. Other ranges snap to all-time.
+`(provider, account_id, report_date, soundlink_id, engagement_context, country_code, engaged_spotify_track_id)`
+
+**Key difference from breakdown:** breakdown aggregates views, streams, and listeners by **country**; engagement breaks down **which tracks** listeners played, including catalog spillover and playlist slot performance (`engagement_context`, `engaged_spotify_track_id`).
+
+**`engagement_context` values:**
+
+- `catalog` — same-artist spillover and direct plays on track soundlinks
+- `playlist` — per-track performance inside the promoted playlist
+
+Filter with `?engagementContext=catalog` or `playlist` when you only need one slice.
+
+Playlist engagement rows include `playlist_position` when available — the track's 1-based slot on the soundlink playlist for that `report_date`.
+
+| Use case                           | Endpoint               |
+| ---------------------------------- | ---------------------- |
+| Interactive sync, small windows    | Paginated `engagement` |
+| Full backfill, pipelines, BigQuery | `engagement/export`    |
 
 ```bash
-curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/engagement?page=1&pageSize=100' \
+curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/engagement?startDate=2026-08-01&endDate=2026-08-31&page=1&pageSize=50' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
+
+## Data mutability
+
+Rows for a given `report_date` can change for up to **7 days** after the date closes (delayed Spotify events). Re-fetch and re-ingest on the primary key — it is idempotent.
+
+## Listeners vs streams
+
+On breakdown and engagement rows, **do not sum `listeners` across days** — the same listener can appear on multiple `report_date` rows. Summing `streams` within a day is safe; across days it counts repeat listens.
 
 ## Typical sync flow
 
 1. **Daily:** [list soundlinks](/soundlinks) — upsert catalog
-2. **Daily:** overview and/or timeseries
-3. **Optional:** engagement (yesterday, last 7 days, or all-time — not the overview/timeseries date range)
+2. **Daily:** overview and/or breakdown (paginated or export)
+3. **Optional:** engagement (paginated or export) for track-level spillover
 
-Your organization is determined only from the API key. You never pass `organization_id` in query params — timeseries rows already include `account_id` for your org.
+Your organization is determined only from the API key. You never pass `organization_id` in query params — warehouse rows already include `account_id` for your org.
+
+## FAQ
+
+**Where are new / returning listeners?** On `breakdown` and `engagement` rows (`new_listeners`, `returning_listeners`, and the stream splits). Overview only exposes aggregated `listeners` (sum of daily per-country `new_listeners`).
+
+**How do I get one row per day without country?** Sum that day's breakdown rows across `country_code`, or store the country rows and aggregate in your warehouse.
 
 ## Next
 
-[Syncing soundlinks](/soundlinks) · [Campaign metrics](/understanding-metrics) · [API Reference](/api-reference)
+[Syncing soundlinks](/soundlinks) · [JSONL exports](/jsonl-exports) · [Campaign metrics](/understanding-metrics) · [API Reference](/api-reference)
