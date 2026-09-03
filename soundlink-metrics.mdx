@@ -28,7 +28,7 @@ Soundlink metrics omit spend, fees, and efficiency fields (`cpl`, `cpf`) — ads
 
 Soundlink-level totals for a date range: `views`, `link_clicks` (nullable), `streams`, `listeners`, `followers`, `streams_per_listener`, and `ctr_lp`. One payload per request window — not broken down by country or track.
 
-`listeners` is the sum of country-day `new_listeners` from the mart (not period-unique across days/countries). It is **not** equal to summing breakdown `listeners` (new + returning).
+`listeners` is the sum of daily per-country `new_listeners` (not period-unique across days or countries). It is **not** equal to summing breakdown `listeners` (new + returning).
 
 **New and returning splits are not on overview.** Use [breakdown](#breakdown-by-country) or [engagement](#engagement-by-track) rows for `new_listeners`, `returning_listeners`, and the stream splits.
 
@@ -110,9 +110,9 @@ Your organization is determined only from the API key. You never pass `organizat
 
 ## FAQ
 
-**Where are new / returning listeners?** On `breakdown` and `engagement` rows (`new_listeners`, `returning_listeners`, and the stream splits). Overview only exposes aggregated `listeners` (sum of country-day `new_listeners`).
+**Where are new / returning listeners?** On `breakdown` and `engagement` rows (`new_listeners`, `returning_listeners`, and the stream splits). Overview only exposes aggregated `listeners` (sum of daily per-country `new_listeners`).
 
-**How do I get one row per day without country?** Sum breakdown rows for that `report_date` across `country_code`. Prefer storing the country grain and aggregating in your warehouse.
+**How do I get one row per day without country?** Sum that day's breakdown rows across `country_code`, or store the country rows and aggregate in your warehouse.
 
 ## Next
 

@@ -85,7 +85,7 @@ for line in resp.iter_lines():
         # upsert on primary key from row schema
 ```
 
-Node.js users can stream **campaign** exports with the [TypeScript SDK](/typescript-sdk) (`for await` over `metrics.breakdown.export`). Soundlink JSONL helpers land with the next SDK release — until then, call the HTTP paths above.
+Node.js users can stream **campaign** exports with the [TypeScript SDK](/typescript-sdk) (`for await` over `metrics.breakdown.export`). For soundlink exports, use the HTTP paths above.
 
 Treat each line as an upsert on the schema primary key (documented in [Campaign metrics](/understanding-metrics) and [Soundlink metrics](/soundlink-metrics)). Re-running the same window after the 7-day mutability period is safe.
 
