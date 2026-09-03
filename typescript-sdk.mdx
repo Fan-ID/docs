@@ -153,17 +153,9 @@ const { data: overview } = await soundlink.soundlinks.metricsOverview(
   { startDate: "2026-08-01", endDate: "2026-08-31" },
 );
 
-const { data: timeseries } = await soundlink.soundlinks.metricsTimeseries(
-  "V1StGXR8_Z5jdHi6B-myT",
-  { page: 1, pageSize: 50 },
-);
-
-// Engagement dates snap to Insights windows only (yesterday / last 7 days /
-// all-time). Omitting startDate uses all-time — not createdAt.
-const { data: engagement } = await soundlink.soundlinks.engagement(
-  "V1StGXR8_Z5jdHi6B-myT",
-  { sortBy: "totalStreams" },
-);
+// Country breakdown, engagement (warehouse grain), and JSONL exports:
+// call the REST paths in [Soundlink metrics](/soundlink-metrics) and
+// [JSONL exports](/jsonl-exports). Typed SDK helpers ship in a follow-up release.
 ```
 
 Full REST guides: [Syncing soundlinks](/soundlinks) · [Soundlink metrics](/soundlink-metrics). Scopes: [Authentication](/authentication).
@@ -208,7 +200,7 @@ For smaller datasets: `await soundlink.metrics.breakdown.export.collect('f1e28d3
 
 Engagement exports work the same way: `soundlink.metrics.engagement.export` and `.export.collect`.
 
-See [Campaign metrics](/understanding-metrics) and [Campaign JSONL exports](/jsonl-exports).
+See [Campaign metrics](/understanding-metrics) and [JSONL exports](/jsonl-exports).
 
 ## Configuration
 
@@ -274,8 +266,8 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
 | `soundlink.soundlinks.list(params?)` | `GET /v1/soundlinks` | `ApiResponse<SoundlinkListData>` |
 | `soundlink.soundlinks.get(soundlinkId)` | `GET /v1/soundlinks/{id}` | `ApiResponse<SoundlinkDetail>` |
 | `soundlink.soundlinks.metricsOverview(id, params?)` | `GET .../metrics/overview` | `ApiResponse<SoundlinkMetricsOverview>` |
-| `soundlink.soundlinks.metricsTimeseries(id, params?)` | `GET .../metrics/timeseries` | `ApiResponse<SoundlinkTimeseriesData>` |
-| `soundlink.soundlinks.engagement(id, params?)` | `GET .../metrics/engagement` | `ApiResponse<SoundlinkEngagementData>` |
+| `soundlink.soundlinks.metricsTimeseries(id, params?)` | `GET .../metrics/timeseries` | Legacy daily aggregate — prefer REST `breakdown` |
+| `soundlink.soundlinks.engagement(id, params?)` | `GET .../metrics/engagement` | Prefer REST warehouse-grain engagement until the next SDK release |
 
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
 Timeseries `pageSize` max is **500**. Engagement `pageSize` max is **100**; date ranges snap to Insights windows (yesterday / last 7 days ending today / all-time).

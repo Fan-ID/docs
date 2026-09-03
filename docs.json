@@ -97,7 +97,7 @@
                   {
                     "group": "Soundlinks",
                     "expanded": true,
-                    "pages": ["soundlinks", "soundlink-metrics"]
+                    "pages": ["soundlinks", "soundlink-metrics", "jsonl-exports"]
                   },
                   {
                     "group": "Videos",
@@ -168,6 +168,7 @@
                   "GET /v1/campaigns/{campaignId}/metrics/overview",
                   "GET /v1/campaigns/{campaignId}/metrics/breakdown",
                   "GET /v1/campaigns/{campaignId}/metrics/breakdown/export",
+                  "GET /v1/campaigns/{campaignId}/metrics/engagement",
                   "GET /v1/campaigns/{campaignId}/metrics/engagement/export"
                 ]
               }
@@ -184,8 +185,11 @@
                 "expanded": true,
                 "pages": [
                   "GET /v1/soundlinks/{soundlinkId}/metrics/overview",
-                  "GET /v1/soundlinks/{soundlinkId}/metrics/timeseries",
-                  "GET /v1/soundlinks/{soundlinkId}/metrics/engagement"
+                  "GET /v1/soundlinks/{soundlinkId}/metrics/breakdown",
+                  "GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export",
+                  "GET /v1/soundlinks/{soundlinkId}/metrics/engagement",
+                  "GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export",
+                  "GET /v1/soundlinks/{soundlinkId}/metrics/timeseries"
                 ]
               }
             ]

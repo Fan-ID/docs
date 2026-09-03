@@ -226,9 +226,10 @@ Wallet-funded campaigns only. Same endpoints and rules as the API key scope of t
 | Endpoint | Notes |
 | --- | --- |
 | `GET /v1/campaigns/{campaignId}/metrics/overview` | Totals for a date range. |
-| `GET /v1/campaigns/{campaignId}/metrics/breakdown` | See reference |
-| `GET /v1/campaigns/{campaignId}/metrics/breakdown/export` | See reference |
-| `GET /v1/campaigns/{campaignId}/metrics/engagement/export` | See reference |
+| `GET /v1/campaigns/{campaignId}/metrics/breakdown` | Per-day × country (`campaign_country_daily`). |
+| `GET /v1/campaigns/{campaignId}/metrics/breakdown/export` | JSONL bulk for breakdown. |
+| `GET /v1/campaigns/{campaignId}/metrics/engagement` | Per-day × track (`campaign_engagement_daily`). |
+| `GET /v1/campaigns/{campaignId}/metrics/engagement/export` | JSONL bulk for engagement. |
 
 ### `soundlinks:read`
 
@@ -239,8 +240,11 @@ Self-serve soundlinks (no Soundlink-funded campaign). Same routes as the API key
 | `GET /v1/soundlinks` | Paginated catalog. Campaign-linked soundlinks are omitted. |
 | `GET /v1/soundlinks/{soundlinkId}` | Detail. `404` when not owned or campaign-linked. |
 | `GET /v1/soundlinks/{soundlinkId}/metrics/overview` | Period totals. Maps to Insights **Overview**. |
-| `GET /v1/soundlinks/{soundlinkId}/metrics/timeseries` | Per-day rows (`soundlink_daily`). |
-| `GET /v1/soundlinks/{soundlinkId}/metrics/engagement` | Paginated per-track period totals. |
+| `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown` | Per-day × country (`soundlink_country_daily`). |
+| `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export` | JSONL bulk for breakdown. |
+| `GET /v1/soundlinks/{soundlinkId}/metrics/engagement` | Per-day × track (`soundlink_engagement_daily`). |
+| `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export` | JSONL bulk for engagement. |
+| `GET /v1/soundlinks/{soundlinkId}/metrics/timeseries` | Legacy per-day aggregate (no country). Prefer breakdown. |
 
 ### `videos:write`
 

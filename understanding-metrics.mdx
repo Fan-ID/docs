@@ -15,6 +15,8 @@ Campaign-level totals for a date range: listeners, streams, followers, delivery 
 
 Use for dashboards, executive summaries, and quick health checks. Not broken down by country or track. CTR fields (`ctr_linkclick`, `ctr_adclick`) are on [breakdown](#breakdown-by-country) rows, not overview.
 
+**New and returning splits are not on overview.** Use [breakdown](#breakdown-by-country) or [engagement](#engagement-by-track) rows for `new_listeners`, `returning_listeners`, and the stream splits.
+
 ## Breakdown (by country)
 
 `GET /v1/campaigns/{campaignId}/metrics/breakdown` (paginated)
@@ -36,6 +38,8 @@ Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and d
 
 ## Engagement (by track)
 
+`GET /v1/campaigns/{campaignId}/metrics/engagement` (paginated)
+
 `GET /v1/campaigns/{campaignId}/metrics/engagement/export` (JSONL)
 
 Per-day, per-track rows (`campaign_engagement_daily` v1.0). Primary key:
@@ -55,14 +59,23 @@ Filter with `?engagementContext=catalog` or `playlist` when you only need one sl
 
 Playlist engagement rows include `playlist_position` — the track's 1-based slot on the campaign playlist for that `report_date` (beta while historical backfill finishes). See [Playlist position](/playlist-position).
 
+| Use case                           | Endpoint               |
+| ---------------------------------- | ---------------------- |
+| Interactive sync, small windows    | Paginated `engagement` |
+| Full backfill, pipelines, BigQuery | `engagement/export`    |
+
 ## Data mutability
 
 Rows for a given `report_date` can change for up to **7 days** after the date closes (delayed Meta and Spotify events). Re-fetch and re-ingest on the primary key — it is idempotent.
 
 ## Listeners vs streams
 
-On engagement rows, **do not sum `listeners` across days** — the same listener can appear on multiple `report_date` rows. Summing `streams` within a day is safe; across days it counts repeat listens.
+On breakdown and engagement rows, **do not sum `listeners` across days** — the same listener can appear on multiple `report_date` rows. Summing `streams` within a day is safe; across days it counts repeat listens.
+
+## FAQ
+
+**Where are new / returning listeners?** On `breakdown` and `engagement` rows. Overview returns campaign-level totals without those splits.
 
 ## Next
 
-[Playlist position](/playlist-position) · [Campaign JSONL exports](/jsonl-exports) · [API Reference](/api-reference)
+[Playlist position](/playlist-position) · [JSONL exports](/jsonl-exports) · [API Reference](/api-reference)
