@@ -3265,7 +3265,7 @@ components:
         url:
           type: string
           format: uri
-          description: Public HTTPS URL to an MP4 file (max 50 MB). Mutually exclusive with `videos`.
+          description: Public HTTPS URL to an MP4 file (max 70 MB). Mutually exclusive with `videos`.
         videos:
           type: array
           minItems: 1
@@ -3278,7 +3278,7 @@ components:
               url:
                 type: string
                 format: uri
-                description: Public HTTPS URL to an MP4 file (max 50 MB).
+                description: Public HTTPS URL to an MP4 file (max 70 MB).
 
     VideoImportStatus:
       type: string
