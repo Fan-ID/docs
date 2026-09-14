@@ -11,7 +11,7 @@ Requires the `videos:write` scope on your key (see [Authentication](/authenticat
 
 `POST /v1/videos/import`
 
-Provide a **public HTTPS URL to an MP4 file (max 50 MB)**. Soundlink downloads the file, stages it, and starts the background processing pipeline:
+Provide a **public HTTPS URL to an MP4 file (max 70 MB)**. Soundlink downloads the file, stages it, and starts the background processing pipeline:
 
 ```bash
 curl -sS -X POST 'https://api.getsoundlink.com/v1/videos/import' \
@@ -49,8 +49,12 @@ Two possible success responses:
 
 - **HTTPS only** — plain `http://` URLs are rejected
 - Must be **publicly reachable** (no auth walls, no private/internal addresses)
-- Content must be **MP4**, up to **50 MB**
+- Content must be **MP4**, up to **70 MB**
 - The download must complete within ~45 seconds — very slow hosts fail; redirects are followed (up to 5 hops)
+
+<Warning>
+  Avoid expiring or signed URLs (such as GCS pre-signed links or Cloudinary signed-delivery URLs). They often work the moment you issue the URL but expire before the video is actually fetched, causing the import to fail silently. Use a stable, permanent URL.
+</Warning>
 
 Violations return `400 invalid_video_url` with a specific message.
 
@@ -100,7 +104,7 @@ Imported videos also appear in your video library in the Soundlink app, alongsid
 | Limit                | Value                            | On violation                        |
 | -------------------- | -------------------------------- | ----------------------------------- |
 | Rate limit           | **5 imports/hour** per API key   | `429` — honor `Retry-After`         |
-| File size            | **50 MB** per video              | `400 invalid_video_url`             |
+| File size            | **70 MB** per video              | `400 invalid_video_url`             |
 | Plan video quota     | Your plan's custom videos limit  | `403 video_import_limit_exceeded`   |
 | Organization storage | **2 GB** total                   | `403 video_import_limit_exceeded`   |
 
@@ -113,7 +117,7 @@ Imported videos also appear in your video library in the Soundlink app, alongsid
 
 | HTTP | Code                              | When                                                              |
 | ---- | --------------------------------- | ------------------------------------------------------------------ |
-| 400  | `invalid_video_url`               | Not HTTPS, unreachable, not MP4, over 50 MB, or download timed out |
+| 400  | `invalid_video_url`               | Not HTTPS, unreachable, not MP4, over 70 MB, or download timed out |
 | 403  | `insufficient_scope`              | Key missing the `videos:write` scope                               |
 | 403  | `video_import_limit_exceeded`     | Plan video quota or 2 GB organization storage exceeded             |
 | 404  | `video_import_session_not_found`  | Unknown session or another organization's session                  |
