@@ -31,7 +31,7 @@ Returns full metadata for one campaign: name, status, target type (track or play
 
 Both list and detail rows include `generation` — a resource version for the campaign (`1` Stripe/legacy, `2` managed, `3` wallet). Only generation `3` can be [managed via the API](/managing-campaigns) (budget changes, tier updates, stop).
 
-Both list and detail rows include `dashboardUrl` — a logged-in insights URL (`/orgs/{organizationId}/insights/{smartLinkId}`). It uses the smart link id, not the campaign id.
+Both list and detail rows include `campaignUrl` — a logged-in insights URL (`/orgs/{organizationId}/insights/{smartLinkId}`). It uses the smart link id, not the campaign id.
 
 Use the `campaignId` from the list response in all `/metrics/*` paths.
 
