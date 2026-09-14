@@ -75,8 +75,8 @@
               "authentication",
               "errors",
               {
-                "group": "SDKs",
-                "pages": ["sdks", "typescript-sdk"]
+                "group": "SDKs and tools",
+                "pages": ["sdks", "typescript-sdk", "warehouse-connector"]
               },
               {
                 "group": "API guides",
@@ -97,7 +97,11 @@
                   {
                     "group": "Soundlinks",
                     "expanded": true,
-                    "pages": ["soundlinks", "soundlink-metrics", "jsonl-exports"]
+                    "pages": [
+                      "soundlinks",
+                      "soundlink-metrics",
+                      "jsonl-exports"
+                    ]
                   },
                   {
                     "group": "Videos",

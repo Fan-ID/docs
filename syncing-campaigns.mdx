@@ -11,10 +11,10 @@ Use the Campaigns API to discover which campaigns belong to your organization an
 
 Requires `campaigns:read`. Supports pagination:
 
-| Param | Default | Max |
-|-------|---------|-----|
-| `page` | 1 | — |
-| `pageSize` | 10 | 100 |
+| Param      | Default | Max |
+| ---------- | ------- | --- |
+| `page`     | 1       | —   |
+| `pageSize` | 10      | 100 |
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/campaigns?page=1&pageSize=100' \
@@ -53,9 +53,10 @@ flowchart LR
 Your organization is determined only from the API key. You never pass `organization_id` in query params — rows already include `account_id` for your org.
 
 <Note>
-  Node.js users can paginate campaigns with `soundlink.campaigns.listAll()` — see [TypeScript SDK](/typescript-sdk).
+  Node.js: `soundlink.campaigns.listAll()` — [TypeScript SDK](/typescript-sdk).
+  DuckDB or BigQuery: [warehouse connector](/warehouse-connector).
 </Note>
 
 ## Next
 
-[Campaign metrics](/understanding-metrics) → [JSONL exports](/jsonl-exports)
+[Warehouse connector](/warehouse-connector) · [Campaign metrics](/understanding-metrics) → [JSONL exports](/jsonl-exports)

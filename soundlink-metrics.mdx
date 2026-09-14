@@ -11,11 +11,11 @@ Requires `soundlinks:read`. Use a `soundlinkId` from [Syncing soundlinks](/sound
 
 Soundlink metrics omit spend, fees, and efficiency fields (`cpl`, `cpf`) — ads run in your Meta account.
 
-| Use | Endpoint | Maps to Insights |
-|------|----------|------------------|
-| Period totals | `/metrics/overview` | **Overview** |
-| Per-day × country | `/metrics/breakdown` (+ `/export`) | **Countries** |
-| Per-day × track | `/metrics/engagement` (+ `/export`) | Catalog / playlist spillover |
+| Use               | Endpoint                            | Maps to Insights             |
+| ----------------- | ----------------------------------- | ---------------------------- |
+| Period totals     | `/metrics/overview`                 | **Overview**                 |
+| Per-day × country | `/metrics/breakdown` (+ `/export`)  | **Countries**                |
+| Per-day × track   | `/metrics/engagement` (+ `/export`) | Catalog / playlist spillover |
 
 `startDate` and `endDate` are inclusive (`YYYY-MM-DD`).
 
@@ -116,4 +116,4 @@ Your organization is determined only from the API key. You never pass `organizat
 
 ## Next
 
-[Syncing soundlinks](/soundlinks) · [JSONL exports](/jsonl-exports) · [Campaign metrics](/understanding-metrics) · [API Reference](/api-reference)
+[Warehouse connector](/warehouse-connector) · [Syncing soundlinks](/soundlinks) · [JSONL exports](/jsonl-exports) · [Campaign metrics](/understanding-metrics) · [API Reference](/api-reference)

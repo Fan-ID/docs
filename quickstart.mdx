@@ -11,9 +11,13 @@ Get your first successful API response in a few minutes with `curl`. Using Node.
 - An API key (`sk_*`) — create one in the app (below) or use an existing key
 
 <CardGroup cols={2}>
-  <Card title="Create an API key" icon="key" href="/authentication#create-an-api-key">
-    Step-by-step in **Settings → Developer → API keys** — name, expiration, scopes, and one-time
-    copy. Includes screenshots.
+  <Card
+    title="Create an API key"
+    icon="key"
+    href="/authentication#create-an-api-key"
+  >
+    Step-by-step in **Settings → Developer → API keys** — name, expiration,
+    scopes, and one-time copy. Includes screenshots.
   </Card>
   <Card
     title="Open in Soundlink"
@@ -25,8 +29,9 @@ Get your first successful API response in a few minutes with `curl`. Using Node.
 </CardGroup>
 
 <Note>
-  Keys need at least one scope and an expiration choice — a fixed preset (7 days to 1 year) or
-  **Never**. See [Authentication](/authentication#expiration) for details.
+  Keys need at least one scope and an expiration choice — a fixed preset (7 days
+  to 1 year) or **Never**. See [Authentication](/authentication#expiration) for
+  details.
 </Note>
 
 ## 1. Ping (connectivity)
@@ -84,5 +89,5 @@ If something fails, include `meta.requestId` from the error response when contac
 
 ## Next
 
-- **Read pipelines:** [Syncing campaigns](/syncing-campaigns) → [Campaign metrics](/understanding-metrics) → [JSONL exports](/jsonl-exports)
+- **Read pipelines:** [Warehouse connector](/warehouse-connector) (DuckDB / BigQuery), or [Syncing campaigns](/syncing-campaigns) → [Campaign metrics](/understanding-metrics) → [JSONL exports](/jsonl-exports)
 - **Write flows:** [Creating campaigns](/creating-campaigns) → [Managing campaigns](/managing-campaigns)
