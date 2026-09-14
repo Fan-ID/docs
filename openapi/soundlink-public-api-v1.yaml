@@ -195,6 +195,11 @@ paths:
                       dailyBudget: 20.0
                       totalBudget: 140.0
                       campaignDuration: 7
+                      artistId: 4gzpq5DPGxSnKTe4SA8HAU
+                      artistName: Coldplay
+                      trackId: 3AJwUDP919kvQ9QcozQPxg
+                      playlistId: null
+                      trackName: Yellow
                       campaignUrl: https://getsoundlink.com/orgs/org_xyz/insights/V1StGXR8_Z5jdHi6B-myT
                       createdAt: "2026-04-01T10:00:00Z"
                       updatedAt: "2026-04-08T12:00:00Z"
@@ -345,6 +350,11 @@ paths:
                   totalBudget: 140.0
                   campaignDuration: 7
                   strategyType: custom
+                  artistId: 4gzpq5DPGxSnKTe4SA8HAU
+                  artistName: Coldplay
+                  trackId: 3AJwUDP919kvQ9QcozQPxg
+                  playlistId: null
+                  trackName: Yellow
                   campaignUrl: https://getsoundlink.com/orgs/org_xyz/insights/V1StGXR8_Z5jdHi6B-myT
                   createdAt: "2026-04-01T10:00:00Z"
                   updatedAt: "2026-04-08T12:00:00Z"
@@ -1881,7 +1891,7 @@ components:
 
     CampaignSummary:
       type: object
-      required: [campaignId, organizationId, status, socialPlatform, dailyBudget, totalBudget, campaignDuration, generation, campaignUrl, createdAt, updatedAt]
+      required: [campaignId, organizationId, status, socialPlatform, dailyBudget, totalBudget, campaignDuration, generation, artistId, artistName, trackId, playlistId, trackName, campaignUrl, createdAt, updatedAt]
       properties:
         campaignId:
           type: string
@@ -1909,6 +1919,40 @@ components:
             legacy; `2` = Soundlink managed; `3` = wallet. Public API write
             operations (budget changes, stop, tier updates) are supported for
             generation `3` only.
+        artistId:
+          type: string
+          nullable: true
+          description: |
+            Follow-attribution Spotify artist ID (`artist_id_follow`).
+            This is the artist campaign follows are credited to, not the
+            track's credit list (collabs/features are omitted). Use this
+            to group campaigns for one artist. `null` when unset.
+        artistName:
+          type: string
+          nullable: true
+          description: |
+            Cached display name for `artistId` only — not derived from the
+            track's artists. `null` when unknown or unset.
+        trackId:
+          type: string
+          nullable: true
+          description: |
+            Promoted Spotify track ID, parsed from the smart link URL.
+            `null` for playlist campaigns or when the URL is not a track.
+            Stable join key for the song; same grain as
+            `campaign_target_spotify_track_id` on metrics breakdown.
+        playlistId:
+          type: string
+          nullable: true
+          description: |
+            Promoted Spotify playlist ID, parsed from the smart link URL.
+            `null` for track campaigns or when the URL is not a playlist.
+            Same grain as `campaign_target_playlist_id` on metrics breakdown.
+        trackName:
+          type: string
+          nullable: true
+          description: |
+            Promoted track title. `null` for playlist campaigns or when unknown.
         campaignUrl:
           type: string
           format: uri

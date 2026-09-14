@@ -33,6 +33,8 @@ Both list and detail rows include `generation` — a resource version for the ca
 
 Both list and detail rows include `campaignUrl` — a logged-in insights URL (`/orgs/{organizationId}/insights/{smartLinkId}`). It uses the smart link id, not the campaign id.
 
+Both list and detail rows include `artistId`, `artistName`, `trackId`, `playlistId`, and `trackName` (nullable). `artistId` is the follow-attribution artist. `trackId` / `playlistId` identify the promoted Spotify target (one is set, the other is `null`).
+
 Use the `campaignId` from the list response in all `/metrics/*` paths.
 
 ## Typical sync flow
