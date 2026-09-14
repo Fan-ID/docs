@@ -1,0 +1,97 @@
+---
+title: Warehouse connector
+description: Load campaigns, soundlinks, and daily metrics into DuckDB or BigQuery.
+---
+
+ELT CLI that reads the Public API and upserts into **DuckDB** (local file) or **BigQuery**. Same list + JSONL export contract as the API guides — without writing the pipeline.
+
+Source: [github.com/Fan-ID/soundlink-warehouse-connector](https://github.com/Fan-ID/soundlink-warehouse-connector)
+
+## When to use
+
+| You want                                     | Use                               |
+| -------------------------------------------- | --------------------------------- |
+| Create or manage campaigns from an app       | [TypeScript SDK](/typescript-sdk) |
+| Tables in DuckDB or BigQuery                 | This connector                    |
+| Snowflake, a custom loader, or one-off pulls | [JSONL exports](/jsonl-exports)   |
+
+The connector is read-only. It does not create campaigns, change budgets, or import videos.
+
+## Prerequisites
+
+- Python **3.13+** and [uv](https://docs.astral.sh/uv/getting-started/installation/)
+- An API key from **Settings → Developer → API keys**:
+  - Campaigns: `campaigns:read` + `metrics:read`
+  - Soundlinks: `soundlinks:read`
+
+See [Authentication](/authentication) for scopes. Existing keys keep the scopes they were minted with — create a new key if you need `soundlinks:read`.
+
+<Note>Not on PyPI yet. Clone the repo and install with `uv sync`.</Note>
+
+## 1. Install
+
+```bash
+git clone https://github.com/Fan-ID/soundlink-warehouse-connector.git
+cd soundlink-warehouse-connector
+uv sync
+cp .env.example .env
+```
+
+Set `SOUNDLINK_API_KEY` in `.env`.
+
+For BigQuery, install the extra and point the destination:
+
+```bash
+uv sync --extra bigquery
+```
+
+```env
+DESTINATION=bigquery
+BIGQUERY_PROJECT=your-gcp-project
+BIGQUERY_DATASET=soundlink
+```
+
+BigQuery uses [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials). Adapter setup and job examples: [repo docs](https://github.com/Fan-ID/soundlink-warehouse-connector#destinations).
+
+## 2. Ping
+
+```bash
+uv run soundlink-sync ping
+```
+
+Same check as `GET /v1/ping` — any valid key works, regardless of scopes.
+
+## 3. Sync
+
+```bash
+uv run soundlink-sync sync --mode incremental
+uv run soundlink-sync sync --mode incremental --entity soundlinks
+```
+
+Run `--mode full` once per entity (backfill), then keep **incremental** on a daily schedule.
+
+| Flag                  | Behavior                                                                                              |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `--mode incremental`  | Last 10 inclusive days — covers the [7-day mutability](/understanding-metrics#data-mutability) window |
+| `--mode full`         | From `createdAt` → today in ≤90-day windows                                                           |
+| `--entity campaigns`  | Default. Catalog + campaign metric tables                                                             |
+| `--entity soundlinks` | Self-serve soundlinks (not campaign-linked)                                                           |
+
+Re-runs are idempotent (upsert / `MERGE` on the documented primary keys). To test one resource: `--campaign-id <uuid>` or `--soundlink-id <id>`.
+
+DuckDB default file: `./data/soundlink.duckdb`.
+
+## What you get
+
+| `--entity`   | Tables                                                                |
+| ------------ | --------------------------------------------------------------------- |
+| `campaigns`  | `campaigns`, `campaign_country_daily`, `campaign_engagement_daily`    |
+| `soundlinks` | `soundlinks`, `soundlink_country_daily`, `soundlink_engagement_daily` |
+
+Join metrics to catalog on `campaign_id` or `soundlink_id`. Rows include `account_id` (your organization) and `provider` (`soundlink`).
+
+Primary keys and field lists: [Campaign metrics](/understanding-metrics) and [Soundlink metrics](/soundlink-metrics). Do not sum `listeners` across days.
+
+## Next
+
+[Campaign metrics](/understanding-metrics) · [Soundlink metrics](/soundlink-metrics) · [JSONL exports](/jsonl-exports) · [Authentication](/authentication)

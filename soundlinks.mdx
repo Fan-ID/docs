@@ -8,7 +8,8 @@ Use the Soundlinks API to discover soundlinks that belong to your organization a
 Requires `soundlinks:read`. See [Authentication](/authentication#scopes-v1).
 
 <Note>
-  Existing API keys keep the scopes they were minted with. Create a **new** key and add `soundlinks:read` to call these routes.
+  Existing API keys keep the scopes they were minted with. Create a **new** key
+  and add `soundlinks:read` to call these routes.
 </Note>
 
 Campaign-linked soundlinks are the campaign's underlying resource. List and detail them with the Campaigns API. A campaign-backed `soundlinkId` on these routes returns `404`. Missing `soundlinks:read` returns `403 insufficient_scope`. See [Errors](/errors) for the full list.
@@ -19,10 +20,10 @@ Campaign-linked soundlinks are the campaign's underlying resource. List and deta
 
 Supports pagination:
 
-| Param | Default | Max |
-|-------|---------|-----|
-| `page` | 1 | — |
-| `pageSize` | 10 | 100 |
+| Param      | Default | Max |
+| ---------- | ------- | --- |
+| `page`     | 1       | —   |
+| `pageSize` | 10      | 100 |
 
 `sortBy` is `createdAt`. `soundlinkId` is a URL-safe string — the same ID in the public `sndl.ink` URL — not a campaign UUID.
 
@@ -51,9 +52,10 @@ Use the `soundlinkId` from the list response in all `/metrics/*` paths.
 Your organization is determined only from the API key. You never pass `organization_id` in query params — rows already include `account_id` for your org.
 
 <Note>
-  Node.js users can call `soundlink.soundlinks.list` — see [TypeScript SDK](/typescript-sdk).
+  Node.js: `soundlink.soundlinks.list` — [TypeScript SDK](/typescript-sdk).
+  DuckDB or BigQuery: [warehouse connector](/warehouse-connector).
 </Note>
 
 ## Next
 
-[Soundlink metrics](/soundlink-metrics) → [API Reference](/api-reference)
+[Warehouse connector](/warehouse-connector) · [Soundlink metrics](/soundlink-metrics) → [API Reference](/api-reference)
