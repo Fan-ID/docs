@@ -257,10 +257,10 @@ Same endpoints and rate limit as the API key scope of the same name — see [Imp
 
 | Endpoint | Notes |
 | --- | --- |
-| `POST /v1/videos/import` | Import a partner video. Stricter per-key rate limit (5 imports/hour). |
+| `POST /v1/videos/import` | Import a partner video. Separate rate limit (default 20 imports/hour per API key or OAuth grant). |
 | `GET /v1/videos/import/{id}` | Check import status. |
 
-<Card title="API reference" icon="book-open" href="https://www.getsoundlink.com/docs/api-reference">
+<Card title="API reference" icon="book-open" href="/api-reference">
   Request parameters, response schemas and error codes for every endpoint above.
 </Card>
 
@@ -304,7 +304,7 @@ The `/v1/` resource endpoints wrap the error in an object and add a request id, 
 }
 ```
 
-`400` (bad query), `401`, `403`, `404`, `429` and `500` are all possible. A `404` carries `campaign_not_found` — returned both for a campaign that does not exist and for one your organization does not own.
+`400` (bad query), `401`, `403`, `404`, `429` and `500` are all possible. Campaign `404`s use `campaign_not_found` (missing or another organization's campaign). Soundlink `404`s use `not_found` (missing, another organization, or linked to a campaign).
 
 ### Authorize error behaviour
 

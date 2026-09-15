@@ -17,22 +17,25 @@ All errors follow:
 
 Always cite `meta.requestId` when reporting issues to Soundlink.
 
+OAuth protocol endpoints (`/api/v1/oauth/*`) do not use this envelope. See [OAuth scopes and errors](/oauth-scopes-and-errors#errors-and-rate-limits).
+
 Using the TypeScript SDK? API errors arrive as `{ data: null, error }` on every method — see [Access the API with TypeScript](/typescript-sdk#errors). Thrown `SoundlinkSdkError` subclasses are only for config, parse, and transport failures.
 
 ## Common codes
 
 | HTTP | Code                      | When                                        |
 | ---- | ------------------------- | ------------------------------------------- |
-| 401  | `invalid_api_key`         | Missing or malformed API key (`Authorization: Bearer`) |
+| 401  | `invalid_api_key`         | Missing `Authorization: Bearer`, or API key not recognized |
+| 401  | `invalid_token`           | Invalid or expired OAuth access token       |
 | 401  | `api_key_revoked`         | Key revoked                                 |
 | 401  | `api_key_expired`         | Key past `expires_at`                       |
-| 403  | `insufficient_scope`      | Valid key missing route scope               |
-| 404  | `not_found`               | Unknown path                                |
+| 403  | `insufficient_scope`      | Valid credential missing the route scope    |
+| 404  | `not_found`               | Unknown path, or a soundlink that is missing, in another organization, or linked to a campaign |
 | 404  | `campaign_not_found`      | Unknown campaign or other org's campaign    |
 | 400  | `invalid_query_parameter` | Bad pagination or sort params               |
 | 400  | `invalid_date_range`      | `endDate` before `startDate`                |
 | 400  | `page_size_exceeded`      | `pageSize` above endpoint max               |
-| 429  | `rate_limit_exceeded`     | Per-key rate limit (honor `Retry-After`)    |
+| 429  | `rate_limit_exceeded`     | Rate limit exceeded (honor `Retry-After`)   |
 | 500  | `internal_error`          | Unexpected failure — retry with backoff     |
 
 ## Write endpoint codes
@@ -62,9 +65,13 @@ Returned by video import routes (`videos:write`). See [Importing videos](/import
 | 400  | `invalid_video_url`              | Not HTTPS, unreachable, not MP4, over 70 MB, or download timed out |
 | 403  | `video_import_limit_exceeded`    | Plan video quota or organization storage limit exceeded            |
 | 404  | `video_import_session_not_found` | Unknown session or another organization's session                  |
-| 429  | `rate_limit_exceeded`            | Stricter per-key limit: 5 imports/hour (honor `Retry-After`)       |
+| 429  | `rate_limit_exceeded`            | Stricter import cap (honor `Retry-After`)                          |
+
+## Rate limits
+
+Default limits are **60 requests/minute** and **600 requests/hour**, counted per API key or OAuth client. Video import is a separate cap: default **20 imports/hour** per API key or OAuth grant. Honor `Retry-After`.
 
 ## Pagination limits
 
-- Campaign list: `pageSize` max **100**
-- Metrics breakdown list: `pageSize` max **500** (see endpoint docs)
+- Campaign and soundlink lists: `pageSize` max **100**
+- Metrics breakdown and engagement lists: `pageSize` max **500** (see endpoint docs)
