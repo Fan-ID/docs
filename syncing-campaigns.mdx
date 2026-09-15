@@ -48,11 +48,14 @@ flowchart LR
 
 1. **Daily:** `GET /v1/campaigns` — upsert catalog
 2. **Daily:** export or paginated metrics per active campaign
-3. **Warehouse:** join metrics on `campaign_id` + `account_id` (your organization UUID from each row)
+3. **Warehouse:** join metrics on `campaign_id`
 
 ## Organization scope
 
-Your organization is determined only from the API key. You never pass `organization_id` in query params — rows already include `account_id` for your org.
+Your organization is determined only from the API key (or OAuth token). You never pass an organization id in query params.
+
+- Campaign **list and detail** JSON uses `organizationId`.
+- Metrics JSONL / warehouse rows use `account_id` for the **same** organization UUID. Join catalog to metrics on `campaign_id`.
 
 <Note>
   Node.js: `soundlink.campaigns.listAll()` — [TypeScript SDK](/typescript-sdk).

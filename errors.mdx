@@ -17,6 +17,8 @@ All errors follow:
 
 Always cite `meta.requestId` when reporting issues to Soundlink.
 
+OAuth endpoints (`/api/v1/oauth/*`) use `{ "error": "<code>" }` with no `meta`. See [OAuth scopes and errors](/oauth-scopes-and-errors#errors-and-rate-limits).
+
 Using the TypeScript SDK? API errors arrive as `{ data: null, error }` on every method — see [Access the API with TypeScript](/typescript-sdk#errors). Thrown `SoundlinkSdkError` subclasses are only for config, parse, and transport failures.
 
 ## Common codes
@@ -24,10 +26,11 @@ Using the TypeScript SDK? API errors arrive as `{ data: null, error }` on every 
 | HTTP | Code                      | When                                        |
 | ---- | ------------------------- | ------------------------------------------- |
 | 401  | `invalid_api_key`         | Missing or malformed API key (`Authorization: Bearer`) |
+| 401  | `invalid_token`           | Invalid or expired OAuth access token       |
 | 401  | `api_key_revoked`         | Key revoked                                 |
 | 401  | `api_key_expired`         | Key past `expires_at`                       |
 | 403  | `insufficient_scope`      | Valid key missing route scope               |
-| 404  | `not_found`               | Unknown path                                |
+| 404  | `not_found`               | Unknown path, or a soundlink that is missing, in another organization, or linked to a campaign |
 | 404  | `campaign_not_found`      | Unknown campaign or other org's campaign    |
 | 400  | `invalid_query_parameter` | Bad pagination or sort params               |
 | 400  | `invalid_date_range`      | `endDate` before `startDate`                |
@@ -64,7 +67,11 @@ Returned by video import routes (`videos:write`). See [Importing videos](/import
 | 404  | `video_import_session_not_found` | Unknown session or another organization's session                  |
 | 429  | `rate_limit_exceeded`            | Stricter per-key limit: 5 imports/hour (honor `Retry-After`)       |
 
+## Rate limits
+
+Default Public API limits are **60 requests/minute** and **600 requests/hour**, keyed by API key or OAuth client. Video import is **5 imports/hour**, counted separately. Honor `Retry-After`.
+
 ## Pagination limits
 
-- Campaign list: `pageSize` max **100**
-- Metrics breakdown list: `pageSize` max **500** (see endpoint docs)
+- Campaign and soundlink lists: `pageSize` max **100**
+- Metrics breakdown and engagement lists: `pageSize` max **500** (see endpoint docs)

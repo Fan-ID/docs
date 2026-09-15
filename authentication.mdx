@@ -87,13 +87,15 @@ admin to create a key for your integration.
 sk_<prefix>_<secret>
 ```
 
-Pass the full string in the **`Authorization`** header as a Bearer token (recommended):
+Pass the full string in the **`Authorization`** header as a Bearer token:
 
 ```bash
 -H 'Authorization: Bearer sk_abc123_...'
 ```
 
-An unrecognized `Authorization` value returns `401` with code `invalid_api_key`. Do **not** send Firebase Bearer tokens or legacy product headers on this host.
+The same header also accepts an OAuth access token. See [OAuth Integration](/set-up-soundlink-oauth).
+
+A missing or unrecognized API key returns `401` with `invalid_api_key`. An invalid or expired OAuth token returns `401` with `invalid_token`. Do **not** send Firebase Bearer tokens or legacy product headers on this host.
 
 ## Scopes (v1)
 

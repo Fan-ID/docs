@@ -153,8 +153,10 @@ const { data: overview } = await soundlink.soundlinks.metricsOverview(
   { startDate: "2026-08-01", endDate: "2026-08-31" },
 );
 
-// For country breakdown, engagement, and JSONL exports, use the HTTP
-// endpoints in [Soundlink metrics](/soundlink-metrics) and [JSONL exports](/jsonl-exports).
+const { data: breakdown } = await soundlink.soundlinks.breakdown.list(
+  "V1StGXR8_Z5jdHi6B-myT",
+  { startDate: "2026-08-01", endDate: "2026-08-31", pageSize: 50 },
+);
 ```
 
 Full REST guides: [Syncing soundlinks](/soundlinks) · [Soundlink metrics](/soundlink-metrics). Scopes: [Authentication](/authentication).
@@ -265,10 +267,15 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
 | `soundlink.soundlinks.list(params?)` | `GET /v1/soundlinks` | `ApiResponse<SoundlinkListData>` |
 | `soundlink.soundlinks.get(soundlinkId)` | `GET /v1/soundlinks/{id}` | `ApiResponse<SoundlinkDetail>` |
 | `soundlink.soundlinks.metricsOverview(id, params?)` | `GET .../metrics/overview` | `ApiResponse<SoundlinkMetricsOverview>` |
-| `soundlink.soundlinks.engagement(id, params?)` | `GET .../metrics/engagement` | Use REST — see [Soundlink metrics](/soundlink-metrics) |
+| `soundlink.soundlinks.breakdown.list(id, params?)` | `GET .../metrics/breakdown` | `ApiResponse<SoundlinkBreakdownListData>` |
+| `soundlink.soundlinks.breakdown.export(id, params?)` | `GET .../metrics/breakdown/export` | `ApiResponse<JsonlStream<SoundlinkBreakdownRow>>` |
+| `soundlink.soundlinks.breakdown.export.collect(id, params?)` | Same export route | `ApiResponse<ExportCollection<SoundlinkBreakdownRow>>` |
+| `soundlink.soundlinks.engagement.list(id, params?)` | `GET .../metrics/engagement` | `ApiResponse<SoundlinkEngagementListData>` |
+| `soundlink.soundlinks.engagement.export(id, params?)` | `GET .../metrics/engagement/export` | `ApiResponse<JsonlStream<SoundlinkEngagementRow>>` |
+| `soundlink.soundlinks.engagement.export.collect(id, params?)` | Same export route | `ApiResponse<ExportCollection<SoundlinkEngagementRow>>` |
 
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
-Soundlink breakdown and JSONL export methods are not in the SDK yet — use the HTTP paths in [Soundlink metrics](/soundlink-metrics) and [JSONL exports](/jsonl-exports).
+Breakdown and engagement list `pageSize` max is **500**. Export windows are capped at **90 days** per request.
 
 ### Campaign metrics
 
@@ -280,6 +287,7 @@ Requires `metrics:read`.
 | `soundlink.metrics.breakdown.list(id, params?)`            | `GET .../metrics/breakdown`         | `ApiResponse<BreakdownListData>`               |
 | `soundlink.metrics.breakdown.export(id, params?)`          | `GET .../metrics/breakdown/export`  | `ApiResponse<JsonlStream<BreakdownRow>>`       |
 | `soundlink.metrics.breakdown.export.collect(id, params?)`  | Same export route                   | `ApiResponse<ExportCollection<BreakdownRow>>`  |
+| `soundlink.metrics.engagement.list(id, params?)`           | `GET .../metrics/engagement`        | `ApiResponse<EngagementListData>`              |
 | `soundlink.metrics.engagement.export(id, params?)`         | `GET .../metrics/engagement/export` | `ApiResponse<JsonlStream<EngagementRow>>`      |
 | `soundlink.metrics.engagement.export.collect(id, params?)` | Same export route                   | `ApiResponse<ExportCollection<EngagementRow>>` |
 
@@ -308,14 +316,17 @@ import type {
   SoundlinkListData,
   SoundlinkListParams,
   SoundlinkMetricsOverview,
-  SoundlinkEngagementData,
-  SoundlinkEngagementParams,
+  SoundlinkBreakdownRow,
+  SoundlinkBreakdownListData,
+  SoundlinkEngagementRow,
+  SoundlinkEngagementListData,
   MetricsOverview,
   BreakdownRow,
   BreakdownListData,
   BreakdownListParams,
   BreakdownExportParams,
   EngagementRow,
+  EngagementListData,
   EngagementExportParams,
   ExportCollection,
   JsonlStream,
@@ -328,10 +339,10 @@ import type {
 | -------------- | ------------------------------------------------------------------------------------------------ |
 | **Envelope**   | `ApiResponse<T>`, `ApiError`, `ApiMeta`, `PublicApiErrorCode`                                    |
 | **Campaigns**  | `CampaignSummary`, `CampaignDetail`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
-| **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkEngagementItem` |
+| **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkBreakdownRow`, `SoundlinkEngagementRow` |
 | **Strategies** | `StrategiesCatalogData`, `StrategyCatalogItem`, `StrategyType`                                  |
-| **Campaign metrics** | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
-| **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkEngagementParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
+| **Campaign metrics** | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`, `EngagementListData`                          |
+| **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkBreakdownListParams`, `SoundlinkEngagementListParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementListParams`, `EngagementExportParams`, `IdempotencyOptions` |
 | **Exports**    | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
 | **Client**     | `Soundlink`, `SoundlinkClientOptions`                                                            |
 
