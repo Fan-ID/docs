@@ -106,7 +106,7 @@ On breakdown and engagement rows, **do not sum `listeners` across days** — the
 2. **Daily:** overview and/or breakdown (paginated or export)
 3. **Optional:** engagement (paginated or export) for track-level spillover
 
-Your organization is determined only from the API key. You never pass `organization_id` in query params — warehouse rows already include `account_id` for your org.
+Your organization is determined only from the API key (or OAuth token). You never pass an organization id in query params. Warehouse rows use `account_id` for the same organization UUID that catalog JSON calls `organizationId`. Join on `soundlink_id`.
 
 ## FAQ
 

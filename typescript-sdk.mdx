@@ -260,7 +260,7 @@ Requires `campaigns:write`. Pass `{ idempotencyKey }` on create, stop, and budge
 
 ### Soundlinks
 
-Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
+Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked). Breakdown and engagement helpers require **`soundlink` 2.2.0+**.
 
 | Method | REST endpoint | Returns |
 | ------ | ------------- | ------- |
@@ -287,11 +287,10 @@ Requires `metrics:read`.
 | `soundlink.metrics.breakdown.list(id, params?)`            | `GET .../metrics/breakdown`         | `ApiResponse<BreakdownListData>`               |
 | `soundlink.metrics.breakdown.export(id, params?)`          | `GET .../metrics/breakdown/export`  | `ApiResponse<JsonlStream<BreakdownRow>>`       |
 | `soundlink.metrics.breakdown.export.collect(id, params?)`  | Same export route                   | `ApiResponse<ExportCollection<BreakdownRow>>`  |
-| `soundlink.metrics.engagement.list(id, params?)`           | `GET .../metrics/engagement`        | `ApiResponse<EngagementListData>`              |
 | `soundlink.metrics.engagement.export(id, params?)`         | `GET .../metrics/engagement/export` | `ApiResponse<JsonlStream<EngagementRow>>`      |
 | `soundlink.metrics.engagement.export.collect(id, params?)` | Same export route                   | `ApiResponse<ExportCollection<EngagementRow>>` |
 
-Date params use inclusive `YYYY-MM-DD`. Export windows are capped at **90 days** per request. Breakdown list `pageSize` max is **500**.
+Date params use inclusive `YYYY-MM-DD`. Export windows are capped at **90 days** per request. Breakdown list `pageSize` max is **500**. Paginated campaign engagement (`GET .../metrics/engagement`) is not in the SDK — use the HTTP path in [Campaign metrics](/understanding-metrics).
 
 ## Types
 
@@ -326,7 +325,6 @@ import type {
   BreakdownListParams,
   BreakdownExportParams,
   EngagementRow,
-  EngagementListData,
   EngagementExportParams,
   ExportCollection,
   JsonlStream,
@@ -341,8 +339,8 @@ import type {
 | **Campaigns**  | `CampaignSummary`, `CampaignDetail`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
 | **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkBreakdownRow`, `SoundlinkEngagementRow` |
 | **Strategies** | `StrategiesCatalogData`, `StrategyCatalogItem`, `StrategyType`                                  |
-| **Campaign metrics** | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`, `EngagementListData`                          |
-| **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkBreakdownListParams`, `SoundlinkEngagementListParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementListParams`, `EngagementExportParams`, `IdempotencyOptions` |
+| **Campaign metrics** | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
+| **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkBreakdownListParams`, `SoundlinkEngagementListParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
 | **Exports**    | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
 | **Client**     | `Soundlink`, `SoundlinkClientOptions`                                                            |
 

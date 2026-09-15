@@ -49,7 +49,10 @@ Use the `soundlinkId` from the list response in all `/metrics/*` paths.
 
 ## Organization scope
 
-Your organization is determined only from the API key. You never pass `organization_id` in query params — rows already include `account_id` for your org.
+Your organization is determined only from the API key (or OAuth token). You never pass an organization id in query params.
+
+- Soundlink **list and detail** JSON uses `organizationId`.
+- Metrics JSONL / warehouse rows use `account_id` for the **same** organization UUID. Join catalog to metrics on `soundlink_id`.
 
 <Note>
   Node.js: `soundlink.soundlinks.list` — [TypeScript SDK](/typescript-sdk).
