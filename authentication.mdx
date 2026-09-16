@@ -106,7 +106,7 @@ Scopes limit which endpoints a key can call. Select them when you create the key
 | `campaigns:read`  | List campaigns, campaign detail, strategy catalog, campaign tiers      | Yes           |
 | `metrics:read`    | Metrics overview, breakdown, exports                                   | Yes           |
 | `soundlinks:read` | List soundlinks, soundlink detail, soundlink metrics                    | Yes           |
-| `soundlinks:write` | Create self-serve soundlinks                                           | When enabled for your organization |
+| `soundlinks:write` | Create self-serve soundlinks                                           | Yes           |
 | `campaigns:write` | Create/stop wallet campaigns, budget increase/decrease, tier updates   | Yes           |
 | `videos:write`    | Import partner videos for Full Control creatives                       | Yes           |
 
@@ -117,8 +117,7 @@ Add `campaigns:write` only when the integration should spend wallet credit or ma
 
 <Note>
   Existing keys keep their original scopes — create a new key to get `soundlinks:read` or
-  `soundlinks:write`. `soundlinks:write` appears in Settings when your organization is enabled
-  for soundlink create.
+  `soundlinks:write`. See [Creating soundlinks](/creating-soundlinks).
 </Note>
 
 <Note>

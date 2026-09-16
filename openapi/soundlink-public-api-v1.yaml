@@ -1145,9 +1145,7 @@ paths:
         API equivalent of the in-app create flow. It does not create a wallet
         campaign and does not appear on `GET /v1/campaigns`.
 
-        Requires the `soundlinks:write` scope. The organization must also be
-        enabled for Public API soundlink create; otherwise the response is
-        `403 soundlinks_write_not_enabled`.
+        Requires the `soundlinks:write` scope.
 
         `Idempotency-Key` is **required**. Reusing the key with an unchanged
         body replays the original `201`; a different body returns
@@ -1305,7 +1303,6 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
-
   /v1/soundlinks/{soundlinkId}/metrics/breakdown:
     get:
       operationId: getSoundlinkMetricsBreakdown
@@ -1328,6 +1325,7 @@ paths:
         in your own Meta account, so spend is not visible to Soundlink.
 
         Maps to the **Countries** tab in the Soundlink Insights UI.
+        Sum country rows for a `report_date` to reconstruct the day total.
 
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
       tags: [Soundlinks]
@@ -1939,7 +1937,6 @@ components:
             - invalid_video_url
             - video_import_limit_exceeded
             - video_import_session_not_found
-            - soundlinks_write_not_enabled
             - internal_error
         message:
           type: string
@@ -3122,7 +3119,6 @@ components:
         meta:
           $ref: '#/components/schemas/Meta'
 
-
     SoundlinkCountryDailyRow:
       type: object
       description: |
@@ -3447,7 +3443,7 @@ components:
         url:
           type: string
           format: uri
-          description: Public HTTPS URL to an MP4 file (max 50 MB). Mutually exclusive with `videos`.
+          description: Public HTTPS URL to an MP4 file (max 70 MB). Mutually exclusive with `videos`.
         videos:
           type: array
           minItems: 1
@@ -3460,7 +3456,7 @@ components:
               url:
                 type: string
                 format: uri
-                description: Public HTTPS URL to an MP4 file (max 50 MB).
+                description: Public HTTPS URL to an MP4 file (max 70 MB).
 
     VideoImportStatus:
       type: string
@@ -3730,8 +3726,7 @@ components:
 
     CreateSoundlinkForbidden:
       description: |
-        Valid credentials but missing the `soundlinks:write` scope, or the
-        organization is not enabled for Public API soundlink create.
+        Valid credentials but missing the `soundlinks:write` scope.
       content:
         application/json:
           schema:
@@ -3742,13 +3737,6 @@ components:
                 error:
                   code: insufficient_scope
                   message: "This key does not have the soundlinks:write scope."
-                meta:
-                  requestId: 550e8400-e29b-41d4-a716-446655440000
-            soundlinks_write_not_enabled:
-              value:
-                error:
-                  code: soundlinks_write_not_enabled
-                  message: "This organization is not enabled to create soundlinks via the Public API."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 

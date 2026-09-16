@@ -63,7 +63,6 @@ Returned by `POST /v1/soundlinks` (`soundlinks:write`). See [Creating soundlinks
 | HTTP | Code                           | When                                                            |
 | ---- | ------------------------------ | --------------------------------------------------------------- |
 | 400  | `invalid_request`              | Missing/malformed field, unpaired Meta pixel fields, or missing `Idempotency-Key` |
-| 403  | `soundlinks_write_not_enabled` | Organization not enabled to create soundlinks via the Public API |
 | 409  | `idempotency_key_conflict`     | `Idempotency-Key` reused with a different body, or still processing |
 | 422  | `invalid_spotify_url`          | Malformed Spotify URL, or track/playlist does not exist         |
 

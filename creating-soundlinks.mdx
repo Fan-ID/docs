@@ -3,7 +3,7 @@ title: Creating soundlinks
 description: Create a soundlink via the API — Spotify URL, optional auto-follow and Meta pixel, and idempotent retries.
 ---
 
-`POST /v1/soundlinks` creates a soundlink that is **not** tied to a Soundlink-funded campaign. Requires the `soundlinks:write` scope, and your organization must be enabled for soundlink create.
+`POST /v1/soundlinks` creates a soundlink that is **not** tied to a Soundlink-funded campaign. Requires the `soundlinks:write` scope.
 
 <Note>
   This does not create a campaign and does not appear on `GET /v1/campaigns`. Ads
@@ -98,7 +98,6 @@ The `Idempotency-Key` header is **required** on `POST /v1/soundlinks`.
 | ---- | ---- | ---- |
 | 400 | `invalid_request` | Missing/malformed field, unpaired Meta pixel fields, or missing `Idempotency-Key` |
 | 403 | `insufficient_scope` | Credential missing `soundlinks:write` |
-| 403 | `soundlinks_write_not_enabled` | Organization is not enabled to create soundlinks via the Public API |
 | 409 | `idempotency_key_conflict` | Key reused with a different body, or still processing |
 | 422 | `invalid_spotify_url` | Malformed Spotify URL, unsupported type, or resource does not exist |
 
