@@ -1,0 +1,109 @@
+---
+title: Creating soundlinks
+description: Create a soundlink via the API — Spotify URL, optional auto-follow and Meta pixel, and idempotent retries.
+---
+
+`POST /v1/soundlinks` creates a soundlink that is **not** tied to a Soundlink-funded campaign. Requires the `soundlinks:write` scope, and your organization must be enabled for soundlink create.
+
+<Note>
+  This does not create a campaign and does not appear on `GET /v1/campaigns`. Ads
+  run in your own Meta account. The [`Idempotency-Key` header](#idempotency) is
+  **required**.
+</Note>
+
+## Prerequisites
+
+- An API key with the `soundlinks:write` scope — see [Authentication](/authentication#scopes-v1)
+- A Spotify **track** or **playlist** URL that exists on Spotify
+
+## Create a soundlink
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/soundlinks' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Idempotency-Key: create-soundlink-midnight-drive-01' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Midnight Drive",
+    "spotifyUrl": "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl"
+  }'
+```
+
+Expected (`201`). `data` is the same shape as [soundlink detail](/soundlinks#soundlink-detail):
+
+```json
+{
+  "data": {
+    "soundlinkId": "V1StGXR8_Z5jdHi6B-myT",
+    "url": "https://sndl.ink/soundlink/V1StGXR8_Z5jdHi6B-myT",
+    "status": "active"
+  },
+  "meta": { "requestId": "..." }
+}
+```
+
+The soundlink is `active` immediately. Use `data.url` as the public landing page.
+
+### Request fields
+
+| Field | Required | Rules |
+| ----- | -------- | ----- |
+| `name` | Yes | Non-empty display name |
+| `spotifyUrl` | Yes | HTTPS Spotify **track** or **playlist** URL. See [Spotify URLs](#spotify-urls) |
+| `autoFollow` | No | Default `false`. When `true`, fans who connect Spotify from the landing page are asked to follow the track artist, or the playlist itself |
+| `artistIdFollow` | No | Spotify artist ID for auto-follow on **track** links. Kept even when `autoFollow` is `false`. Ignored for playlists. For multi-artist tracks, pass the artist that should be followed |
+| `metaPixelId` | No | Meta pixel ID. Must be sent together with `metaConversionAccessToken` |
+| `metaConversionAccessToken` | No | Meta Conversions API token. Write-only: accepted on create, never returned. Must be sent together with `metaPixelId` |
+
+## Spotify URLs
+
+`spotifyUrl` must be `https://open.spotify.com/track/{id}` or `https://open.spotify.com/playlist/{id}`. Locale prefixes (`/intl-pt/...`) and query strings (`?si=...`) are accepted.
+
+Album, artist, `spotify:` URIs, and a track or playlist that does not exist on Spotify return `422 invalid_spotify_url`.
+
+## Meta pixel
+
+To attach a Meta pixel, send **both** `metaPixelId` and `metaConversionAccessToken`. Sending only one returns `400 invalid_request`. Omit both to skip Meta tracking.
+
+```json
+{
+  "name": "Midnight Drive",
+  "spotifyUrl": "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl",
+  "metaPixelId": "1234567890123456",
+  "metaConversionAccessToken": "EAAB..."
+}
+```
+
+GET returns `metaPixelId` when set. The CAPI token is never returned.
+
+## Idempotency
+
+The `Idempotency-Key` header is **required** on `POST /v1/soundlinks`.
+
+- Any unique string up to **255 characters** — a UUID or `<action>-<date>-<ref>` pattern works well
+- Keys are honored for **24 hours**
+- Retrying with the **same key and same body** replays the original `201` — it does not create a second soundlink
+- Reusing a key with a **different body** returns `409 idempotency_key_conflict`
+- If a concurrent request with the same key is still processing, you also get `409` — retry shortly
+
+<Warning>
+  When a request **times out or you never saw the response**, retry with the **same** key. When a
+  request **failed with a definitive error** (for example `422 invalid_spotify_url`) and you have
+  fixed the cause, send the retry as a **new request with a new key**.
+</Warning>
+
+## Errors
+
+| HTTP | Code | When |
+| ---- | ---- | ---- |
+| 400 | `invalid_request` | Missing/malformed field, unpaired Meta pixel fields, or missing `Idempotency-Key` |
+| 403 | `insufficient_scope` | Credential missing `soundlinks:write` |
+| 403 | `soundlinks_write_not_enabled` | Organization is not enabled to create soundlinks via the Public API |
+| 409 | `idempotency_key_conflict` | Key reused with a different body, or still processing |
+| 422 | `invalid_spotify_url` | Malformed Spotify URL, unsupported type, or resource does not exist |
+
+See [Errors](/errors) for the full list.
+
+## Next
+
+[Syncing soundlinks](/soundlinks) — list and detail · [Soundlink metrics](/soundlink-metrics) · [API Reference](/api-reference)

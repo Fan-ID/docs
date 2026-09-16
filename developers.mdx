@@ -3,7 +3,7 @@ title: For Developers
 description: Campaigns, soundlinks, and metrics for the Soundlink Public API.
 ---
 
-Use the Public API to sync campaigns and soundlinks into your tools, pull metrics, and create or manage wallet-funded campaigns.
+Use the Public API to sync campaigns and soundlinks into your tools, pull metrics, and create or manage wallet-funded campaigns and soundlinks.
 
 ## Get started
 
@@ -52,6 +52,9 @@ Not sure which to pick? See [SDK overview](/sdks).
 <CardGroup cols={2}>
   <Card title="Syncing soundlinks" icon="link" href="/soundlinks">
     List soundlinks not tied to a campaign, pagination, and catalog joins.
+  </Card>
+  <Card title="Creating soundlinks" icon="plus" href="/creating-soundlinks">
+    Create a soundlink from a Spotify track or playlist URL.
   </Card>
   <Card title="Soundlink metrics" icon="chart-bar" href="/soundlink-metrics">
     Overview, country breakdown, and engagement — which endpoint to call.
@@ -132,7 +135,7 @@ Not sure which to pick? See [SDK overview](/sdks).
   <Accordion title="Timestamps and v1 scope">
     All `createdAt` and `updatedAt` fields are **UTC** (ISO 8601 with `Z` suffix).
 
-    v1 covers campaign and metrics reads plus writes: [campaign create](/creating-campaigns), [budget changes, tier updates, and stop](/managing-campaigns), [video imports](/importing-videos), and [soundlinks](/soundlinks).
+    v1 covers campaign and metrics reads plus writes: [campaign create](/creating-campaigns), [budget changes, tier updates, and stop](/managing-campaigns), [soundlink create](/creating-soundlinks), [video imports](/importing-videos), and [soundlinks](/soundlinks).
 
   </Accordion>
 </AccordionGroup>

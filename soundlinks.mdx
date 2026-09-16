@@ -5,7 +5,7 @@ description: List and detail endpoints for soundlinks without a campaign.
 
 Use the Soundlinks API to discover soundlinks that belong to your organization and are **not** tied to a Soundlink-funded campaign. Those soundlinks do not appear in `GET /v1/campaigns`. For paid campaigns, use [Syncing campaigns](/syncing-campaigns).
 
-Requires `soundlinks:read`. See [Authentication](/authentication#scopes-v1).
+Requires `soundlinks:read`. See [Authentication](/authentication#scopes-v1). To create a soundlink, see [Creating soundlinks](/creating-soundlinks).
 
 <Note>
   Existing API keys keep the scopes they were minted with. Create a **new** key
@@ -38,7 +38,7 @@ Walk pages until `pagination.page >= pagination.totalPages`.
 
 `GET /v1/soundlinks/{soundlinkId}`
 
-Returns catalog fields plus `autoFollow`, `metaPixelId`, and `tiktokPixelId`. Unknown, cross-org, or campaign-linked IDs return `404`.
+Returns catalog fields plus `autoFollow`, `artistIdFollow`, `metaPixelId`, and `tiktokPixelId`. Unknown, cross-org, or campaign-linked IDs return `404`. The Meta CAPI token is never returned.
 
 Use the `soundlinkId` from the list response in all `/metrics/*` paths.
 
@@ -61,4 +61,4 @@ Your organization is determined only from the API key (or OAuth token). You neve
 
 ## Next
 
-[Warehouse connector](/warehouse-connector) · [Soundlink metrics](/soundlink-metrics) → [API Reference](/api-reference)
+[Creating soundlinks](/creating-soundlinks) · [Warehouse connector](/warehouse-connector) · [Soundlink metrics](/soundlink-metrics) → [API Reference](/api-reference)

@@ -40,6 +40,7 @@ info:
     | Campaign writes (create, stop, budget, tier updates) | `campaigns:write` | API key (Bearer) or OAuth Bearer |
     | Video import / import status | `videos:write` | API key (Bearer) or OAuth Bearer |
     | Soundlink reads (list, detail, metrics overview/breakdown/engagement, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
+    | Soundlink writes (create) | `soundlinks:write` | API key (Bearer) or OAuth Bearer |
 
     Per-operation scope requirements are also marked with `x-required-scope`
     (except `GET /v1/ping`, which accepts any valid credential with at least
@@ -70,7 +71,7 @@ tags:
   - name: Videos
     description: Partner video library import for Full Control campaigns
   - name: Soundlinks
-    description: Soundlink listing, detail, and performance metrics
+    description: Soundlink listing, detail, creation, and performance metrics
 
 paths:
 
@@ -1136,6 +1137,82 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+    post:
+      operationId: createSoundlink
+      summary: Create a self-serve soundlink
+      description: |
+        Creates a self-serve soundlink in the organization. This is the Public
+        API equivalent of the in-app create flow. It does not create a wallet
+        campaign and does not appear on `GET /v1/campaigns`.
+
+        Requires the `soundlinks:write` scope. The organization must also be
+        enabled for Public API soundlink create; otherwise the response is
+        `403 soundlinks_write_not_enabled`.
+
+        `Idempotency-Key` is **required**. Reusing the key with an unchanged
+        body replays the original `201`; a different body returns
+        `409 idempotency_key_conflict`. Keys are honored for 24 hours.
+
+        **Auth:** Accepts API key or OAuth Bearer (`soundlinks:write`).
+      tags: [Soundlinks]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: soundlinks:write
+      parameters:
+        - $ref: '#/components/parameters/idempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSoundlinkRequest'
+            examples:
+              track:
+                summary: Track soundlink
+                value:
+                  name: Midnight Drive
+                  spotifyUrl: "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl"
+                  autoFollow: true
+                  artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
+                  metaPixelId: "1234567890123456"
+                  metaConversionAccessToken: "EAAB..."
+              playlist:
+                summary: Playlist soundlink
+                value:
+                  name: Late Night Mix
+                  spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
+      responses:
+        '201':
+          description: Soundlink created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SoundlinkDetailResponse'
+              example:
+                data:
+                  soundlinkId: V1StGXR8_Z5jdHi6B-myT
+                  organizationId: a7ac3173-2f71-4e79-921f-d15d7112dd11
+                  name: Midnight Drive
+                  url: https://sndl.ink/soundlink/V1StGXR8_Z5jdHi6B-myT
+                  targetType: track
+                  spotifyUrl: https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl
+                  status: active
+                  createdAt: "2026-04-01T10:00:00Z"
+                  autoFollow: true
+                  artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
+                  metaPixelId: "1234567890123456"
+                  tiktokPixelId: null
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+        '400': { $ref: '#/components/responses/CreateSoundlinkBadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/CreateSoundlinkForbidden' }
+        '409': { $ref: '#/components/responses/IdempotencyKeyConflict' }
+        '422': { $ref: '#/components/responses/CreateSoundlinkUnprocessable' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
   /v1/soundlinks/{soundlinkId}:
     get:
       operationId: getSoundlink
@@ -1170,6 +1247,7 @@ paths:
                   status: active
                   createdAt: "2026-04-01T10:00:00Z"
                   autoFollow: true
+                  artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
                   metaPixelId: "1234567890123456"
                   tiktokPixelId: null
                 meta:
@@ -1227,6 +1305,7 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+
   /v1/soundlinks/{soundlinkId}/metrics/breakdown:
     get:
       operationId: getSoundlinkMetricsBreakdown
@@ -1249,7 +1328,6 @@ paths:
         in your own Meta account, so spend is not visible to Soundlink.
 
         Maps to the **Countries** tab in the Soundlink Insights UI.
-        Sum country rows for a `report_date` to reconstruct the day total.
 
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
       tags: [Soundlinks]
@@ -1713,7 +1791,7 @@ components:
         maxLength: 255
       description: |
         A unique string identifying this request, used to safely retry write
-        operations (create, stop, budget increase/decrease) without repeating
+        operations (campaign create/stop/budget, soundlink create) without repeating
         side effects. Required on every request that references this parameter.
         Reusing this key with an unchanged request body replays the original
         response; reusing it with a different body returns
@@ -1861,6 +1939,7 @@ components:
             - invalid_video_url
             - video_import_limit_exceeded
             - video_import_session_not_found
+            - soundlinks_write_not_enabled
             - internal_error
         message:
           type: string
@@ -2917,17 +2996,65 @@ components:
         meta:
           $ref: '#/components/schemas/Meta'
 
+    CreateSoundlinkRequest:
+      type: object
+      required: [name, spotifyUrl]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Human-readable soundlink name.
+        spotifyUrl:
+          type: string
+          format: uri
+          description: |
+            HTTPS Spotify track or playlist URL. Album, artist, and URI
+            (`spotify:track:...`) forms are rejected. An optional `intl-xx`
+            path segment is accepted. Query strings are stripped before
+            lookup. The resource must currently exist on Spotify.
+          example: https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl
+        autoFollow:
+          type: boolean
+          default: false
+          description: |
+            When true, fans who connect Spotify from the landing page are
+            asked to follow the track artist (`artistIdFollow`, or the
+            track's primary artist when omitted), or the playlist itself
+            when `spotifyUrl` is a playlist. Defaults to false.
+        artistIdFollow:
+          type: string
+          description: |
+            Spotify artist ID used for auto-follow on track links.
+            Optional. Persisted even when `autoFollow` is false. For
+            multi-artist tracks, pass the artist that should be followed.
+            Ignored when `spotifyUrl` is a playlist.
+        metaPixelId:
+          type: string
+          description: |
+            Meta pixel ID. Must be sent together with
+            `metaConversionAccessToken`. Omit both to skip Meta tracking.
+        metaConversionAccessToken:
+          type: string
+          writeOnly: true
+          description: |
+            Meta Conversions API access token. Write-only: accepted on create,
+            never returned on GET. Must be sent together with `metaPixelId`.
+
     SoundlinkDetail:
       allOf:
         - $ref: '#/components/schemas/SoundlinkSummary'
         - type: object
-          required: [autoFollow, metaPixelId, tiktokPixelId]
+          required: [autoFollow, artistIdFollow, metaPixelId, tiktokPixelId]
           properties:
             autoFollow:
               type: boolean
+              description: Whether auto-follow is enabled on this soundlink.
+            artistIdFollow:
+              type: string
+              nullable: true
               description: |
-                Whether auto-follow is configured for this soundlink. Whether
-                it takes effect also depends on the organization's plan.
+                Spotify artist ID configured for auto-follow on track links.
+                Unused for playlists. `null` if not set.
             metaPixelId:
               type: string
               nullable: true
@@ -2994,6 +3121,7 @@ components:
           $ref: '#/components/schemas/SoundlinkMetricsOverview'
         meta:
           $ref: '#/components/schemas/Meta'
+
 
     SoundlinkCountryDailyRow:
       type: object
@@ -3319,7 +3447,7 @@ components:
         url:
           type: string
           format: uri
-          description: Public HTTPS URL to an MP4 file (max 70 MB). Mutually exclusive with `videos`.
+          description: Public HTTPS URL to an MP4 file (max 50 MB). Mutually exclusive with `videos`.
         videos:
           type: array
           minItems: 1
@@ -3332,7 +3460,7 @@ components:
               url:
                 type: string
                 format: uri
-                description: Public HTTPS URL to an MP4 file (max 70 MB).
+                description: Public HTTPS URL to an MP4 file (max 50 MB).
 
     VideoImportStatus:
       type: string
@@ -3566,6 +3694,77 @@ components:
                 error:
                   code: wallet_not_enabled
                   message: "This organization does not have wallet billing enabled."
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+
+    CreateSoundlinkBadRequest:
+      description: |
+        Missing or malformed request body, or a missing/empty
+        `Idempotency-Key` header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missing_field:
+              value:
+                error:
+                  code: invalid_request
+                  message: "Missing required field: name."
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+            missing_idempotency_key:
+              value:
+                error:
+                  code: invalid_request
+                  message: "Idempotency-Key header is required and must not be empty."
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+            pixel_pair:
+              value:
+                error:
+                  code: invalid_request
+                  message: "metaPixelId and metaConversionAccessToken must both be provided, or both omitted."
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+
+    CreateSoundlinkForbidden:
+      description: |
+        Valid credentials but missing the `soundlinks:write` scope, or the
+        organization is not enabled for Public API soundlink create.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            insufficient_scope:
+              value:
+                error:
+                  code: insufficient_scope
+                  message: "This key does not have the soundlinks:write scope."
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+            soundlinks_write_not_enabled:
+              value:
+                error:
+                  code: soundlinks_write_not_enabled
+                  message: "This organization is not enabled to create soundlinks via the Public API."
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+
+    CreateSoundlinkUnprocessable:
+      description: Request body is well-formed but the Spotify URL is invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            invalid_spotify_url:
+              summary: Malformed URL, unsupported type, or Spotify resource does not exist
+              value:
+                error:
+                  code: invalid_spotify_url
+                  message: "Spotify track not found."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 

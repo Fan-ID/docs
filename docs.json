@@ -99,6 +99,7 @@
                     "expanded": true,
                     "pages": [
                       "soundlinks",
+                      "creating-soundlinks",
                       "soundlink-metrics",
                       "jsonl-exports"
                     ]
@@ -183,6 +184,7 @@
             "openapi": "openapi/soundlink-public-api-v1.yaml",
             "pages": [
               "GET /v1/soundlinks",
+              "POST /v1/soundlinks",
               "GET /v1/soundlinks/{soundlinkId}",
               {
                 "group": "Metrics",
