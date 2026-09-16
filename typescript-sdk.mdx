@@ -159,7 +159,7 @@ const { data: breakdown } = await soundlink.soundlinks.breakdown.list(
 );
 ```
 
-Full REST guides: [Syncing soundlinks](/soundlinks) · [Soundlink metrics](/soundlink-metrics). Scopes: [Authentication](/authentication).
+Full REST guides: [Syncing soundlinks](/soundlinks) · [Soundlink metrics](/soundlink-metrics) · [Creating soundlinks](/creating-soundlinks). Scopes: [Authentication](/authentication).
 
 ## Response pattern
 
@@ -276,6 +276,8 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked). Br
 
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
 Breakdown and engagement list `pageSize` max is **500**. Export windows are capped at **90 days** per request.
+
+Create (`POST /v1/soundlinks`) is not in the SDK. Use [Creating soundlinks](/creating-soundlinks).
 
 ### Campaign metrics
 
@@ -404,4 +406,4 @@ Use `try/catch` for client setup and rare transport failures. Use `{ data, error
 
 ## Next
 
-[Syncing soundlinks](/soundlinks) → [Creating campaigns](/creating-campaigns) → [Managing campaigns](/managing-campaigns) → [Campaign metrics](/understanding-metrics)
+[Syncing soundlinks](/soundlinks) → [Creating soundlinks](/creating-soundlinks) → [Creating campaigns](/creating-campaigns) → [Managing campaigns](/managing-campaigns) → [Campaign metrics](/understanding-metrics)

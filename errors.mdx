@@ -56,6 +56,16 @@ Returned by campaign creation and management routes (`campaigns:write`). See [Cr
 | 422  | `invalid_spotify_url`            | Malformed Spotify URL, or track/playlist does not exist            |
 | 422  | `invalid_tier_budget_allocation` | Tier percentages invalid (sum, count, or per-tier minimum)         |
 
+## Soundlink create codes
+
+Returned by `POST /v1/soundlinks` (`soundlinks:write`). See [Creating soundlinks](/creating-soundlinks).
+
+| HTTP | Code                           | When                                                            |
+| ---- | ------------------------------ | --------------------------------------------------------------- |
+| 400  | `invalid_request`              | Missing/malformed field, unpaired Meta pixel fields, or missing `Idempotency-Key` |
+| 409  | `idempotency_key_conflict`     | `Idempotency-Key` reused with a different body, or still processing |
+| 422  | `invalid_spotify_url`          | Malformed Spotify URL, or track/playlist does not exist         |
+
 ## Video import codes
 
 Returned by video import routes (`videos:write`). See [Importing videos](/importing-videos).

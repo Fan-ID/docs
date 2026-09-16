@@ -29,7 +29,7 @@ The Public API is **HTTP-first** — every endpoint works with `curl`, Python, o
 | **JSONL exports** | Stream `application/x-ndjson` yourself       | `for await` + `.collect()`               |
 | **Retries**       | Implement backoff on `429` / `5xx`           | Built-in (configurable)                  |
 
-Both hit the same base URL and return the same JSON envelope. The SDK does not add capabilities beyond what the API exposes — including create, budget, stop, and tiers for wallet campaigns (`generation: 3`), plus self-serve soundlinks (`soundlinks:read`).
+Both hit the same base URL and return the same JSON envelope. The SDK does not add capabilities beyond what the API exposes — including create, budget, stop, and tiers for wallet campaigns (`generation: 3`), plus self-serve soundlinks (`soundlinks:read`). To create a soundlink, see [Creating soundlinks](/creating-soundlinks).
 
 ## TypeScript SDK
 

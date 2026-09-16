@@ -173,12 +173,13 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
 | `campaigns:write` | Create and manage wallet-funded campaigns |
 | `metrics:read` | View campaign metrics |
 | `soundlinks:read` | View self-serve soundlinks and their metrics |
+| `soundlinks:write` | Create self-serve soundlinks |
 | `videos:write` | Import partner videos for Full Control creatives |
 
 Request the minimum you need — the consent screen shows each scope to the user, and a shorter list converts better. `scope` values are space-separated, must be unique, and must fall within your client's registered `allowedScopes`.
 
 <Note>
-  `scopes_supported` in the [discovery document](/set-up-soundlink-oauth#discovery) is the authoritative list — it currently returns `openid`, `email`, `campaigns:read`, `campaigns:write`, `metrics:read`, `videos:write` and `soundlinks:read`.
+  `scopes_supported` in the [discovery document](/set-up-soundlink-oauth#discovery) is the authoritative list — it currently returns `openid`, `email`, `campaigns:read`, `campaigns:write`, `metrics:read`, `videos:write`, `soundlinks:read` and `soundlinks:write`.
 </Note>
 
 ### No token — client authentication only
@@ -250,6 +251,14 @@ Self-serve soundlinks (no Soundlink-funded campaign). Same routes as the API key
 | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export` | JSONL bulk for breakdown. |
 | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement` | Per-day × track (`soundlink_engagement_daily`). |
 | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export` | JSONL bulk for engagement. |
+
+### `soundlinks:write`
+
+Same endpoints and rules as the API key scope of the same name — see [Creating soundlinks](/creating-soundlinks).
+
+| Endpoint | Notes |
+| --- | --- |
+| `POST /v1/soundlinks` | Create a soundlink. Requires an `Idempotency-Key` header. Does not create a wallet campaign. |
 
 ### `videos:write`
 
