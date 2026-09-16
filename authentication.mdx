@@ -106,13 +106,13 @@ Scopes limit which endpoints a key can call. Select them when you create the key
 | `campaigns:read`  | List campaigns, campaign detail, strategy catalog, campaign tiers      | Yes           |
 | `metrics:read`    | Metrics overview, breakdown, exports                                   | Yes           |
 | `soundlinks:read` | List soundlinks, soundlink detail, soundlink metrics                    | Yes           |
-| `soundlinks:write` | Create self-serve soundlinks                                           | Yes           |
+| `soundlinks:write` | Create and archive self-serve soundlinks | Yes |
 | `campaigns:write` | Create/stop wallet campaigns, budget increase/decrease, tier updates   | Yes           |
 | `videos:write`    | Import partner videos for Full Control creatives                       | Yes           |
 
 Typical read-only integrations enable **both** `campaigns:read` and `metrics:read`.
 Add `soundlinks:read` when you need self-serve soundlink catalog or Insights metrics.
-Add `soundlinks:write` to [create soundlinks](/creating-soundlinks).
+Add `soundlinks:write` to [create](/creating-soundlinks) or [archive](/creating-soundlinks#archive-a-soundlink) soundlinks.
 Add `campaigns:write` only when the integration should spend wallet credit or manage delivery.
 
 <Note>
@@ -167,6 +167,7 @@ Revoked keys stay visible in the list with status and date so you can audit past
 | Metrics overview / breakdown / exports        | `metrics:read`                |
 | `GET /v1/soundlinks` and soundlink metrics    | `soundlinks:read`            |
 | `POST /v1/soundlinks`                           | `soundlinks:write`           |
+| `DELETE /v1/soundlinks/{soundlinkId}`           | `soundlinks:write`           |
 | Create / stop / budget / tier write routes    | `campaigns:write`             |
 | Video import routes                           | `videos:write`                |
 
