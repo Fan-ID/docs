@@ -18,7 +18,7 @@ Campaign-linked soundlinks are the campaign's underlying resource. List and deta
 
 `GET /v1/soundlinks`
 
-Supports pagination:
+Includes archived rows (`status: archived`). Supports pagination:
 
 | Param      | Default | Max |
 | ---------- | ------- | --- |
@@ -38,7 +38,7 @@ Walk pages until `pagination.page >= pagination.totalPages`.
 
 `GET /v1/soundlinks/{soundlinkId}`
 
-Returns catalog fields plus `autoFollow`, `artistIdFollow`, `metaPixelId`, and `tiktokPixelId`. Unknown, cross-org, or campaign-linked IDs return `404`. The Meta CAPI token is never returned.
+Returns catalog fields plus `autoFollow`, `artistIdFollow`, `metaPixelId`, and `tiktokPixelId`. Archived soundlinks still appear (`status: archived`). Unknown, cross-org, or campaign-linked IDs return `404`. The Meta CAPI token is never returned.
 
 Use the `soundlinkId` from the list response in all `/metrics/*` paths.
 

@@ -30,7 +30,7 @@ Using the TypeScript SDK? API errors arrive as `{ data: null, error }` on every 
 | 401  | `api_key_revoked`         | Key revoked                                 |
 | 401  | `api_key_expired`         | Key past `expires_at`                       |
 | 403  | `insufficient_scope`      | Valid credential missing the route scope    |
-| 404  | `not_found`               | Unknown path, or a soundlink that is missing, in another organization, or linked to a campaign |
+| 404  | `not_found`               | Unknown path, or a soundlink that is missing, in another organization, linked to a campaign, or not `active` on archive |
 | 404  | `campaign_not_found`      | Unknown campaign or other org's campaign    |
 | 400  | `invalid_query_parameter` | Bad pagination or sort params               |
 | 400  | `invalid_date_range`      | `endDate` before `startDate`                |

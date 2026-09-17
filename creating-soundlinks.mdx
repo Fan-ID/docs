@@ -7,8 +7,8 @@ description: Create a soundlink via the API — Spotify URL, optional auto-follo
 
 <Note>
   This does not create a campaign and does not appear on `GET /v1/campaigns`. Ads
-  run in your own Meta account. The [`Idempotency-Key` header](#idempotency) is
-  **required**.
+  run in your own Meta account. On create, the [`Idempotency-Key` header](#idempotency)
+  is **required**.
 </Note>
 
 ## Prerequisites
@@ -112,7 +112,7 @@ curl -sS -X DELETE 'https://api.getsoundlink.com/v1/soundlinks/V1StGXR8_Z5jdHi6B
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
-Expected (`200`). `data.status` is `archived`. The public page stops resolving once cache expires. A second delete, a campaign-linked id, or a soundlink that is not `active` returns `404`.
+Expected (`200`). `data.status` is `archived`. The public landing page returns 404 after cache expires. List and detail still return the row. A second delete, unknown id, other org, campaign-linked id, or a soundlink that is not `active` returns `404 not_found`.
 
 This cannot be undone via the API.
 

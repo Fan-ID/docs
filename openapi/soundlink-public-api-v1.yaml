@@ -1260,8 +1260,9 @@ paths:
       summary: Archive a soundlink
       description: |
         Archives a self-serve soundlink (`status: archived`). Same as Archive
-        in the app: the public page stops resolving, and this cannot be undone
-        via the Public API.
+        in the app: the public landing page returns 404 after cache expires.
+        List and detail still return the row. Cannot be undone via the Public
+        API.
 
         Requires `soundlinks:write`. Campaign-linked soundlinks, soundlinks
         that are not `active`, and ids that do not belong to the org return

@@ -173,7 +173,7 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
 | `campaigns:write` | Create and manage wallet-funded campaigns |
 | `metrics:read` | View campaign metrics |
 | `soundlinks:read` | View self-serve soundlinks and their metrics |
-| `soundlinks:write` | Create self-serve soundlinks |
+| `soundlinks:write` | Create and archive self-serve soundlinks |
 | `videos:write` | Import partner videos for Full Control creatives |
 
 Request the minimum you need — the consent screen shows each scope to the user, and a shorter list converts better. `scope` values are space-separated, must be unique, and must fall within your client's registered `allowedScopes`.
@@ -259,6 +259,7 @@ Same endpoints and rules as the API key scope of the same name — see [Creating
 | Endpoint | Notes |
 | --- | --- |
 | `POST /v1/soundlinks` | Create a soundlink. Requires an `Idempotency-Key` header. Does not create a wallet campaign. |
+| `DELETE /v1/soundlinks/{soundlinkId}` | Archive. No `Idempotency-Key`. |
 
 ### `videos:write`
 
