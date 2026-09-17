@@ -40,7 +40,7 @@ info:
     | Campaign writes (create, stop, budget, tier updates) | `campaigns:write` | API key (Bearer) or OAuth Bearer |
     | Video import / import status | `videos:write` | API key (Bearer) or OAuth Bearer |
     | Soundlink reads (list, detail, metrics overview/breakdown/engagement, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
-    | Soundlink writes (create) | `soundlinks:write` | API key (Bearer) or OAuth Bearer |
+    | Soundlink writes (create, archive) | `soundlinks:write` | API key (Bearer) or OAuth Bearer |
 
     Per-operation scope requirements are also marked with `x-required-scope`
     (except `GET /v1/ping`, which accepts any valid credential with at least
@@ -71,7 +71,7 @@ tags:
   - name: Videos
     description: Partner video library import for Full Control campaigns
   - name: Soundlinks
-    description: Soundlink listing, detail, creation, and performance metrics
+    description: Soundlink listing, detail, creation, archive, and performance metrics
 
 paths:
 
@@ -1243,6 +1243,53 @@ paths:
                   targetType: track
                   spotifyUrl: https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl
                   status: active
+                  createdAt: "2026-04-01T10:00:00Z"
+                  autoFollow: true
+                  artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
+                  metaPixelId: "1234567890123456"
+                  tiktokPixelId: null
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    delete:
+      operationId: archiveSoundlink
+      summary: Archive a soundlink
+      description: |
+        Archives a self-serve soundlink (`status: archived`). Same as Archive
+        in the app: the public landing page returns 404 after cache expires.
+        List and detail still return the row. Cannot be undone via the Public
+        API.
+
+        Requires `soundlinks:write`. Campaign-linked soundlinks, soundlinks
+        that are not `active`, and ids that do not belong to the org return
+        `404`. Does not require `Idempotency-Key`.
+      tags: [Soundlinks]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: soundlinks:write
+      parameters:
+        - $ref: '#/components/parameters/soundlinkId'
+      responses:
+        '200':
+          description: Soundlink archived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SoundlinkDetailResponse'
+              example:
+                data:
+                  soundlinkId: V1StGXR8_Z5jdHi6B-myT
+                  organizationId: a7ac3173-2f71-4e79-921f-d15d7112dd11
+                  name: Midnight Drive
+                  url: https://sndl.ink/soundlink/V1StGXR8_Z5jdHi6B-myT
+                  targetType: track
+                  spotifyUrl: https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl
+                  status: archived
                   createdAt: "2026-04-01T10:00:00Z"
                   autoFollow: true
                   artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"

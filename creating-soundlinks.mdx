@@ -7,8 +7,8 @@ description: Create a soundlink via the API — Spotify URL, optional auto-follo
 
 <Note>
   This does not create a campaign and does not appear on `GET /v1/campaigns`. Ads
-  run in your own Meta account. The [`Idempotency-Key` header](#idempotency) is
-  **required**.
+  run in your own Meta account. On create, the [`Idempotency-Key` header](#idempotency)
+  is **required**.
 </Note>
 
 ## Prerequisites
@@ -102,6 +102,19 @@ The `Idempotency-Key` header is **required** on `POST /v1/soundlinks`.
 | 422 | `invalid_spotify_url` | Malformed Spotify URL, unsupported type, or resource does not exist |
 
 See [Errors](/errors) for the full list.
+
+## Archive a soundlink
+
+`DELETE /v1/soundlinks/{soundlinkId}` — same as **Archive** in the app. Requires `soundlinks:write`. No `Idempotency-Key`.
+
+```bash
+curl -sS -X DELETE 'https://api.getsoundlink.com/v1/soundlinks/V1StGXR8_Z5jdHi6B-myT' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+Expected (`200`). `data.status` is `archived`. The public landing page returns 404 after cache expires. List and detail still return the row. A second delete, unknown id, other org, campaign-linked id, or a soundlink that is not `active` returns `404 not_found`.
+
+This cannot be undone via the API.
 
 ## Next
 
