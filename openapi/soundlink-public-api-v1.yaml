@@ -1707,10 +1707,15 @@ paths:
   /v1/videos/import:
     post:
       operationId: importVideo
-      summary: Import video(s) from public HTTPS MP4 URL(s)
+      summary: Import video(s) from public HTTPS MP4 or QuickTime URL(s)
       description: |
         Accepts a single `url` or a `videos` array (1–5 items). Creates one upload
         session, enqueues async download/staging, and returns `202` with `sessionId`.
+        URLs may be MP4 (`video/mp4`) or QuickTime (`.mov` / `video/quicktime`)
+        when QuickTime import is enabled for the organization. Unsupported types,
+        or QuickTime when it is not enabled, return `invalid_video_content_type`.
+        QuickTime imports stay `processing` while they transcode to MP4, then
+        follow the same ingest path as native MP4.
 
         Requires the `videos:write` scope. Subject to a stricter per-credential rate
         limit than generic public API routes (default 20 imports per hour per API key
@@ -3490,7 +3495,7 @@ components:
         url:
           type: string
           format: uri
-          description: Public HTTPS URL to an MP4 file (max 70 MB). Mutually exclusive with `videos`.
+          description: Public HTTPS URL to an MP4 or QuickTime (.mov) file (max 70 MB). Mutually exclusive with `videos`.
         videos:
           type: array
           minItems: 1
@@ -3503,7 +3508,7 @@ components:
               url:
                 type: string
                 format: uri
-                description: Public HTTPS URL to an MP4 file (max 70 MB).
+                description: Public HTTPS URL to an MP4 or QuickTime (.mov) file (max 70 MB).
 
     VideoImportStatus:
       type: string
