@@ -1,9 +1,9 @@
 ---
 title: Importing videos
-description: Build your organization's video library via the API — import MP4s by URL, poll processing status, and use videoIds in campaigns.
+description: Build your organization's video library via the API — import MP4 or QuickTime by URL, poll processing status, and use videoIds in campaigns.
 ---
 
-The Videos API lets you stock your organization's video library programmatically: import an MP4 by URL, wait for processing, and get back a `videoId`. You can do this independently of any campaign — for example, to sync your creative library ahead of time — and later use the `videoId` in [Full Control campaigns](/creating-campaigns#creative-direction).
+The Videos API lets you stock your organization's video library programmatically: import an MP4 or QuickTime (`.mov`) by URL, wait for processing, and get back a `videoId`. You can do this independently of any campaign — for example, to sync your creative library ahead of time — and later use the `videoId` in [Full Control campaigns](/creating-campaigns#creative-direction).
 
 Requires the `videos:write` scope on your key (see [Authentication](/authentication#scopes-v1)).
 
@@ -11,7 +11,7 @@ Requires the `videos:write` scope on your key (see [Authentication](/authenticat
 
 `POST /v1/videos/import`
 
-Provide a **public HTTPS URL to an MP4 file (max 70 MB)**. Soundlink downloads the file, stages it, and starts the background processing pipeline:
+Provide a **public HTTPS URL to an MP4 or QuickTime (`.mov`) file (max 70 MB)**. Soundlink downloads the file, stages it, and starts the background processing pipeline:
 
 ```bash
 curl -sS -X POST 'https://api.getsoundlink.com/v1/videos/import' \
@@ -49,14 +49,14 @@ Two possible success responses:
 
 - **HTTPS only** — plain `http://` URLs are rejected
 - Must be **publicly reachable** (no auth walls, no private/internal addresses)
-- Content must be **MP4**, up to **70 MB**
+- Content must be **MP4** or **QuickTime (`.mov`)**, up to **70 MB**. QuickTime is accepted when enabled for your organization.
 - The download must complete within ~45 seconds — very slow hosts fail; redirects are followed (up to 5 hops)
 
 <Warning>
   Avoid expiring or signed URLs (such as GCS pre-signed links or Cloudinary signed-delivery URLs). They often work the moment you issue the URL but expire before the video is actually fetched, causing the import to fail silently. Use a stable, permanent URL.
 </Warning>
 
-Violations return `400 invalid_video_url` with a specific message.
+URL violations return `400 invalid_video_url`. Unsupported formats return `invalid_video_content_type`.
 
 ## Poll import status
 
@@ -71,7 +71,7 @@ curl -sS 'https://api.getsoundlink.com/v1/videos/import/SESSION_ID' \
 
 | `status`     | Meaning                                                       |
 | ------------ | ------------------------------------------------------------- |
-| `processing` | Still ingesting — poll again in a few seconds                  |
+| `processing` | Still ingesting, including QuickTime transcode — poll again in a few seconds |
 | `ready`      | Done — `videoId` is set and usable in campaigns                |
 | `failed`     | Ingestion failed — `error` contains the failure reason         |
 
@@ -117,7 +117,8 @@ Imported videos also appear in your video library in the Soundlink app, alongsid
 
 | HTTP | Code                              | When                                                              |
 | ---- | --------------------------------- | ------------------------------------------------------------------ |
-| 400  | `invalid_video_url`               | Not HTTPS, unreachable, not MP4, over 70 MB, or download timed out |
+| 400  | `invalid_video_url`               | Not HTTPS, unreachable, over 70 MB, or download timed out          |
+| 400  | `invalid_video_content_type`      | Unsupported format, or QuickTime when not enabled                  |
 | 403  | `insufficient_scope`              | Credential missing the `videos:write` scope                        |
 | 403  | `video_import_limit_exceeded`     | Plan video quota or organization storage limit exceeded            |
 | 404  | `video_import_session_not_found`  | Unknown session or another organization's session                  |
