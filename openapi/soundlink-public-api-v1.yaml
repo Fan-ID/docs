@@ -1711,9 +1711,8 @@ paths:
       description: |
         Accepts a single `url` or a `videos` array (1–5 items). Creates one upload
         session, enqueues async download/staging, and returns `202` with `sessionId`.
-        URLs may be MP4 (`video/mp4`) or QuickTime (`.mov` / `video/quicktime`)
-        when QuickTime import is enabled for the organization. Unsupported types,
-        or QuickTime when it is not enabled, return `invalid_video_content_type`.
+        URLs may be MP4 (`video/mp4`) or QuickTime (`.mov` / `video/quicktime`).
+        Unsupported types return `invalid_video_content_type`.
         QuickTime imports stay `processing` while they transcode to MP4, then
         follow the same ingest path as native MP4.
 

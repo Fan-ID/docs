@@ -49,7 +49,7 @@ Two possible success responses:
 
 - **HTTPS only** — plain `http://` URLs are rejected
 - Must be **publicly reachable** (no auth walls, no private/internal addresses)
-- Content must be **MP4** or **QuickTime (`.mov`)**, up to **70 MB**. QuickTime is accepted when enabled for your organization.
+- Content must be **MP4** or **QuickTime (`.mov`)**, up to **70 MB**
 - The download must complete within ~45 seconds — very slow hosts fail; redirects are followed (up to 5 hops)
 
 <Warning>
@@ -118,7 +118,7 @@ Imported videos also appear in your video library in the Soundlink app, alongsid
 | HTTP | Code                              | When                                                              |
 | ---- | --------------------------------- | ------------------------------------------------------------------ |
 | 400  | `invalid_video_url`               | Not HTTPS, unreachable, over 70 MB, or download timed out          |
-| 400  | `invalid_video_content_type`      | Unsupported format, or QuickTime when not enabled                  |
+| 400  | `invalid_video_content_type`      | Unsupported format                                                 |
 | 403  | `insufficient_scope`              | Credential missing the `videos:write` scope                        |
 | 403  | `video_import_limit_exceeded`     | Plan video quota or organization storage limit exceeded            |
 | 404  | `video_import_session_not_found`  | Unknown session or another organization's session                  |
