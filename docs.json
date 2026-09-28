@@ -187,6 +187,7 @@
               "POST /v1/soundlinks",
               "GET /v1/soundlinks/{soundlinkId}",
               "DELETE /v1/soundlinks/{soundlinkId}",
+              "POST /v1/soundlinks/{soundlinkId}/test-events",
               {
                 "group": "Metrics",
                 "expanded": true,
