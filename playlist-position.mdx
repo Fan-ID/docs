@@ -5,11 +5,6 @@ description: Read daily track positions on playlist campaigns from the engagemen
 
 Engagement export rows include `playlist_position`. On playlist campaigns, use it to see which slot each engaged track held on the campaign playlist for that day.
 
-<Note>
-  Historical backfill is complete. Days a crawl missed are retried only for
-  recent days — older gaps cannot be recovered and stay `null`.
-</Note>
-
 ## Get the data
 
 Same endpoint as other engagement rows — no new route:
@@ -41,7 +36,7 @@ Position comes from that day's playlist crawl for `report_date`.
 - **Catalog rows** (`engagement_context = catalog`) — position only applies to `playlist` rows
 - **Current UTC day** — often `null` until the morning crawl finishes; it fills on the next data refresh
 - **Track not on the playlist** that day — playlist engagement can include tracks Spotify played from the playlist context (autoplay, recommendations), or tracks that could not be matched to that day's crawl
-- **No crawl for that day** — a missed crawl that was not recovered, or a playlist that has no crawl coverage at all
+- **No crawl for that day** — a missed crawl that was not recovered (only recent days are retried), or a playlist that has no crawl coverage at all
 
 To tell these apart, check whether the campaign has a non-null position on other rows for the same `report_date`.
 
