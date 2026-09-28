@@ -116,6 +116,19 @@ Expected (`200`). `data.status` is `archived`. The public landing page returns 4
 
 This cannot be undone via the API.
 
+## Send a test event
+
+`POST /v1/soundlinks/{soundlinkId}/test-events` sends the same test conversion as **Send test event** in the app. Requires `soundlinks:write`. No request body and no `Idempotency-Key`.
+
+Pixels and tokens already stored on the soundlink are used. A Meta pixel sends a live `Soundlink Stream` event. A TikTok pixel sends a live `ViewContent` event. These are not sandbox events.
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/soundlinks/V1StGXR8_Z5jdHi6B-myT/test-events' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+Expected (`200`). `data.status` is `sent`. A soundlink with neither pixel, or a pixel missing its conversion token, returns `400 invalid_request`. Unknown ids, another organization, and campaign-linked soundlinks return `404`. Archived self-serve soundlinks are allowed.
+
 ## Next
 
 [Syncing soundlinks](/soundlinks) — list and detail · [Soundlink metrics](/soundlink-metrics) · [API Reference](/api-reference)
