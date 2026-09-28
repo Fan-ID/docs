@@ -46,7 +46,9 @@ Per-day, per-track rows (`campaign_engagement_daily` v1.0). Primary key:
 
 `(provider, account_id, report_date, campaign_id, engagement_context, country_code, engaged_spotify_track_id)`
 
-Engagement covers the full engagement window — including post-campaign streaming — not only days when the campaign was actively running. Use for catalog spillover and long-tail retention.
+Engagement counts plays from listeners who connected Spotify through the campaign's soundlink, starting when they connected. Use it for catalog spillover and playlist performance while the campaign runs.
+
+Listening history is synced while the campaign is active. After it ends, sync stops for listeners whose only connection is that campaign, so post-campaign days are partial and usually drop sharply — do not read that drop as listeners leaving.
 
 Engagement rows also include `campaign_target_isrc` and `campaign_target_spotify_track_id` for the promoted track when `campaign_target_type = track`.
 
@@ -57,7 +59,7 @@ Engagement rows also include `campaign_target_isrc` and `campaign_target_spotify
 
 Filter with `?engagementContext=catalog` or `playlist` when you only need one slice.
 
-Playlist engagement rows include `playlist_position` — the track's 1-based slot on the campaign playlist for that `report_date` (beta while historical backfill finishes). See [Playlist position](/playlist-position).
+Playlist engagement rows include `playlist_position` — the track's 1-based slot on the campaign playlist for that `report_date`. See [Playlist position](/playlist-position).
 
 | Use case                           | Endpoint               |
 | ---------------------------------- | ---------------------- |
