@@ -40,7 +40,7 @@ info:
     | Campaign writes (create, stop, budget, tier updates) | `campaigns:write` | API key (Bearer) or OAuth Bearer |
     | Video import / import status | `videos:write` | API key (Bearer) or OAuth Bearer |
     | Soundlink reads (list, detail, metrics overview/breakdown/engagement, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
-    | Soundlink writes (create, archive) | `soundlinks:write` | API key (Bearer) or OAuth Bearer |
+    | Soundlink writes (create, archive, test events) | `soundlinks:write` | API key (Bearer) or OAuth Bearer |
 
     Per-operation scope requirements are also marked with `x-required-scope`
     (except `GET /v1/ping`, which accepts any valid credential with at least
@@ -1303,6 +1303,54 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+  /v1/soundlinks/{soundlinkId}/test-events:
+    post:
+      operationId: sendSoundlinkTestEvents
+      summary: Send a test conversion event for a soundlink
+      description: |
+        Sends the same test conversion event as the in-app "send test event"
+        action. Pixels and tokens are read from the soundlink. This request
+        has no body.
+
+        When the soundlink has a Meta pixel, a live Meta Conversions API event
+        named `Soundlink Stream` is sent to that pixel. When it has a TikTok
+        pixel, a live TikTok `ViewContent` event is sent as well. These are
+        not sandbox events: they appear in the ad platform's events manager.
+
+        Requires `soundlinks:write`. Unknown ids, another organization's
+        soundlink, and campaign-linked soundlinks return `404`. Archived
+        self-serve soundlinks are allowed. A soundlink with neither pixel
+        returns `400`. Does not require `Idempotency-Key`; each call sends a
+        new event.
+
+        **Auth:** Accepts API key or OAuth Bearer (`soundlinks:write`).
+      tags: [Soundlinks]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: soundlinks:write
+      parameters:
+        - $ref: '#/components/parameters/soundlinkId'
+      responses:
+        '200':
+          description: Test event sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendTestEventResponse'
+              example:
+                data:
+                  soundlinkId: V1StGXR8_Z5jdHi6B-myT
+                  status: sent
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
   /v1/soundlinks/{soundlinkId}/metrics/overview:
     get:
       operationId: getSoundlinkMetricsOverview
@@ -1350,6 +1398,7 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+
   /v1/soundlinks/{soundlinkId}/metrics/breakdown:
     get:
       operationId: getSoundlinkMetricsBreakdown
@@ -1372,7 +1421,6 @@ paths:
         in your own Meta account, so spend is not visible to Soundlink.
 
         Maps to the **Countries** tab in the Soundlink Insights UI.
-        Sum country rows for a `report_date` to reconstruct the day total.
 
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
       tags: [Soundlinks]
@@ -3121,6 +3169,24 @@ components:
         meta:
           $ref: '#/components/schemas/Meta'
 
+    SendTestEventResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [soundlinkId, status]
+          properties:
+            soundlinkId:
+              type: string
+              description: Soundlink that received the test event.
+            status:
+              type: string
+              enum: [sent]
+              description: Present when the stored pixel test event was sent.
+        meta:
+          $ref: '#/components/schemas/Meta'
+
     SoundlinkMetricsOverview:
       type: object
       description: |
@@ -3169,6 +3235,7 @@ components:
           $ref: '#/components/schemas/SoundlinkMetricsOverview'
         meta:
           $ref: '#/components/schemas/Meta'
+
 
     SoundlinkCountryDailyRow:
       type: object
