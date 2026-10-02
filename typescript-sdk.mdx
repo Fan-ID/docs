@@ -131,7 +131,7 @@ await soundlink.campaigns.stop(created.campaignId, {
 
 ## Soundlinks (self-serve)
 
-Requires `soundlinks:read`. Returns only soundlinks **not** linked to a campaign — campaign-backed links use the Campaigns API. Responses have no spend or fee fields (ads run in your Meta account).
+List, get, and metrics require `soundlinks:read`. Create and delete require `soundlinks:write`. Returns only soundlinks **not** linked to a campaign — campaign-backed links use the Campaigns API. Responses have no spend or fee fields (ads run in your Meta account).
 
 ```typescript
 const { data: links, error: linksError } = await soundlink.soundlinks.list({
@@ -145,8 +145,21 @@ if (linksError) {
   console.error(linksError.code, linksError.message);
 }
 
+const { data: created, error: createError } = await soundlink.soundlinks.create(
+  {
+    name: "Midnight Drive",
+    spotifyUrl: "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl",
+    appleMusicUrl: "https://music.apple.com/us/song/anti-hero/1645937493",
+  },
+  { idempotencyKey: "create-midnight-drive-01" },
+);
+
+if (createError || !created) {
+  console.error(createError?.code, createError?.message);
+}
+
 const { data: detail } = await soundlink.soundlinks.get("V1StGXR8_Z5jdHi6B-myT");
-// detail?.autoFollow, detail?.metaPixelId, detail?.tiktokPixelId
+// detail?.appleMusicUrl, detail?.autoFollow, detail?.metaPixelId, detail?.tiktokPixelId
 
 const { data: overview } = await soundlink.soundlinks.metricsOverview(
   "V1StGXR8_Z5jdHi6B-myT",
@@ -266,6 +279,8 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked). Br
 | ------ | ------------- | ------- |
 | `soundlink.soundlinks.list(params?)` | `GET /v1/soundlinks` | `ApiResponse<SoundlinkListData>` |
 | `soundlink.soundlinks.get(soundlinkId)` | `GET /v1/soundlinks/{id}` | `ApiResponse<SoundlinkDetail>` |
+| `soundlink.soundlinks.create(body, { idempotencyKey })` | `POST /v1/soundlinks` | `ApiResponse<SoundlinkDetail>` |
+| `soundlink.soundlinks.delete(soundlinkId)` | `DELETE /v1/soundlinks/{id}` | `ApiResponse<SoundlinkDetail>` |
 | `soundlink.soundlinks.metricsOverview(id, params?)` | `GET .../metrics/overview` | `ApiResponse<SoundlinkMetricsOverview>` |
 | `soundlink.soundlinks.breakdown.list(id, params?)` | `GET .../metrics/breakdown` | `ApiResponse<SoundlinkBreakdownListData>` |
 | `soundlink.soundlinks.breakdown.export(id, params?)` | `GET .../metrics/breakdown/export` | `ApiResponse<JsonlStream<SoundlinkBreakdownRow>>` |
@@ -277,7 +292,7 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked). Br
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
 Breakdown and engagement list `pageSize` max is **500**. Export windows are capped at **90 days** per request.
 
-Create and archive (`POST` / `DELETE /v1/soundlinks`) are not in the SDK. Use [Creating soundlinks](/creating-soundlinks).
+`create` requires `soundlinks:write` and `{ idempotencyKey }`. Optional `appleMusicUrl` is an HTTPS Apple Music song or playlist URL. The API checks the URL shape and stores an album share-sheet link (`?i=`) as the canonical song URL. Detail returns `appleMusicUrl` (`string` or `null`). List items do not include it. `delete` archives the soundlink and does not send `Idempotency-Key`. URL rules: [Creating soundlinks](/creating-soundlinks).
 
 ### Campaign metrics
 
