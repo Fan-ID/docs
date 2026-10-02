@@ -28,6 +28,8 @@ Soundlink metrics omit spend, fees, and efficiency fields (`cpl`, `cpf`) — ads
 
 Soundlink-level totals for a date range: `views`, `link_clicks` (nullable), `streams`, `listeners`, `followers`, `streams_per_listener`, and `ctr_lp`. One payload per request window — not broken down by country or track.
 
+`link_clicks` counts CTA clicks across all DSPs on the landing page. It is `null` when this soundlink type does not track them.
+
 `listeners` is the sum of daily per-country `new_listeners` (not period-unique across days or countries). It is **not** equal to summing breakdown `listeners` (new + returning).
 
 **New and returning splits are not on overview.** Use [breakdown](#breakdown-by-country) or [engagement](#engagement-by-track) rows for `new_listeners`, `returning_listeners`, and the stream splits.
