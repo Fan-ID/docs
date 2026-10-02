@@ -501,8 +501,10 @@ paths:
         is applied asynchronously after acceptance (`accepted: true`).
 
         Domain rules (also returned as `invalid_request` when violated):
-        - `targetDailyBudget` must be at least `$10`/day and lower than the
-          current daily budget
+        - `targetDailyBudget` must be at least the campaign's enabled-ad-set
+          minimum gross (`minLowerDailyBudgetGrossCurrent`, or the max of
+          current and next when `mode` is `current_and_renewals`) and lower
+          than the current daily budget
         - more than 3 days must remain in the current cycle
 
         **Auth:** Accepts API key or OAuth Bearer (`campaigns:write`).
@@ -1201,6 +1203,7 @@ paths:
                   artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
                   metaPixelId: "1234567890123456"
                   tiktokPixelId: null
+                  appleMusicUrl: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '400': { $ref: '#/components/responses/CreateSoundlinkBadRequest' }
@@ -1248,6 +1251,7 @@ paths:
                   artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
                   metaPixelId: "1234567890123456"
                   tiktokPixelId: null
+                  appleMusicUrl: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -1260,9 +1264,8 @@ paths:
       summary: Archive a soundlink
       description: |
         Archives a self-serve soundlink (`status: archived`). Same as Archive
-        in the app: the public landing page returns 404 after cache expires.
-        List and detail still return the row. Cannot be undone via the Public
-        API.
+        in the app: the public page stops resolving, and this cannot be undone
+        via the Public API.
 
         Requires `soundlinks:write`. Campaign-linked soundlinks, soundlinks
         that are not `active`, and ids that do not belong to the org return
@@ -1295,6 +1298,7 @@ paths:
                   artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
                   metaPixelId: "1234567890123456"
                   tiktokPixelId: null
+                  appleMusicUrl: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -2585,10 +2589,12 @@ components:
       properties:
         targetDailyBudget:
           type: number
-          minimum: 10
+          minimum: 0
+          exclusiveMinimum: true
           description: |
-            New daily budget in USD (gross). Must be at least `$10`/day and
-            lower than the campaign's current daily budget.
+            New daily budget in USD (gross). Must be at least the campaign's
+            enabled-ad-set minimum gross and lower than the campaign's current
+            daily budget.
         mode:
           $ref: '#/components/schemas/BudgetDecreaseMode'
 
@@ -2778,7 +2784,7 @@ components:
         link_clicks:
           type: integer
           nullable: true
-          description: Clicks on "Continue with Spotify" on the Soundlink landing page. Use `cpc_linkclick` / `ctr_linkclick` for outbound CPC/CTR.
+          description: CTA clicks across all DSPs on the Soundlink landing page. Use `cpc_linkclick` / `ctr_linkclick` for outbound CPC/CTR.
         streams:
           type: integer
           description: Spotify streams attributed to this campaign in this country on this day (7-day click-through window). Observed events, not modelled estimates.
@@ -3135,12 +3141,29 @@ components:
           description: |
             Meta Conversions API access token. Write-only: accepted on create,
             never returned on GET. Must be sent together with `metaPixelId`.
+        appleMusicUrl:
+          type: string
+          format: uri
+          description: |
+            Optional HTTPS Apple Music URL. Accepted shapes: a song
+            (`/song/{slug}/{id}`), a catalog playlist (`pl.`), a library
+            playlist (`pl.u-`), or an album share-sheet link with `?i={songId}`
+            (stored as the canonical song URL). Host must be `music.apple.com`
+            with a two-letter storefront. URL shape is checked only; the
+            Apple catalog is not looked up. Omit to create a Spotify-only
+            soundlink.
+          example: https://music.apple.com/us/song/anti-hero/1645937493
 
     SoundlinkDetail:
       allOf:
         - $ref: '#/components/schemas/SoundlinkSummary'
         - type: object
-          required: [autoFollow, artistIdFollow, metaPixelId, tiktokPixelId]
+          required:
+            - autoFollow
+            - artistIdFollow
+            - metaPixelId
+            - tiktokPixelId
+            - appleMusicUrl
           properties:
             autoFollow:
               type: boolean
@@ -3159,6 +3182,13 @@ components:
               type: string
               nullable: true
               description: TikTok pixel ID configured on this soundlink. `null` if not set.
+            appleMusicUrl:
+              type: string
+              format: uri
+              nullable: true
+              description: |
+                Apple Music URL stored on this soundlink. `null` if not set.
+                Share-sheet album links are returned as the canonical song URL.
 
     SoundlinkDetailResponse:
       type: object
@@ -3201,8 +3231,8 @@ components:
           type: integer
           nullable: true
           description: |
-            Clicks on "Continue with Spotify" on the landing page — outbound
-            clicks to Spotify. Null if not tracked for this soundlink type.
+            CTA clicks across all DSPs on the landing page. Null if not tracked
+            for this soundlink type.
         streams:
           type: integer
           description: Attributed Spotify streams (sum of country-day rows).
@@ -3320,8 +3350,8 @@ components:
           type: integer
           nullable: true
           description: |
-            Clicks on "Continue with Spotify" on the landing page — outbound
-            clicks to Spotify. Null if not tracked for this soundlink type.
+            CTA clicks across all DSPs on the landing page. Null if not tracked
+            for this soundlink type.
         streams:
           type: integer
           description: |
