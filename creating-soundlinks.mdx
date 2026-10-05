@@ -1,6 +1,6 @@
 ---
 title: Creating soundlinks
-description: Create a soundlink via the API — Spotify URL, optional Apple Music URL, auto-follow, Meta pixel, and idempotent retries.
+description: Create a soundlink via the API — Spotify URL, optional Apple Music or YouTube Music URL, auto-follow, Meta pixel, and idempotent retries.
 ---
 
 `POST /v1/soundlinks` creates a soundlink that is **not** tied to a Soundlink-funded campaign. Requires the `soundlinks:write` scope.
@@ -51,6 +51,7 @@ The soundlink is `active` immediately. Use `data.url` as the public landing page
 | `name` | Yes | Non-empty display name |
 | `spotifyUrl` | Yes | HTTPS Spotify **track** or **playlist** URL. See [Spotify URLs](#spotify-urls) |
 | `appleMusicUrl` | No | HTTPS Apple Music song or playlist URL. See [Apple Music URLs](#apple-music-urls). Omit for a Spotify-only soundlink |
+| `youtubeMusicUrl` | No | HTTPS YouTube Music song or playlist URL. See [YouTube Music URLs](#youtube-music-urls) |
 | `autoFollow` | No | Default `false`. When `true`, fans who connect Spotify from the landing page are asked to follow the track artist, or the playlist itself |
 | `artistIdFollow` | No | Spotify artist ID for auto-follow on **track** links. Kept even when `autoFollow` is `false`. Ignored for playlists. For multi-artist tracks, pass the artist that should be followed |
 | `metaPixelId` | No | Meta pixel ID. Must be sent together with `metaConversionAccessToken` |
@@ -84,6 +85,27 @@ Send an `https://music.apple.com` URL with a two-letter storefront:
 The `201` body and later GETs return `appleMusicUrl` as `https://music.apple.com/us/song/take-on-me/1035048414`. Omit the field and detail returns `appleMusicUrl: null`.
 
 A plain album link (no `?i=`), an artist link, `http`, or any other host returns `400 invalid_request`.
+
+## YouTube Music URLs
+
+Optional `youtubeMusicUrl` adds a YouTube Music button on the landing page. The API checks the URL shape only. It does not look the link up in the YouTube catalog.
+
+Send a song or playlist URL:
+
+- **Song:** `music.youtube.com/watch?v={id}`, `youtube.com/watch?v={id}`, or `youtu.be/{id}`
+- **Playlist:** `music.youtube.com/playlist?list={id}`
+
+```json
+{
+  "name": "Midnight Drive",
+  "spotifyUrl": "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl",
+  "youtubeMusicUrl": "https://youtu.be/dQw4w9WgXcQ"
+}
+```
+
+The `201` body and later GETs return `youtubeMusicUrl` as `https://music.youtube.com/watch?v=dQw4w9WgXcQ`. Omit the field and detail returns `youtubeMusicUrl: null`.
+
+Shorts, live, channel, and browse links, `http`, or any other host return `400 invalid_request`.
 
 ## Meta pixel
 
@@ -120,7 +142,7 @@ The `Idempotency-Key` header is **required** on `POST /v1/soundlinks`.
 
 | HTTP | Code | When |
 | ---- | ---- | ---- |
-| 400 | `invalid_request` | Missing/malformed field, invalid `appleMusicUrl`, unpaired Meta pixel fields, or missing `Idempotency-Key` |
+| 400 | `invalid_request` | Missing/malformed field, invalid `appleMusicUrl` or `youtubeMusicUrl`, unpaired Meta pixel fields, or missing `Idempotency-Key` |
 | 403 | `insufficient_scope` | Credential missing `soundlinks:write` |
 | 409 | `idempotency_key_conflict` | Key reused with a different body, or still processing |
 | 422 | `invalid_spotify_url` | Malformed Spotify URL, unsupported type, or resource does not exist |

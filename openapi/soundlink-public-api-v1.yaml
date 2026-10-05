@@ -1204,6 +1204,7 @@ paths:
                   metaPixelId: "1234567890123456"
                   tiktokPixelId: null
                   appleMusicUrl: null
+                  youtubeMusicUrl: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '400': { $ref: '#/components/responses/CreateSoundlinkBadRequest' }
@@ -1252,6 +1253,7 @@ paths:
                   metaPixelId: "1234567890123456"
                   tiktokPixelId: null
                   appleMusicUrl: null
+                  youtubeMusicUrl: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -1299,6 +1301,7 @@ paths:
                   metaPixelId: "1234567890123456"
                   tiktokPixelId: null
                   appleMusicUrl: null
+                  youtubeMusicUrl: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -3153,6 +3156,16 @@ components:
             Apple catalog is not looked up. Omit to create a Spotify-only
             soundlink.
           example: https://music.apple.com/us/song/anti-hero/1645937493
+        youtubeMusicUrl:
+          type: string
+          format: uri
+          description: |
+            Optional HTTPS YouTube Music URL. Accepted shapes: a song
+            (`music.youtube.com/watch?v=…`, `youtube.com/watch?v=…`, or
+            `youtu.be/…`) or a playlist (`…/playlist?list=…`). Shorts,
+            live, channel, and browse links are rejected. URL shape is
+            checked only. Omit to leave YouTube Music unset.
+          example: https://music.youtube.com/watch?v=dQw4w9WgXcQ
 
     SoundlinkDetail:
       allOf:
@@ -3164,6 +3177,7 @@ components:
             - metaPixelId
             - tiktokPixelId
             - appleMusicUrl
+            - youtubeMusicUrl
           properties:
             autoFollow:
               type: boolean
@@ -3189,6 +3203,14 @@ components:
               description: |
                 Apple Music URL stored on this soundlink. `null` if not set.
                 Share-sheet album links are returned as the canonical song URL.
+            youtubeMusicUrl:
+              type: string
+              format: uri
+              nullable: true
+              description: |
+                YouTube Music URL stored on this soundlink. `null` if not set.
+                Input hosts such as `youtu.be` are returned as the canonical
+                `music.youtube.com` song or playlist URL.
 
     SoundlinkDetailResponse:
       type: object
