@@ -150,6 +150,7 @@ const { data: created, error: createError } = await soundlink.soundlinks.create(
     name: "Midnight Drive",
     spotifyUrl: "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl",
     appleMusicUrl: "https://music.apple.com/us/song/anti-hero/1645937493",
+    youtubeMusicUrl: "https://music.youtube.com/watch?v=dQw4w9WgXcQ",
   },
   { idempotencyKey: "create-midnight-drive-01" },
 );
@@ -159,7 +160,7 @@ if (createError || !created) {
 }
 
 const { data: detail } = await soundlink.soundlinks.get("V1StGXR8_Z5jdHi6B-myT");
-// detail?.appleMusicUrl, detail?.autoFollow, detail?.metaPixelId, detail?.tiktokPixelId
+// detail?.appleMusicUrl, detail?.youtubeMusicUrl, detail?.autoFollow, detail?.metaPixelId, detail?.tiktokPixelId
 
 const { data: overview } = await soundlink.soundlinks.metricsOverview(
   "V1StGXR8_Z5jdHi6B-myT",
@@ -292,7 +293,7 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked). Br
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
 Breakdown and engagement list `pageSize` max is **500**. Export windows are capped at **90 days** per request.
 
-`create` requires `soundlinks:write` and `{ idempotencyKey }`. Optional `appleMusicUrl` is an HTTPS Apple Music song or playlist URL. The API checks the URL shape and stores an album share-sheet link (`?i=`) as the canonical song URL. Detail returns `appleMusicUrl` (`string` or `null`). List items do not include it. `delete` archives the soundlink and does not send `Idempotency-Key`. URL rules: [Creating soundlinks](/creating-soundlinks).
+`create` requires `soundlinks:write` and `{ idempotencyKey }`. Optional `appleMusicUrl` is an HTTPS Apple Music song or playlist URL. Optional `youtubeMusicUrl` is an HTTPS YouTube Music song or playlist URL (`music.youtube.com`, `youtube.com`, or `youtu.be`). The API checks URL shape only. Detail returns `appleMusicUrl` and `youtubeMusicUrl` (`string` or `null`). List items do not include them. `delete` archives the soundlink and does not send `Idempotency-Key`. URL rules: [Creating soundlinks](/creating-soundlinks).
 
 ### Campaign metrics
 
