@@ -38,7 +38,7 @@ Walk pages until `pagination.page >= pagination.totalPages`.
 
 `GET /v1/soundlinks/{soundlinkId}`
 
-Returns catalog fields plus `autoFollow`, `artistIdFollow`, `metaPixelId`, `tiktokPixelId`, `appleMusicUrl`, and `youtubeMusicUrl`. `appleMusicUrl` and `youtubeMusicUrl` are the stored DSP URLs, or `null` when unset. An Apple album share-sheet link is returned as the canonical song URL. A `youtu.be` or `youtube.com` watch link is returned as `music.youtube.com`. List items do not include `appleMusicUrl` or `youtubeMusicUrl`. Archived soundlinks still appear (`status: archived`). Unknown, cross-org, or campaign-linked IDs return `404`. The Meta CAPI token is never returned.
+Returns catalog fields plus `autoFollow`, `artistIdFollow`, `metaPixelId`, `tiktokPixelId`, `appleMusicUrl`, and `youtubeMusicUrl`. Each is the stored URL, or `null` when unset. An Apple album share-sheet link is returned as the canonical song URL. List items do not include `appleMusicUrl` or `youtubeMusicUrl`. Archived soundlinks still appear (`status: archived`). Unknown, cross-org, or campaign-linked IDs return `404`. The Meta CAPI token is never returned.
 
 Use the `soundlinkId` from the list response in all `/metrics/*` paths.
 
