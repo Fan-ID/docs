@@ -1800,7 +1800,7 @@ paths:
                 value:
                   videos:
                     - url: "https://cdn.example.com/a.mp4"
-                    - url: "https://cdn.example.com/b.mov"
+                    - url: "https://cdn.example.com/b.mp4"
       responses:
         '200':
           description: Duplicate video already in the organization's library (sync legacy path only)
@@ -3909,6 +3909,7 @@ components:
                   message: "This key does not have the soundlinks:write scope."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
+
     CreateSoundlinkUnprocessable:
       description: Request body is well-formed but the Spotify URL is invalid.
       content:
