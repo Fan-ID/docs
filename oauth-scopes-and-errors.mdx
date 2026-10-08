@@ -225,6 +225,7 @@ Wallet-funded campaigns only. Same endpoints and rules as the API key scope of t
 | `POST /v1/campaigns` | Create a campaign. Requires an `Idempotency-Key` header. |
 | `PATCH /v1/campaigns/{campaignId}/tiers` | Enable/disable tiers and reallocate budget shares. |
 | `POST /v1/campaigns/{campaignId}/stop` | Stop delivery. |
+| `PUT /v1/campaigns/{campaignId}/auto-renew` | Toggle auto-renew. |
 | `POST /v1/campaigns/{campaignId}/budget/increase` | Increase daily budget. |
 | `POST /v1/campaigns/{campaignId}/budget/decrease` | Decrease daily budget. |
 
