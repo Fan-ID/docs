@@ -66,7 +66,7 @@ Expected (`201`):
 
 ```json
 {
-  "data": { "campaignId": "campaign-uuid", "status": "creating" },
+  "data": { "campaignId": "campaign-uuid", "status": "creating", "autoRenew": false },
   "meta": { "requestId": "..." }
 }
 ```
@@ -92,6 +92,7 @@ The campaign starts in status `creating` and moves to `active` once setup comple
 | `trackOptions`          | No       | `artistIdFollow` — artist to attribute follows to (track campaigns)                          |
 | `tierTargeting`         | Conditional | **Required** when `strategyType` is `custom` (non-empty `customTierIds` and/or `customTiers`). Omit for built-in strategies — see [Custom tier targeting](#custom-tier-targeting) |
 | `clonedFromCampaignId`  | No       | UUID of a campaign in your organization this create is cloned from. Records lineage only — it does **not** copy settings; you still send the full create body. Unknown or other-org IDs return `400 invalid_request`. |
+| `autoRenew`             | No       | When `true`, the campaign renews at the end of each cycle. Default `false`. |
 
 ### Supported genres
 

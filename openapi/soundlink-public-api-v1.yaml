@@ -2160,6 +2160,11 @@ components:
               description: |
                 Growth strategy (e.g. `custom`, `maximum_growth`, `market_discovery`).
                 Set at campaign creation.
+            autoRenew:
+              type: boolean
+              description: |
+                Whether this wallet campaign renews at the end of each cycle.
+                `false` when auto-renew is off or the campaign has no stored value.
 
     CampaignListResponse:
       type: object
@@ -2415,6 +2420,12 @@ components:
             cloned from. Records lineage only — it does not copy settings from
             the source; all other create fields must still be provided. Unknown
             or other-organization IDs return `400 invalid_request`.
+        autoRenew:
+          type: boolean
+          default: false
+          description: >-
+            When true, the campaign renews at the end of each cycle.
+            When false or omitted, auto-renew stays off.
 
     CreateCampaignRequestWithoutTiers:
       allOf:
@@ -2461,12 +2472,15 @@ components:
 
     CampaignCreateData:
       type: object
-      required: [campaignId, status]
+      required: [campaignId, status, autoRenew]
       properties:
         campaignId:
           type: string
         status:
           $ref: '#/components/schemas/CampaignStatus'
+        autoRenew:
+          type: boolean
+          description: Stored auto-renew flag for this wallet campaign.
 
     CreateCampaignResponse:
       type: object
