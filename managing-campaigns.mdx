@@ -1,9 +1,9 @@
 ---
 title: Managing campaigns
-description: Increase or decrease budget, update geographic tiers, and stop wallet campaigns via the API.
+description: Increase or decrease budget, update geographic tiers, toggle auto-renew, and stop wallet campaigns via the API.
 ---
 
-Once a campaign is running, the API lets you adjust its daily budget, reallocate geographic tiers, and stop delivery. All management endpoints require the `campaigns:write` scope and work on **wallet-funded campaigns only**.
+Once a campaign is running, the API lets you adjust its daily budget, reallocate geographic tiers, toggle auto-renew, and stop delivery. All management endpoints require the `campaigns:write` scope and work on **wallet-funded campaigns only**.
 
 ## Which campaigns can you manage?
 
@@ -13,7 +13,7 @@ Campaign list and detail responses include a `generation` field:
 | ---------- | ------- | ------------------- |
 | `1` | Stripe / one-time / subscription / legacy | No |
 | `2` | Soundlink managed | No |
-| `3` | Wallet-funded | Yes — budget, tiers, stop |
+| `3` | Wallet-funded | Yes — budget, tiers, auto-renew, stop |
 
 Calling a management endpoint on a non-generation-`3` campaign returns `400 invalid_request` (for example, "Stopping is only supported for wallet campaigns.").
 
@@ -29,7 +29,7 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID' \
 </Note>
 
 <Note>
-  Stop and budget endpoints require the same [`Idempotency-Key`
+  Stop, budget, and auto-renew endpoints require the same [`Idempotency-Key`
   header](/creating-campaigns#idempotency) as campaign creation: unique string up to 255
   characters, honored for 24 hours, same key + same body replays the original response.
 </Note>
@@ -136,6 +136,31 @@ Request rules:
   During the cooldown, `PATCH` returns `409 tier_update_cooldown`. Use `lastUpdate` from the `GET`
   response to know when the last change happened.
 </Warning>
+
+## Toggle auto-renew
+
+`PUT /v1/campaigns/{campaignId}/auto-renew`
+
+Turns auto-renew on or off. Wallet campaigns only. Allowed when status is `active` or `renew_failed`.
+
+```bash
+curl -sS -X PUT 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/auto-renew' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Idempotency-Key: autorenew-2026-07-21-01' \
+  -H 'Content-Type: application/json' \
+  -d '{ "autoRenew": true }'
+```
+
+Expected (`200`):
+
+```json
+{
+  "data": { "campaignId": "campaign-uuid", "autoRenew": true },
+  "meta": { "requestId": "..." }
+}
+```
+
+A matching stored value succeeds with no change.
 
 ## Stop a campaign
 

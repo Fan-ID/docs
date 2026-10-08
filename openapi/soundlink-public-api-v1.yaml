@@ -412,6 +412,56 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+  /v1/campaigns/{campaignId}/auto-renew:
+    put:
+      operationId: updateCampaignAutoRenew
+      summary: Toggle wallet campaign auto-renew
+      description: |
+        Sets auto-renew for a wallet-funded campaign. Requires the
+        `campaigns:write` scope and an `Idempotency-Key` header.
+
+        **Wallet campaigns only** (`generation: 3`). Non-wallet campaigns
+        return `400`. Allowed when the campaign status is `active` or
+        `renew_failed`. A matching stored value is a no-op success.
+
+        **Auth:** Accepts API key or OAuth Bearer (`campaigns:write`).
+      tags: [Campaigns]
+      x-required-scope: campaigns:write
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/idempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCampaignAutoRenewRequest'
+            example:
+              autoRenew: true
+      responses:
+        '200':
+          description: Auto-renew updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCampaignAutoRenewResponse'
+              example:
+                data:
+                  campaignId: campaign-uuid
+                  autoRenew: true
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/IdempotencyKeyConflict' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
   /v1/campaigns/{campaignId}/budget/increase:
     post:
       operationId: increaseCampaignBudget
@@ -2507,6 +2557,31 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/CampaignStopData'
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    UpdateCampaignAutoRenewRequest:
+      type: object
+      required: [autoRenew]
+      properties:
+        autoRenew:
+          type: boolean
+
+    CampaignAutoRenewData:
+      type: object
+      required: [campaignId, autoRenew]
+      properties:
+        campaignId:
+          type: string
+        autoRenew:
+          type: boolean
+
+    UpdateCampaignAutoRenewResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: '#/components/schemas/CampaignAutoRenewData'
         meta:
           $ref: '#/components/schemas/Meta'
 
