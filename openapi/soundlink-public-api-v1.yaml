@@ -41,6 +41,7 @@ info:
     | Video import / import status | `videos:write` | API key (Bearer) or OAuth Bearer |
     | Soundlink reads (list, detail, metrics overview/breakdown/engagement, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
     | Soundlink writes (create, archive, test events) | `soundlinks:write` | API key (Bearer) or OAuth Bearer |
+    | Wallet read (`GET /v1/wallet`) | `wallet:read` | API key (Bearer) or OAuth Bearer |
 
     Per-operation scope requirements are also marked with `x-required-scope`
     (except `GET /v1/ping`, which accepts any valid credential with at least
@@ -64,6 +65,8 @@ security:
 tags:
   - name: System
     description: Connectivity and auth verification
+  - name: Wallet
+    description: Organization wallet balance
   - name: Campaigns
     description: Campaign listing, detail, creation, and wallet management (budget, stop, tiers)
   - name: Metrics
@@ -112,6 +115,45 @@ paths:
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/wallet:
+    get:
+      operationId: getWallet
+      summary: Get organization wallet balance
+      description: |
+        Returns the organization wallet on the API key. Requires `wallet:read`.
+        Existing keys do not have this scope until it is granted.
+
+        `available` is the amount `POST /v1/campaigns` checks before reserving.
+        When create returns `402 insufficient_credit`, `error.details.available`
+        matches this field. `reserved` is the sum of active reservations.
+
+        An organization with no credits row returns zeros and `updatedAt: null`.
+      tags: [Wallet]
+      x-required-scope: wallet:read
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      responses:
+        '200':
+          description: Wallet snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWalletResponse'
+              example:
+                data:
+                  balance: 500
+                  available: 350
+                  reserved: 150
+                  currency: USD
+                  updatedAt: "2026-04-01T10:00:00Z"
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
@@ -377,9 +419,17 @@ paths:
 
         **Wallet campaigns only** (`generation: 3`).
 
-        Stopping is idempotent at the campaign level: a second stop on an
-        already-stopped campaign succeeds without double-refunding. The
-        `Idempotency-Key` header is also **required** so retries of the same
+        **Statuses that accept stop** and return `stopped`: `active`,
+        `inactive`, `restarting`, `restart_failed`, `renew_failed`, and
+        `renew_awaiting_charge`.
+
+        **Already terminal:** `stopped` and `ended` succeed without changing
+        status. The response `status` stays `stopped` or `ended`. A second
+        stop does not double-refund.
+
+        **Retry later (`400 invalid_request`):** `creating` and `renewing`.
+
+        The `Idempotency-Key` header is **required** so retries of the same
         request replay the original response without repeating side effects.
 
         **Auth:** Accepts API key or OAuth Bearer (`campaigns:write`).
@@ -2047,6 +2097,33 @@ components:
           format: uuid
           description: Server-generated request ID. Include when contacting support.
 
+    WalletData:
+      type: object
+      required: [balance, available, reserved, currency, updatedAt]
+      properties:
+        balance:
+          type: number
+        available:
+          type: number
+        reserved:
+          type: number
+        currency:
+          type: string
+          enum: [USD]
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    GetWalletResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: '#/components/schemas/WalletData'
+        meta:
+          $ref: '#/components/schemas/Meta'
+
     Pagination:
       type: object
       required: [page, pageSize, totalCount, totalPages]
@@ -2119,7 +2196,7 @@ components:
 
     CampaignStatus:
       type: string
-      enum: [creating, active, paused, stopped, completed, failed, ended]
+      enum: [creating, active, inactive, ended, renewing, restarting, restart_failed, renew_awaiting_charge, renew_failed, stopped]
 
     CampaignSummary:
       type: object
@@ -2474,8 +2551,9 @@ components:
           type: boolean
           default: false
           description: >-
-            When true, the campaign renews at the end of each cycle.
-            When false or omitted, auto-renew stays off.
+            When true, the wallet campaign renews at the end of each cycle if
+            credit remains. When false or omitted, auto-renew stays off. A
+            renewal can cost more than create because of ad fees.
 
     CreateCampaignRequestWithoutTiers:
       allOf:
@@ -2549,7 +2627,10 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/CampaignStatus'
-          description: Campaign status after stop (typically `stopped`).
+          description: |
+            Campaign status after stop. `stopped` when stop applied or the
+            campaign was already stopped. `ended` when the campaign had
+            already ended.
 
     StopCampaignResponse:
       type: object
@@ -3998,7 +4079,6 @@ components:
                   message: "This key does not have the soundlinks:write scope."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-
     CreateSoundlinkUnprocessable:
       description: Request body is well-formed but the Spotify URL is invalid.
       content:

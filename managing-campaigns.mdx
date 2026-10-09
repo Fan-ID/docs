@@ -162,6 +162,34 @@ Expected (`200`):
 
 A matching stored value succeeds with no change.
 
+## Read wallet balance
+
+`GET /v1/wallet` · scope `wallet:read`
+
+Returns the organization wallet. `available` is what `POST /v1/campaigns` checks before reserving. `reserved` is the sum of active reservations. Existing keys do not include `wallet:read` until that scope is granted.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/wallet' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+Expected (`200`):
+
+```json
+{
+  "data": {
+    "balance": 500,
+    "available": 350,
+    "reserved": 150,
+    "currency": "USD",
+    "updatedAt": "2026-04-01T10:00:00Z"
+  },
+  "meta": { "requestId": "..." }
+}
+```
+
+See [GET /v1/wallet](/api-reference/get-v1-wallet) for the full response.
+
 ## Stop a campaign
 
 `POST /v1/campaigns/{campaignId}/stop`
@@ -183,13 +211,19 @@ Expected (`200`):
 }
 ```
 
-Stopping is idempotent at the campaign level: stopping an already-stopped campaign succeeds without a second refund. Stopped campaigns cannot be restarted via the API — create a new campaign instead.
+These statuses accept stop and return `stopped`: `active`, `inactive`, `restarting`, `restart_failed`, `renew_failed`, and `renew_awaiting_charge`.
+
+`stopped` and `ended` succeed without changing status. The response `status` stays `stopped` or `ended`, and a second stop does not refund again.
+
+`creating` and `renewing` return `400 invalid_request`. Retry after the campaign leaves that status.
+
+Stopped campaigns cannot be restarted via the API — create a new campaign instead.
 
 ## Common management errors
 
 | HTTP | Code                       | When                                                                |
 | ---- | -------------------------- | ------------------------------------------------------------------- |
-| 400  | `invalid_request`          | Non-wallet campaign, invalid body, or decrease rule violated         |
+| 400  | `invalid_request`          | Non-wallet campaign, invalid body, decrease rule violated, or stop while `creating` or `renewing` |
 | 400  | `invalid_tier_status`      | Tier items invalid (missing tiers, sum ≠ 100, none enabled)          |
 | 402  | `insufficient_credit`      | Wallet balance too low for the budget increase                       |
 | 404  | `campaign_not_found`       | Unknown campaign or a campaign in another organization               |

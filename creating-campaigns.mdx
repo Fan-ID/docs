@@ -71,7 +71,7 @@ Expected (`201`):
 }
 ```
 
-The campaign starts in status `creating` and moves to `active` once setup completes (or `failed` if setup could not complete). Poll `GET /v1/campaigns/{campaignId}` to follow it.
+The campaign starts in status `creating` and moves to `active` once setup completes. Poll `GET /v1/campaigns/{campaignId}` to follow it. Later statuses are listed under [status values](/oauth-scopes-and-errors#one-campaign).
 
 <Note>
   TypeScript: `soundlink.strategies.list()` then `soundlink.campaigns.create(body, { idempotencyKey })` —
