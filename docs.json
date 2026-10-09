@@ -139,6 +139,14 @@
                   "learn/wallet/campaign-budget-top-up",
                   "learn/wallet/limitations-and-edge-cases"
                 ]
+              },
+              {
+                "group": "Self-serve",
+                "pages": [
+                  "learn/self-serve/index",
+                  "learn/self-serve/what-counts",
+                  "learn/self-serve/plans-and-usage"
+                ]
               }
             ]
           }
