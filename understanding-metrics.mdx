@@ -1,9 +1,9 @@
 ---
 title: Campaign metrics
-description: When to use campaign overview, country breakdown, and engagement endpoints.
+description: When to use campaign overview, creatives, country breakdown, and engagement endpoints.
 ---
 
-Three layers of campaign performance. Pick the endpoint that matches how you store and report the data.
+Four layers of campaign performance. Pick the endpoint that matches how you store and report the data.
 
 For soundlinks without a campaign, see [Soundlink metrics](/soundlink-metrics).
 
@@ -16,6 +16,21 @@ Campaign-level totals for a date range: listeners, streams, followers, delivery 
 Use for dashboards, executive summaries, and quick health checks. Not broken down by country or track. CTR fields (`ctr_linkclick`, `ctr_adclick`) are on [breakdown](#breakdown-by-country) rows, not overview.
 
 **New and returning splits are not on overview.** Use [breakdown](#breakdown-by-country) or [engagement](#engagement-by-track) rows for `new_listeners`, `returning_listeners`, and the stream splits.
+
+## Creatives
+
+`GET /v1/campaigns/{campaignId}/metrics/creatives`
+
+Lifetime performance for one campaign, grouped by background video. Each group has a `children` array of variants (caption, language, track). This is a snapshot — `startDate` and `endDate` return `400`.
+
+Maps to the **Creatives** tab in Soundlink Insights. Spend is omitted until media spend and fees can be split. Ratios use the same lifetime basis as that tab. Requires `metrics:read`.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/creatives' \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+See the [API Reference](/api-reference) for the response shape.
 
 ## Breakdown (by country)
 

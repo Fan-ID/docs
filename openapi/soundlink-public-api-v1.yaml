@@ -822,6 +822,75 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+  /v1/campaigns/{campaignId}/metrics/creatives:
+    get:
+      operationId: getCampaignCreativeMetrics
+      summary: Campaign creative metrics
+      description: |
+        Lifetime creative performance for one campaign, grouped by background
+        video. Each group has a `children` array of variants. This is a
+        snapshot, not a date range. `startDate` and `endDate` are rejected.
+
+        Spend is omitted until media spend and fees can be split. Ratios use
+        the same lifetime basis as the Creatives tab.
+
+        Requires the `metrics:read` scope. Accepts API key or OAuth Bearer.
+      tags: [Metrics]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: metrics:read
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        '200':
+          description: Creative groups for the campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreativeMetricsResponse'
+              example:
+                data:
+                  creatives:
+                    - video_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+                      caption: Late night version
+                      listeners: 400
+                      followers: 80
+                      link_clicks: 280
+                      cpl: 0.25
+                      cpf: 1.25
+                      cpc_linkclick: 0.357
+                      frequency: 1.8
+                      children:
+                        - caption: Late night version
+                          language: en
+                          spotify_track_id: 11dFghVXANMlKmJXsNCbNl
+                          listeners: 200
+                          followers: 40
+                          link_clicks: 120
+                          cpl: 0.3
+                          cpf: 1.5
+                          cpc_linkclick: 0.5
+                          frequency: 2
+                        - caption: Daytime version
+                          language: en
+                          spotify_track_id: 11dFghVXANMlKmJXsNCbNl
+                          listeners: 200
+                          followers: 40
+                          link_clicks: 160
+                          cpl: 0.2
+                          cpf: 1
+                          cpc_linkclick: 0.25
+                          frequency: 1.5
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
   /v1/campaigns/{campaignId}/metrics/breakdown:
     get:
       operationId: getCampaignMetricsBreakdown
@@ -2862,6 +2931,118 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/MetricsOverview'
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    CreativeMetricsChild:
+      type: object
+      required:
+        [
+          caption,
+          language,
+          spotify_track_id,
+          listeners,
+          followers,
+          link_clicks,
+          cpl,
+          cpf,
+          cpc_linkclick,
+          frequency,
+        ]
+      properties:
+        caption:
+          type: string
+          nullable: true
+        language:
+          type: string
+          nullable: true
+        spotify_track_id:
+          type: string
+        listeners:
+          type: integer
+          nullable: true
+        followers:
+          type: integer
+          nullable: true
+        link_clicks:
+          type: integer
+          nullable: true
+        cpl:
+          type: number
+          nullable: true
+        cpf:
+          type: number
+          nullable: true
+        cpc_linkclick:
+          type: number
+          nullable: true
+        frequency:
+          type: number
+          nullable: true
+
+    CreativeMetricsGroup:
+      type: object
+      required:
+        [
+          video_id,
+          caption,
+          listeners,
+          followers,
+          link_clicks,
+          cpl,
+          cpf,
+          cpc_linkclick,
+          frequency,
+          children,
+        ]
+      properties:
+        video_id:
+          type: string
+        caption:
+          type: string
+          nullable: true
+        listeners:
+          type: integer
+          nullable: true
+        followers:
+          type: integer
+          nullable: true
+        link_clicks:
+          type: integer
+          nullable: true
+        cpl:
+          type: number
+          nullable: true
+        cpf:
+          type: number
+          nullable: true
+        cpc_linkclick:
+          type: number
+          nullable: true
+        frequency:
+          type: number
+          nullable: true
+        children:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CreativeMetricsChild'
+
+    CreativeMetrics:
+      type: object
+      required: [creatives]
+      properties:
+        creatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreativeMetricsGroup'
+
+    CreativeMetricsResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: '#/components/schemas/CreativeMetrics'
         meta:
           $ref: '#/components/schemas/Meta'
 
