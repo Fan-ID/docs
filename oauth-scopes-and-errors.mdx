@@ -107,7 +107,7 @@ The list summary's fields, plus an optional `strategyType`. A campaign the token
 
 <AccordionGroup>
   <Accordion title="status values">
-    `creating` · `active` · `paused` · `stopped` · `completed` · `failed` · `ended`
+    `creating` · `active` · `inactive` · `ended` · `renewing` · `restarting` · `restart_failed` · `renew_awaiting_charge` · `renew_failed` · `stopped`
   </Accordion>
 
   <Accordion title="generation values">
@@ -170,6 +170,7 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
 | `openid` | Verify Soundlink identity; required for `userinfo` |
 | `email` | View the user's email address |
 | `campaigns:read` | View campaigns |
+| `wallet:read` | Read the organization wallet balance |
 | `campaigns:write` | Create and manage wallet-funded campaigns |
 | `metrics:read` | View campaign metrics |
 | `soundlinks:read` | View self-serve soundlinks and their metrics |
@@ -179,7 +180,7 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
 Request the minimum you need — the consent screen shows each scope to the user, and a shorter list converts better. `scope` values are space-separated, must be unique, and must fall within your client's registered `allowedScopes`.
 
 <Note>
-  `scopes_supported` in the [discovery document](/set-up-soundlink-oauth#discovery) is the authoritative list — it currently returns `openid`, `email`, `campaigns:read`, `campaigns:write`, `metrics:read`, `videos:write`, `soundlinks:read` and `soundlinks:write`.
+  `scopes_supported` in the [discovery document](/set-up-soundlink-oauth#discovery) is the authoritative list — it currently returns `openid`, `email`, `campaigns:read`, `campaigns:write`, `metrics:read`, `videos:write`, `soundlinks:read`, `soundlinks:write`, and `wallet:read`.
 </Note>
 
 ### No token — client authentication only
@@ -215,6 +216,14 @@ Adds the `email` claim to the `userinfo` response. Unlocks no endpoint of its ow
 | `GET /v1/campaigns` | Paginated, `createdAt desc` by default. |
 | `GET /v1/campaigns/{campaignId}` | Adds `strategyType`. `404` when not owned. |
 | `GET /v1/campaigns/{campaignId}/tiers` | See reference |
+
+### `wallet:read`
+
+Returns the organization wallet. `available` is the amount `POST /v1/campaigns` checks before reserving. When create returns `402 insufficient_credit`, `error.details.available` matches this field. `reserved` is the sum of active reservations. An organization with no credits row returns zeros and `updatedAt: null`. Existing keys do not have this scope until it is granted.
+
+| Endpoint | Notes |
+| --- | --- |
+| `GET /v1/wallet` | `balance`, `available`, `reserved`, `currency`, `updatedAt`. |
 
 ### `campaigns:write`
 

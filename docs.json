@@ -154,6 +154,11 @@
             "pages": ["GET /v1/ping"]
           },
           {
+            "group": "Wallet",
+            "openapi": "openapi/soundlink-public-api-v1.yaml",
+            "pages": ["GET /v1/wallet"]
+          },
+          {
             "group": "Campaigns",
             "openapi": "openapi/soundlink-public-api-v1.yaml",
             "pages": [
@@ -162,6 +167,7 @@
               "POST /v1/campaigns",
               "GET /v1/campaigns/{campaignId}",
               "POST /v1/campaigns/{campaignId}/stop",
+              "PUT /v1/campaigns/{campaignId}/auto-renew",
               "POST /v1/campaigns/{campaignId}/budget/increase",
               "POST /v1/campaigns/{campaignId}/budget/decrease",
               "GET /v1/campaigns/{campaignId}/tiers",
