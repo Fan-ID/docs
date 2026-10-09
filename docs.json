@@ -80,11 +80,9 @@
               },
               {
                 "group": "API guides",
-                "expanded": true,
                 "pages": [
                   {
                     "group": "Campaigns",
-                    "expanded": true,
                     "pages": [
                       "syncing-campaigns",
                       "creating-campaigns",
@@ -96,7 +94,6 @@
                   },
                   {
                     "group": "Soundlinks",
-                    "expanded": true,
                     "pages": [
                       "soundlinks",
                       "creating-soundlinks",
@@ -106,7 +103,6 @@
                   },
                   {
                     "group": "Videos",
-                    "expanded": true,
                     "pages": ["importing-videos"]
                   }
                 ]
