@@ -77,7 +77,6 @@ tags:
     description: Soundlink listing, detail, creation, archive, and performance metrics
 
 paths:
-
   /v1/ping:
     get:
       operationId: ping
@@ -92,7 +91,7 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       responses:
-        '200':
+        "200":
           description: Authenticated and reachable
           content:
             application/json:
@@ -108,15 +107,15 @@ paths:
                         type: string
                         example: ok
                   meta:
-                    $ref: '#/components/schemas/Meta'
+                    $ref: "#/components/schemas/Meta"
               example:
                 data:
                   status: ok
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/wallet:
     get:
@@ -137,12 +136,12 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       responses:
-        '200':
+        "200":
           description: Wallet snapshot
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetWalletResponse'
+                $ref: "#/components/schemas/GetWalletResponse"
               example:
                 data:
                   balance: 500
@@ -152,10 +151,10 @@ paths:
                   updatedAt: "2026-04-01T10:00:00Z"
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/strategies:
     get:
@@ -173,12 +172,12 @@ paths:
         - oauthBearer: []
       x-required-scope: campaigns:read
       responses:
-        '200':
+        "200":
           description: Strategy catalog
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StrategiesCatalogResponse'
+                $ref: "#/components/schemas/StrategiesCatalogResponse"
               example:
                 data:
                   strategies:
@@ -192,10 +191,10 @@ paths:
                       tierTargetingAllowed: true
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns:
     get:
@@ -212,22 +211,22 @@ paths:
         - oauthBearer: []
       x-required-scope: campaigns:read
       parameters:
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize100'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize100"
         - name: sortBy
           in: query
           schema:
             type: string
             enum: [createdAt]
             default: createdAt
-        - $ref: '#/components/parameters/sortOrder'
+        - $ref: "#/components/parameters/sortOrder"
       responses:
-        '200':
+        "200":
           description: Paginated list of campaigns
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CampaignListResponse'
+                $ref: "#/components/schemas/CampaignListResponse"
               example:
                 data:
                   items:
@@ -253,10 +252,10 @@ paths:
                     totalPages: 5
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
     post:
       operationId: createCampaign
@@ -278,13 +277,13 @@ paths:
         - oauthBearer: []
       x-required-scope: campaigns:write
       parameters:
-        - $ref: '#/components/parameters/idempotencyKey'
+        - $ref: "#/components/parameters/idempotencyKey"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateCampaignRequest'
+              $ref: "#/components/schemas/CreateCampaignRequest"
             examples:
               trackCampaign:
                 summary: Campaign promoting a single track
@@ -339,27 +338,27 @@ paths:
                   trackOptions:
                     artistIdFollow: "artist-uuid"
       responses:
-        '201':
+        "201":
           description: Campaign created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateCampaignResponse'
+                $ref: "#/components/schemas/CreateCampaignResponse"
               example:
                 data:
                   campaignId: campaign-uuid
                   status: creating
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/CreateCampaignBadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '402': { $ref: '#/components/responses/InsufficientCredit' }
-        '403': { $ref: '#/components/responses/CreateCampaignForbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/IdempotencyKeyConflict' }
-        '422': { $ref: '#/components/responses/CreateCampaignUnprocessable' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/CreateCampaignBadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "402": { $ref: "#/components/responses/InsufficientCredit" }
+        "403": { $ref: "#/components/responses/CreateCampaignForbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/IdempotencyKeyConflict" }
+        "422": { $ref: "#/components/responses/CreateCampaignUnprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}:
     get:
@@ -375,14 +374,14 @@ paths:
         - oauthBearer: []
       x-required-scope: campaigns:read
       parameters:
-        - $ref: '#/components/parameters/campaignId'
+        - $ref: "#/components/parameters/campaignId"
       responses:
-        '200':
+        "200":
           description: Campaign detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CampaignDetailResponse'
+                $ref: "#/components/schemas/CampaignDetailResponse"
               example:
                 data:
                   campaignId: f1e28d31-c358-4284-9bef-00a2334625fd
@@ -403,11 +402,11 @@ paths:
                   updatedAt: "2026-04-08T12:00:00Z"
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/stop:
     post:
@@ -439,28 +438,28 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       parameters:
-        - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/idempotencyKey'
+        - $ref: "#/components/parameters/campaignId"
+        - $ref: "#/components/parameters/idempotencyKey"
       responses:
-        '200':
+        "200":
           description: Campaign stopped (or already stopped)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StopCampaignResponse'
+                $ref: "#/components/schemas/StopCampaignResponse"
               example:
                 data:
                   campaignId: campaign-uuid
                   status: stopped
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/IdempotencyKeyConflict' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/IdempotencyKeyConflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/auto-renew:
     put:
@@ -481,36 +480,36 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       parameters:
-        - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/idempotencyKey'
+        - $ref: "#/components/parameters/campaignId"
+        - $ref: "#/components/parameters/idempotencyKey"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateCampaignAutoRenewRequest'
+              $ref: "#/components/schemas/UpdateCampaignAutoRenewRequest"
             example:
               autoRenew: true
       responses:
-        '200':
+        "200":
           description: Auto-renew updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UpdateCampaignAutoRenewResponse'
+                $ref: "#/components/schemas/UpdateCampaignAutoRenewResponse"
               example:
                 data:
                   campaignId: campaign-uuid
                   autoRenew: true
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/IdempotencyKeyConflict' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/IdempotencyKeyConflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/budget/increase:
     post:
@@ -537,14 +536,14 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       parameters:
-        - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/idempotencyKey'
+        - $ref: "#/components/parameters/campaignId"
+        - $ref: "#/components/parameters/idempotencyKey"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IncreaseCampaignBudgetRequest'
+              $ref: "#/components/schemas/IncreaseCampaignBudgetRequest"
             examples:
               currentAndRenewals:
                 summary: Top up current cycle and renewals
@@ -558,12 +557,12 @@ paths:
                   mode: next_renewal
                   targetDailyBudget: 40
       responses:
-        '200':
+        "200":
           description: Budget increase accepted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncreaseCampaignBudgetResponse'
+                $ref: "#/components/schemas/IncreaseCampaignBudgetResponse"
               example:
                 data:
                   campaignId: campaign-uuid
@@ -573,14 +572,14 @@ paths:
                   walletNextCycleDailyBudget: 30
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '402': { $ref: '#/components/responses/InsufficientCredit' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/IdempotencyKeyConflict' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "402": { $ref: "#/components/responses/InsufficientCredit" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/IdempotencyKeyConflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/budget/decrease:
     post:
@@ -614,24 +613,24 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       parameters:
-        - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/idempotencyKey'
+        - $ref: "#/components/parameters/campaignId"
+        - $ref: "#/components/parameters/idempotencyKey"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DecreaseCampaignBudgetRequest'
+              $ref: "#/components/schemas/DecreaseCampaignBudgetRequest"
             example:
               targetDailyBudget: 60
               mode: current_and_renewals
       responses:
-        '200':
+        "200":
           description: Budget decrease accepted (refund may complete asynchronously)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DecreaseCampaignBudgetResponse'
+                $ref: "#/components/schemas/DecreaseCampaignBudgetResponse"
               example:
                 data:
                   campaignId: campaign-uuid
@@ -641,13 +640,13 @@ paths:
                   walletNextCycleDailyBudget: 60
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/IdempotencyKeyConflict' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/IdempotencyKeyConflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/tiers:
     get:
@@ -667,14 +666,14 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       parameters:
-        - $ref: '#/components/parameters/campaignId'
+        - $ref: "#/components/parameters/campaignId"
       responses:
-        '200':
+        "200":
           description: Campaign tier allocation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CampaignTiersResponse'
+                $ref: "#/components/schemas/CampaignTiersResponse"
               example:
                 data:
                   lastUpdate: "2026-01-01T00:00:00Z"
@@ -689,12 +688,12 @@ paths:
                       allocationPercent: 40
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
     patch:
       operationId: updateCampaignTiers
@@ -720,13 +719,13 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       parameters:
-        - $ref: '#/components/parameters/campaignId'
+        - $ref: "#/components/parameters/campaignId"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateCampaignTiersRequest'
+              $ref: "#/components/schemas/UpdateCampaignTiersRequest"
             example:
               items:
                 - targetingTierId: 1
@@ -736,18 +735,18 @@ paths:
                   isEnabled: true
                   newAllocationPercent: 30
       responses:
-        '200':
+        "200":
           description: Updated tier allocation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CampaignTiersResponse'
-        '400':
+                $ref: "#/components/schemas/CampaignTiersResponse"
+        "400":
           description: Invalid request or tier status
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 invalid_request:
                   value:
@@ -763,12 +762,12 @@ paths:
                       message: "At least one tier must be enabled"
                     meta:
                       requestId: 550e8400-e29b-41d4-a716-446655440000
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/TierUpdateCooldown' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/TierUpdateCooldown" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/metrics/overview:
     get:
@@ -788,16 +787,16 @@ paths:
         - oauthBearer: []
       x-required-scope: metrics:read
       parameters:
-        - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/startDate'
-        - $ref: '#/components/parameters/endDate'
+        - $ref: "#/components/parameters/campaignId"
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
       responses:
-        '200':
+        "200":
           description: Campaign totals
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MetricsOverviewResponse'
+                $ref: "#/components/schemas/MetricsOverviewResponse"
               example:
                 data:
                   listeners: 4821
@@ -815,12 +814,12 @@ paths:
                   streams_per_listener: 1.94
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/metrics/creatives:
     get:
@@ -841,14 +840,14 @@ paths:
         - oauthBearer: []
       x-required-scope: metrics:read
       parameters:
-        - $ref: '#/components/parameters/campaignId'
+        - $ref: "#/components/parameters/campaignId"
       responses:
-        '200':
+        "200":
           description: Creative groups for the campaign
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreativeMetricsResponse'
+                $ref: "#/components/schemas/CreativeMetricsResponse"
               example:
                 data:
                   creatives:
@@ -884,12 +883,12 @@ paths:
                           frequency: 1.5
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/metrics/breakdown:
     get:
@@ -919,25 +918,25 @@ paths:
         - oauthBearer: []
       x-required-scope: metrics:read
       parameters:
-        - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/startDate'
-        - $ref: '#/components/parameters/endDate'
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize500'
+        - $ref: "#/components/parameters/campaignId"
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize500"
         - name: sortBy
           in: query
           schema:
             type: string
             enum: [report_date, spend_total]
             default: report_date
-        - $ref: '#/components/parameters/sortOrder'
+        - $ref: "#/components/parameters/sortOrder"
       responses:
-        '200':
+        "200":
           description: Paginated per-day country rows (`campaign_country_daily` schema)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MetricsBreakdownResponse'
+                $ref: "#/components/schemas/MetricsBreakdownResponse"
               example:
                 data:
                   schemaVersion: "1.0"
@@ -981,12 +980,12 @@ paths:
                     totalPages: 7
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/metrics/breakdown/export:
     get:
@@ -1025,11 +1024,11 @@ paths:
         - oauthBearer: []
       x-required-scope: metrics:read
       parameters:
-        - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/startDate'
-        - $ref: '#/components/parameters/endDate'
+        - $ref: "#/components/parameters/campaignId"
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
       responses:
-        '200':
+        "200":
           description: |
             JSONL stream. Each line is a `campaign_country_daily` v1.0 row.
             Lines are sorted by `(report_date asc, country_code)`.
@@ -1047,16 +1046,16 @@ paths:
           content:
             application/x-ndjson:
               schema:
-                $ref: '#/components/schemas/BreakdownRow'
+                $ref: "#/components/schemas/BreakdownRow"
               example: |
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-04-01","report_date_timezone":"UTC","exported_at":"2026-05-20T03:00:00Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"track","campaign_target_isrc":"DEXW62500259","campaign_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","campaign_target_playlist_id":null,"country_code":"US","impressions":4821,"ad_clicks":112,"link_clicks":89,"streams":203,"listeners":145,"followers":12,"streams_per_listener":1.4,"spend_media":42.50,"spend_total":53.13,"fees":10.63,"currency":"USD","currency_account":"USD","cpl":0.293,"cpf":3.542,"cpc_linkclick":0.478,"ctr_linkclick":0.0185,"ctr_adclick":0.0232,"cost_per_result":3.542,"result_type":"follow"}
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-04-01","report_date_timezone":"UTC","exported_at":"2026-05-20T03:00:00Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"track","campaign_target_isrc":"DEXW62500259","campaign_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","campaign_target_playlist_id":null,"country_code":"DE","impressions":2103,"ad_clicks":48,"link_clicks":31,"streams":87,"listeners":61,"followers":4,"streams_per_listener":1.43,"spend_media":18.20,"spend_total":22.75,"fees":4.55,"currency":"USD","currency_account":"USD","cpl":0.298,"cpf":4.55,"cpc_linkclick":0.587,"ctr_linkclick":0.0148,"ctr_adclick":0.0228,"cost_per_result":4.55,"result_type":"follow"}
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/metrics/engagement:
     get:
@@ -1099,31 +1098,31 @@ paths:
         - oauthBearer: []
       x-required-scope: metrics:read
       parameters:
-        - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/startDate'
-        - $ref: '#/components/parameters/endDate'
+        - $ref: "#/components/parameters/campaignId"
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
         - name: engagementContext
           in: query
           schema:
             type: string
             enum: [catalog, playlist]
           description: Filter to a single engagement context. Omit to return both.
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize500'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize500"
         - name: sortBy
           in: query
           schema:
             type: string
             enum: [report_date]
             default: report_date
-        - $ref: '#/components/parameters/sortOrder'
+        - $ref: "#/components/parameters/sortOrder"
       responses:
-        '200':
+        "200":
           description: Paginated engagement rows (`campaign_engagement_daily` schema)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MetricsEngagementResponse'
+                $ref: "#/components/schemas/MetricsEngagementResponse"
               example:
                 data:
                   schemaVersion: "1.0"
@@ -1161,12 +1160,12 @@ paths:
                     totalPages: 3
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/campaigns/{campaignId}/metrics/engagement/export:
     get:
@@ -1210,9 +1209,9 @@ paths:
         - oauthBearer: []
       x-required-scope: metrics:read
       parameters:
-        - $ref: '#/components/parameters/campaignId'
-        - $ref: '#/components/parameters/startDate'
-        - $ref: '#/components/parameters/endDate'
+        - $ref: "#/components/parameters/campaignId"
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
         - name: engagementContext
           in: query
           schema:
@@ -1220,7 +1219,7 @@ paths:
             enum: [catalog, playlist]
           description: Filter to a single engagement context. Omit to return both.
       responses:
-        '200':
+        "200":
           description: |
             JSONL stream. Each line is a `campaign_engagement_daily` v1.0 row.
             Lines are sorted by `(report_date asc, engagement_context, country_code, engaged_spotify_track_id)`.
@@ -1238,16 +1237,16 @@ paths:
           content:
             application/x-ndjson:
               schema:
-                $ref: '#/components/schemas/EngagementRow'
+                $ref: "#/components/schemas/EngagementRow"
               example: |
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112cc9a","schema_version":"1.0","report_date":"2026-04-08","report_date_timezone":"UTC","exported_at":"2026-05-22T10:12:11Z","campaign_id":"8ccd7b88-2591-4b94-848f-f142f5c6bba1","campaign_name":"9 To 5","campaign_target_type":"track","campaign_target_isrc":"DEXW62500272","campaign_target_spotify_track_id":"2RkZ5WPkKyBf0u8vN3dNgb","campaign_target_playlist_id":null,"status":"ended","engagement_context":"catalog","country_code":"US","engaged_track_isrc":"DEXW62500001","engaged_spotify_track_id":"4cOdK2wGLETKBW3PvgPWqT","engaged_track_name":"Till The Sunrise","playlist_position":null,"new_listeners":42,"returning_listeners":18,"listeners":60,"new_listener_streams":58,"returning_listener_streams":31,"streams":89,"spl":1.48}
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-04-08","report_date_timezone":"UTC","exported_at":"2026-05-22T10:12:11Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"playlist","campaign_target_isrc":null,"campaign_target_spotify_track_id":null,"campaign_target_playlist_id":"37i9dQZF1DXcBWIGoYBM5M","status":"active","engagement_context":"playlist","country_code":"DE","engaged_track_isrc":"DEXW62500001","engaged_spotify_track_id":"4cOdK2wGLETKBW3PvgPWqT","engaged_track_name":"Till The Sunrise","playlist_position":14,"new_listeners":19,"returning_listeners":7,"listeners":26,"new_listener_streams":24,"returning_listener_streams":11,"streams":35,"spl":1.35}
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/soundlinks:
     get:
@@ -1269,22 +1268,22 @@ paths:
         - oauthBearer: []
       x-required-scope: soundlinks:read
       parameters:
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize100'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize100"
         - name: sortBy
           in: query
           schema:
             type: string
             enum: [createdAt]
             default: createdAt
-        - $ref: '#/components/parameters/sortOrder'
+        - $ref: "#/components/parameters/sortOrder"
       responses:
-        '200':
+        "200":
           description: Paginated list of soundlinks
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SoundlinkListResponse'
+                $ref: "#/components/schemas/SoundlinkListResponse"
               example:
                 data:
                   items:
@@ -1303,10 +1302,10 @@ paths:
                     totalPages: 5
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
     post:
       operationId: createSoundlink
@@ -1329,13 +1328,13 @@ paths:
         - oauthBearer: []
       x-required-scope: soundlinks:write
       parameters:
-        - $ref: '#/components/parameters/idempotencyKey'
+        - $ref: "#/components/parameters/idempotencyKey"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateSoundlinkRequest'
+              $ref: "#/components/schemas/CreateSoundlinkRequest"
             examples:
               track:
                 summary: Track soundlink
@@ -1352,12 +1351,12 @@ paths:
                   name: Late Night Mix
                   spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
       responses:
-        '201':
+        "201":
           description: Soundlink created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SoundlinkDetailResponse'
+                $ref: "#/components/schemas/SoundlinkDetailResponse"
               example:
                 data:
                   soundlinkId: V1StGXR8_Z5jdHi6B-myT
@@ -1376,13 +1375,13 @@ paths:
                   youtubeMusicUrl: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/CreateSoundlinkBadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/CreateSoundlinkForbidden' }
-        '409': { $ref: '#/components/responses/IdempotencyKeyConflict' }
-        '422': { $ref: '#/components/responses/CreateSoundlinkUnprocessable' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/CreateSoundlinkBadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/CreateSoundlinkForbidden" }
+        "409": { $ref: "#/components/responses/IdempotencyKeyConflict" }
+        "422": { $ref: "#/components/responses/CreateSoundlinkUnprocessable" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/soundlinks/{soundlinkId}:
     get:
@@ -1399,14 +1398,14 @@ paths:
         - oauthBearer: []
       x-required-scope: soundlinks:read
       parameters:
-        - $ref: '#/components/parameters/soundlinkId'
+        - $ref: "#/components/parameters/soundlinkId"
       responses:
-        '200':
+        "200":
           description: Soundlink detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SoundlinkDetailResponse'
+                $ref: "#/components/schemas/SoundlinkDetailResponse"
               example:
                 data:
                   soundlinkId: V1StGXR8_Z5jdHi6B-myT
@@ -1425,11 +1424,11 @@ paths:
                   youtubeMusicUrl: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
     delete:
       operationId: archiveSoundlink
       summary: Archive a soundlink
@@ -1447,14 +1446,14 @@ paths:
         - oauthBearer: []
       x-required-scope: soundlinks:write
       parameters:
-        - $ref: '#/components/parameters/soundlinkId'
+        - $ref: "#/components/parameters/soundlinkId"
       responses:
-        '200':
+        "200":
           description: Soundlink archived
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SoundlinkDetailResponse'
+                $ref: "#/components/schemas/SoundlinkDetailResponse"
               example:
                 data:
                   soundlinkId: V1StGXR8_Z5jdHi6B-myT
@@ -1473,11 +1472,11 @@ paths:
                   youtubeMusicUrl: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/soundlinks/{soundlinkId}/test-events:
     post:
@@ -1506,26 +1505,26 @@ paths:
         - oauthBearer: []
       x-required-scope: soundlinks:write
       parameters:
-        - $ref: '#/components/parameters/soundlinkId'
+        - $ref: "#/components/parameters/soundlinkId"
       responses:
-        '200':
+        "200":
           description: Test event sent
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SendTestEventResponse'
+                $ref: "#/components/schemas/SendTestEventResponse"
               example:
                 data:
                   soundlinkId: V1StGXR8_Z5jdHi6B-myT
                   status: sent
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/soundlinks/{soundlinkId}/metrics/overview:
     get:
@@ -1546,16 +1545,16 @@ paths:
         - oauthBearer: []
       x-required-scope: soundlinks:read
       parameters:
-        - $ref: '#/components/parameters/soundlinkId'
-        - $ref: '#/components/parameters/soundlinkStartDate'
-        - $ref: '#/components/parameters/soundlinkEndDate'
+        - $ref: "#/components/parameters/soundlinkId"
+        - $ref: "#/components/parameters/soundlinkStartDate"
+        - $ref: "#/components/parameters/soundlinkEndDate"
       responses:
-        '200':
+        "200":
           description: Soundlink totals
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SoundlinkMetricsOverviewResponse'
+                $ref: "#/components/schemas/SoundlinkMetricsOverviewResponse"
               example:
                 data:
                   views: 4821
@@ -1567,13 +1566,12 @@ paths:
                   ctr_lp: 0.185
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
-
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/soundlinks/{soundlinkId}/metrics/breakdown:
     get:
@@ -1605,25 +1603,25 @@ paths:
         - oauthBearer: []
       x-required-scope: soundlinks:read
       parameters:
-        - $ref: '#/components/parameters/soundlinkId'
-        - $ref: '#/components/parameters/soundlinkStartDate'
-        - $ref: '#/components/parameters/soundlinkEndDate'
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize500'
+        - $ref: "#/components/parameters/soundlinkId"
+        - $ref: "#/components/parameters/soundlinkStartDate"
+        - $ref: "#/components/parameters/soundlinkEndDate"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize500"
         - name: sortBy
           in: query
           schema:
             type: string
             enum: [report_date, country_code]
             default: report_date
-        - $ref: '#/components/parameters/sortOrder'
+        - $ref: "#/components/parameters/sortOrder"
       responses:
-        '200':
+        "200":
           description: Paginated per-day country rows (`soundlink_country_daily` schema)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SoundlinkBreakdownResponse'
+                $ref: "#/components/schemas/SoundlinkBreakdownResponse"
               example:
                 data:
                   schemaVersion: "1.0"
@@ -1659,12 +1657,12 @@ paths:
                     totalPages: 7
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/soundlinks/{soundlinkId}/metrics/breakdown/export:
     get:
@@ -1703,11 +1701,11 @@ paths:
         - oauthBearer: []
       x-required-scope: soundlinks:read
       parameters:
-        - $ref: '#/components/parameters/soundlinkId'
-        - $ref: '#/components/parameters/startDate'
-        - $ref: '#/components/parameters/endDate'
+        - $ref: "#/components/parameters/soundlinkId"
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
       responses:
-        '200':
+        "200":
           description: |
             JSONL stream. Each line is a `soundlink_country_daily` v1.0 row.
             Lines are sorted by `(report_date asc, country_code)`.
@@ -1725,16 +1723,16 @@ paths:
           content:
             application/x-ndjson:
               schema:
-                $ref: '#/components/schemas/SoundlinkCountryDailyRow'
+                $ref: "#/components/schemas/SoundlinkCountryDailyRow"
               example: |
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-08-01","report_date_timezone":"UTC","exported_at":"2026-08-28T03:00:00Z","soundlink_id":"V1StGXR8_Z5jdHi6B-myT","soundlink_name":"Midnight Drive","soundlink_target_type":"track","soundlink_target_isrc":"DEXW62500259","soundlink_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","soundlink_target_playlist_id":null,"country_code":"US","views":4821,"link_clicks":890,"streams":203,"listeners":145,"new_listeners":120,"returning_listeners":25,"new_listener_streams":160,"returning_listener_streams":43,"followers":12,"streams_per_listener":1.4,"ctr_lp":0.185}
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-08-01","report_date_timezone":"UTC","exported_at":"2026-08-28T03:00:00Z","soundlink_id":"V1StGXR8_Z5jdHi6B-myT","soundlink_name":"Midnight Drive","soundlink_target_type":"track","soundlink_target_isrc":"DEXW62500259","soundlink_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","soundlink_target_playlist_id":null,"country_code":"DE","views":2103,"link_clicks":31,"streams":87,"listeners":61,"new_listeners":48,"returning_listeners":13,"new_listener_streams":64,"returning_listener_streams":23,"followers":4,"streams_per_listener":1.43,"ctr_lp":0.0147}
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/soundlinks/{soundlinkId}/metrics/engagement:
     get:
@@ -1779,31 +1777,31 @@ paths:
         - oauthBearer: []
       x-required-scope: soundlinks:read
       parameters:
-        - $ref: '#/components/parameters/soundlinkId'
-        - $ref: '#/components/parameters/startDate'
-        - $ref: '#/components/parameters/endDate'
+        - $ref: "#/components/parameters/soundlinkId"
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
         - name: engagementContext
           in: query
           schema:
             type: string
             enum: [catalog, playlist]
           description: Filter to a single engagement context. Omit to return both.
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize500'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize500"
         - name: sortBy
           in: query
           schema:
             type: string
             enum: [report_date]
             default: report_date
-        - $ref: '#/components/parameters/sortOrder'
+        - $ref: "#/components/parameters/sortOrder"
       responses:
-        '200':
+        "200":
           description: Paginated engagement rows (`soundlink_engagement_daily` schema)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SoundlinkEngagementResponse'
+                $ref: "#/components/schemas/SoundlinkEngagementResponse"
               example:
                 data:
                   schemaVersion: "1.0"
@@ -1840,12 +1838,12 @@ paths:
                     totalPages: 3
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/soundlinks/{soundlinkId}/metrics/engagement/export:
     get:
@@ -1889,9 +1887,9 @@ paths:
         - oauthBearer: []
       x-required-scope: soundlinks:read
       parameters:
-        - $ref: '#/components/parameters/soundlinkId'
-        - $ref: '#/components/parameters/startDate'
-        - $ref: '#/components/parameters/endDate'
+        - $ref: "#/components/parameters/soundlinkId"
+        - $ref: "#/components/parameters/startDate"
+        - $ref: "#/components/parameters/endDate"
         - name: engagementContext
           in: query
           schema:
@@ -1899,7 +1897,7 @@ paths:
             enum: [catalog, playlist]
           description: Filter to a single engagement context. Omit to return both.
       responses:
-        '200':
+        "200":
           description: |
             JSONL stream. Each line is a `soundlink_engagement_daily` v1.0 row.
             Lines are sorted by `(report_date asc, engagement_context, country_code, engaged_spotify_track_id)`.
@@ -1917,16 +1915,16 @@ paths:
           content:
             application/x-ndjson:
               schema:
-                $ref: '#/components/schemas/SoundlinkEngagementDailyRow'
+                $ref: "#/components/schemas/SoundlinkEngagementDailyRow"
               example: |
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-08-01","report_date_timezone":"UTC","exported_at":"2026-08-28T03:00:00Z","soundlink_id":"V1StGXR8_Z5jdHi6B-myT","soundlink_name":"Midnight Drive","soundlink_target_type":"track","soundlink_target_isrc":"DEXW62500259","soundlink_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","soundlink_target_playlist_id":null,"engagement_context":"catalog","country_code":"US","engaged_track_isrc":"DEXW62500001","engaged_spotify_track_id":"4cOdK2wGLETKBW3PvgPWqT","engaged_track_name":"Till The Sunrise","playlist_position":null,"new_listeners":42,"returning_listeners":18,"listeners":60,"new_listener_streams":58,"returning_listener_streams":31,"streams":89,"spl":1.48}
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-08-01","report_date_timezone":"UTC","exported_at":"2026-08-28T03:00:00Z","soundlink_id":"V1StGXR8_Z5jdHi6B-myT","soundlink_name":"Midnight Drive","soundlink_target_type":"playlist","soundlink_target_isrc":null,"soundlink_target_spotify_track_id":null,"soundlink_target_playlist_id":"37i9dQZF1Epwit2GR54N9P","engagement_context":"playlist","country_code":"DE","engaged_track_isrc":"DEXW62500001","engaged_spotify_track_id":"4cOdK2wGLETKBW3PvgPWqT","engaged_track_name":"Till The Sunrise","playlist_position":14,"new_listeners":19,"returning_listeners":7,"listeners":26,"new_listener_streams":24,"returning_listener_streams":11,"streams":35,"spl":1.35}
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/videos/import:
     post:
@@ -1958,7 +1956,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/VideoImportRequest'
+              $ref: "#/components/schemas/VideoImportRequest"
             examples:
               single:
                 summary: Single URL (legacy)
@@ -1971,23 +1969,23 @@ paths:
                     - url: "https://cdn.example.com/a.mp4"
                     - url: "https://cdn.example.com/b.mp4"
       responses:
-        '200':
+        "200":
           description: Duplicate video already in the organization's library (sync legacy path only)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VideoImportStartResponse'
-        '202':
+                $ref: "#/components/schemas/VideoImportStartResponse"
+        "202":
           description: Import accepted; ingestion in progress
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VideoImportStartResponse'
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+                $ref: "#/components/schemas/VideoImportStartResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
   /v1/videos/import/{sessionId}:
     get:
@@ -2011,17 +2009,17 @@ paths:
             format: uuid
           description: Upload session ID returned by `POST /v1/videos/import`
       responses:
-        '200':
+        "200":
           description: Import session status
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VideoImportStatusResponse'
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-        '500': { $ref: '#/components/responses/InternalError' }
+                $ref: "#/components/schemas/VideoImportStatusResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
 
 components:
   securitySchemes:
@@ -2189,9 +2187,9 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/WalletData'
+          $ref: "#/components/schemas/WalletData"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     Pagination:
       type: object
@@ -2257,26 +2255,56 @@ components:
       required: [error, meta]
       properties:
         error:
-          $ref: '#/components/schemas/Error'
+          $ref: "#/components/schemas/Error"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     # --- Campaign ---
 
     CampaignStatus:
       type: string
-      enum: [creating, active, inactive, ended, renewing, restarting, restart_failed, renew_awaiting_charge, renew_failed, stopped]
+      enum:
+        [
+          creating,
+          active,
+          inactive,
+          ended,
+          renewing,
+          restarting,
+          restart_failed,
+          renew_awaiting_charge,
+          renew_failed,
+          stopped,
+        ]
 
     CampaignSummary:
       type: object
-      required: [campaignId, organizationId, status, socialPlatform, dailyBudget, totalBudget, campaignDuration, generation, artistId, artistName, trackId, playlistId, trackName, campaignUrl, createdAt, updatedAt]
+      required:
+        [
+          campaignId,
+          organizationId,
+          status,
+          socialPlatform,
+          dailyBudget,
+          totalBudget,
+          campaignDuration,
+          generation,
+          artistId,
+          artistName,
+          trackId,
+          playlistId,
+          trackName,
+          campaignUrl,
+          createdAt,
+          updatedAt,
+        ]
       properties:
         campaignId:
           type: string
         organizationId:
           type: string
         status:
-          $ref: '#/components/schemas/CampaignStatus'
+          $ref: "#/components/schemas/CampaignStatus"
         socialPlatform:
           type: string
           enum: [meta]
@@ -2348,7 +2376,7 @@ components:
 
     CampaignDetail:
       allOf:
-        - $ref: '#/components/schemas/CampaignSummary'
+        - $ref: "#/components/schemas/CampaignSummary"
         - type: object
           properties:
             strategyType:
@@ -2373,20 +2401,20 @@ components:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/CampaignSummary'
+                $ref: "#/components/schemas/CampaignSummary"
             pagination:
-              $ref: '#/components/schemas/Pagination'
+              $ref: "#/components/schemas/Pagination"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     CampaignDetailResponse:
       type: object
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/CampaignDetail'
+          $ref: "#/components/schemas/CampaignDetail"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     CampaignTier:
       type: object
@@ -2421,16 +2449,16 @@ components:
         tiers:
           type: array
           items:
-            $ref: '#/components/schemas/CampaignTier'
+            $ref: "#/components/schemas/CampaignTier"
 
     CampaignTiersResponse:
       type: object
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/CampaignTiersData'
+          $ref: "#/components/schemas/CampaignTiersData"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     TierStatusUpdateItem:
       type: object
@@ -2457,7 +2485,7 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/TierStatusUpdateItem'
+            $ref: "#/components/schemas/TierStatusUpdateItem"
 
     Genre:
       type: string
@@ -2488,13 +2516,13 @@ components:
         How the campaign's ad creative is produced. Omit entirely to use the
         platform's default (`do_it_for_me`).
       oneOf:
-        - $ref: '#/components/schemas/DoItForMeCreativeDirection'
-        - $ref: '#/components/schemas/FullControlCreativeDirection'
+        - $ref: "#/components/schemas/DoItForMeCreativeDirection"
+        - $ref: "#/components/schemas/FullControlCreativeDirection"
       discriminator:
         propertyName: type
         mapping:
-          do_it_for_me: '#/components/schemas/DoItForMeCreativeDirection'
-          full_control: '#/components/schemas/FullControlCreativeDirection'
+          do_it_for_me: "#/components/schemas/DoItForMeCreativeDirection"
+          full_control: "#/components/schemas/FullControlCreativeDirection"
 
     DoItForMeCreativeDirection:
       type: object
@@ -2516,7 +2544,7 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/SelectedCreative'
+            $ref: "#/components/schemas/SelectedCreative"
           description: One or more previously imported video creatives to use for the ad. Required for full control.
 
     SelectedCreative:
@@ -2567,7 +2595,7 @@ components:
             count toward that limit. Each active tier must receive at least
             $1.50 of dailyBudget (gross). percentBudget values must sum to 100.
           items:
-            $ref: '#/components/schemas/CustomTier'
+            $ref: "#/components/schemas/CustomTier"
 
     CreateCampaignRequestShared:
       type: object
@@ -2595,12 +2623,12 @@ components:
             - type: integer
               enum: [60, 90]
         genre:
-          $ref: '#/components/schemas/Genre'
+          $ref: "#/components/schemas/Genre"
         campaignName:
           type: string
           description: Optional. Server generates a default (track title + short random suffix) when omitted.
         creativeDirection:
-          $ref: '#/components/schemas/CreativeDirection'
+          $ref: "#/components/schemas/CreativeDirection"
         trackOptions:
           type: object
           description: Options that only apply when `spotifyUrl` is a track link. Ignored when `spotifyUrl` is a playlist link.
@@ -2626,7 +2654,7 @@ components:
 
     CreateCampaignRequestWithoutTiers:
       allOf:
-        - $ref: '#/components/schemas/CreateCampaignRequestShared'
+        - $ref: "#/components/schemas/CreateCampaignRequestShared"
         - type: object
           required: [strategyType]
           properties:
@@ -2644,7 +2672,7 @@ components:
 
     CreateCampaignRequestCustom:
       allOf:
-        - $ref: '#/components/schemas/CreateCampaignRequestShared'
+        - $ref: "#/components/schemas/CreateCampaignRequestShared"
         - type: object
           required: [strategyType, tierTargeting]
           properties:
@@ -2655,7 +2683,7 @@ components:
                 Custom growth strategy. Requires `tierTargeting` with a non-empty
                 `customTierIds` and/or `customTiers` array.
             tierTargeting:
-              $ref: '#/components/schemas/TierTargeting'
+              $ref: "#/components/schemas/TierTargeting"
 
     CreateCampaignRequest:
       description: |
@@ -2664,8 +2692,8 @@ components:
         or `revenue_maximization`, do not send `tierTargeting` (platform default
         tiering applies).
       oneOf:
-        - $ref: '#/components/schemas/CreateCampaignRequestWithoutTiers'
-        - $ref: '#/components/schemas/CreateCampaignRequestCustom'
+        - $ref: "#/components/schemas/CreateCampaignRequestWithoutTiers"
+        - $ref: "#/components/schemas/CreateCampaignRequestCustom"
 
     CampaignCreateData:
       type: object
@@ -2674,7 +2702,7 @@ components:
         campaignId:
           type: string
         status:
-          $ref: '#/components/schemas/CampaignStatus'
+          $ref: "#/components/schemas/CampaignStatus"
         autoRenew:
           type: boolean
           description: Stored auto-renew flag for this wallet campaign.
@@ -2684,9 +2712,9 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/CampaignCreateData'
+          $ref: "#/components/schemas/CampaignCreateData"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     CampaignStopData:
       type: object
@@ -2695,7 +2723,7 @@ components:
         campaignId:
           type: string
         status:
-          $ref: '#/components/schemas/CampaignStatus'
+          $ref: "#/components/schemas/CampaignStatus"
           description: |
             Campaign status after stop. `stopped` when stop applied or the
             campaign was already stopped. `ended` when the campaign had
@@ -2706,9 +2734,9 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/CampaignStopData'
+          $ref: "#/components/schemas/CampaignStopData"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     UpdateCampaignAutoRenewRequest:
       type: object
@@ -2731,16 +2759,16 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/CampaignAutoRenewData'
+          $ref: "#/components/schemas/CampaignAutoRenewData"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     StrategyCatalogItem:
       type: object
       required: [strategyType, tierTargetingAllowed]
       properties:
         strategyType:
-          $ref: '#/components/schemas/StrategyType'
+          $ref: "#/components/schemas/StrategyType"
         tierTargetingAllowed:
           type: boolean
           description: |
@@ -2754,16 +2782,16 @@ components:
         strategies:
           type: array
           items:
-            $ref: '#/components/schemas/StrategyCatalogItem'
+            $ref: "#/components/schemas/StrategyCatalogItem"
 
     StrategiesCatalogResponse:
       type: object
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/StrategiesCatalogData'
+          $ref: "#/components/schemas/StrategiesCatalogData"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     BudgetIncreaseMode:
       type: string
@@ -2789,7 +2817,7 @@ components:
             `mode: next_renewal` with `targetDailyBudget` where `amount` may
             be `0`.
         mode:
-          $ref: '#/components/schemas/BudgetIncreaseMode'
+          $ref: "#/components/schemas/BudgetIncreaseMode"
         targetDailyBudget:
           type: number
           minimum: 0
@@ -2805,7 +2833,7 @@ components:
         campaignId:
           type: string
         mode:
-          $ref: '#/components/schemas/BudgetIncreaseMode'
+          $ref: "#/components/schemas/BudgetIncreaseMode"
         amount:
           type: number
         walletBalance:
@@ -2821,9 +2849,9 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/IncreaseCampaignBudgetData'
+          $ref: "#/components/schemas/IncreaseCampaignBudgetData"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     DecreaseCampaignBudgetRequest:
       type: object
@@ -2838,7 +2866,7 @@ components:
             enabled-ad-set minimum gross and lower than the campaign's current
             daily budget.
         mode:
-          $ref: '#/components/schemas/BudgetDecreaseMode'
+          $ref: "#/components/schemas/BudgetDecreaseMode"
 
     DecreaseCampaignBudgetData:
       type: object
@@ -2847,7 +2875,7 @@ components:
         campaignId:
           type: string
         mode:
-          $ref: '#/components/schemas/BudgetDecreaseMode'
+          $ref: "#/components/schemas/BudgetDecreaseMode"
         targetDailyBudget:
           type: number
         accepted:
@@ -2868,9 +2896,9 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/DecreaseCampaignBudgetData'
+          $ref: "#/components/schemas/DecreaseCampaignBudgetData"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     # --- Metrics ---
 
@@ -2880,7 +2908,19 @@ components:
         Campaign-level totals aggregated across all countries for the requested
         date range. Field names align with the `campaign_country_daily` row
         schema — values here are the sum of country rows.
-      required: [listeners, streams, followers, spend_media, spend_total, fees, currency, cpl, cpf, streams_per_listener]
+      required:
+        [
+          listeners,
+          streams,
+          followers,
+          spend_media,
+          spend_total,
+          fees,
+          currency,
+          cpl,
+          cpf,
+          streams_per_listener,
+        ]
       properties:
         listeners:
           type: integer
@@ -2930,25 +2970,13 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/MetricsOverview'
+          $ref: "#/components/schemas/MetricsOverview"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     CreativeMetricsChild:
       type: object
-      required:
-        [
-          caption,
-          language,
-          spotify_track_id,
-          listeners,
-          followers,
-          link_clicks,
-          cpl,
-          cpf,
-          cpc_linkclick,
-          frequency,
-        ]
+      required: [caption, language, spotify_track_id, listeners, followers, link_clicks, cpl, cpf, cpc_linkclick, frequency]
       properties:
         caption:
           type: string
@@ -2982,19 +3010,7 @@ components:
 
     CreativeMetricsGroup:
       type: object
-      required:
-        [
-          video_id,
-          caption,
-          listeners,
-          followers,
-          link_clicks,
-          cpl,
-          cpf,
-          cpc_linkclick,
-          frequency,
-          children,
-        ]
+      required: [video_id, caption, listeners, followers, link_clicks, cpl, cpf, cpc_linkclick, frequency, children]
       properties:
         video_id:
           type: string
@@ -3026,7 +3042,7 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/CreativeMetricsChild'
+            $ref: "#/components/schemas/CreativeMetricsChild"
 
     CreativeMetrics:
       type: object
@@ -3035,16 +3051,16 @@ components:
         creatives:
           type: array
           items:
-            $ref: '#/components/schemas/CreativeMetricsGroup'
+            $ref: "#/components/schemas/CreativeMetricsGroup"
 
     CreativeMetricsResponse:
       type: object
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/CreativeMetrics'
+          $ref: "#/components/schemas/CreativeMetrics"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     BreakdownRow:
       type: object
@@ -3208,11 +3224,11 @@ components:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/BreakdownRow'
+                $ref: "#/components/schemas/BreakdownRow"
             pagination:
-              $ref: '#/components/schemas/Pagination'
+              $ref: "#/components/schemas/Pagination"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     MetricsEngagementResponse:
       type: object
@@ -3229,11 +3245,11 @@ components:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/EngagementRow'
+                $ref: "#/components/schemas/EngagementRow"
             pagination:
-              $ref: '#/components/schemas/Pagination'
+              $ref: "#/components/schemas/Pagination"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     # --- Engagement ---
 
@@ -3398,7 +3414,8 @@ components:
 
     SoundlinkSummary:
       type: object
-      required: [soundlinkId, organizationId, name, url, targetType, status, createdAt]
+      required:
+        [soundlinkId, organizationId, name, url, targetType, status, createdAt]
       properties:
         soundlinkId:
           type: string
@@ -3430,7 +3447,7 @@ components:
           nullable: true
           description: Spotify URL of the promoted resource.
         status:
-          $ref: '#/components/schemas/SoundlinkStatus'
+          $ref: "#/components/schemas/SoundlinkStatus"
         createdAt:
           type: string
           format: date-time
@@ -3446,11 +3463,11 @@ components:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/SoundlinkSummary'
+                $ref: "#/components/schemas/SoundlinkSummary"
             pagination:
-              $ref: '#/components/schemas/Pagination'
+              $ref: "#/components/schemas/Pagination"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     CreateSoundlinkRequest:
       type: object
@@ -3520,7 +3537,7 @@ components:
 
     SoundlinkDetail:
       allOf:
-        - $ref: '#/components/schemas/SoundlinkSummary'
+        - $ref: "#/components/schemas/SoundlinkSummary"
         - type: object
           required:
             - autoFollow
@@ -3568,9 +3585,9 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/SoundlinkDetail'
+          $ref: "#/components/schemas/SoundlinkDetail"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     SendTestEventResponse:
       type: object
@@ -3588,7 +3605,7 @@ components:
               enum: [sent]
               description: Present when the stored pixel test event was sent.
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     SoundlinkMetricsOverview:
       type: object
@@ -3635,10 +3652,9 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/SoundlinkMetricsOverview'
+          $ref: "#/components/schemas/SoundlinkMetricsOverview"
         meta:
-          $ref: '#/components/schemas/Meta'
-
+          $ref: "#/components/schemas/Meta"
 
     SoundlinkCountryDailyRow:
       type: object
@@ -3785,11 +3801,11 @@ components:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/SoundlinkCountryDailyRow'
+                $ref: "#/components/schemas/SoundlinkCountryDailyRow"
             pagination:
-              $ref: '#/components/schemas/Pagination'
+              $ref: "#/components/schemas/Pagination"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     SoundlinkEngagementResponse:
       type: object
@@ -3806,11 +3822,11 @@ components:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/SoundlinkEngagementDailyRow'
+                $ref: "#/components/schemas/SoundlinkEngagementDailyRow"
             pagination:
-              $ref: '#/components/schemas/Pagination'
+              $ref: "#/components/schemas/Pagination"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     SoundlinkEngagementDailyRow:
       type: object
@@ -4006,7 +4022,7 @@ components:
           format: uuid
           description: Upload session ID for status polling
         status:
-          $ref: '#/components/schemas/VideoImportStatus'
+          $ref: "#/components/schemas/VideoImportStatus"
         count:
           type: integer
           description: Number of videos accepted for import
@@ -4021,9 +4037,9 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/VideoImportStartData'
+          $ref: "#/components/schemas/VideoImportStartData"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
     VideoImportStatusData:
       type: object
@@ -4033,7 +4049,7 @@ components:
           type: string
           format: uuid
         status:
-          $ref: '#/components/schemas/VideoImportStatus'
+          $ref: "#/components/schemas/VideoImportStatus"
         videoId:
           type: string
           format: uuid
@@ -4046,10 +4062,10 @@ components:
             format: uuid
           description: Ready video IDs for batch sessions (`count > 1`)
         counts:
-          $ref: '#/components/schemas/VideoImportCounts'
+          $ref: "#/components/schemas/VideoImportCounts"
         error:
           allOf:
-            - $ref: '#/components/schemas/VideoImportStatusError'
+            - $ref: "#/components/schemas/VideoImportStatusError"
           nullable: true
           description: Present when status is failed
 
@@ -4078,9 +4094,9 @@ components:
       required: [data, meta]
       properties:
         data:
-          $ref: '#/components/schemas/VideoImportStatusData'
+          $ref: "#/components/schemas/VideoImportStatusData"
         meta:
-          $ref: '#/components/schemas/Meta'
+          $ref: "#/components/schemas/Meta"
 
   responses:
     BadRequest:
@@ -4088,7 +4104,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             invalid_query_parameter:
               value:
@@ -4112,7 +4128,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             missing_field:
               value:
@@ -4142,7 +4158,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             invalid_api_key:
               value:
@@ -4173,7 +4189,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             insufficient_scope:
               value:
@@ -4197,7 +4213,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             insufficient_scope:
               value:
@@ -4221,7 +4237,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             missing_field:
               value:
@@ -4251,7 +4267,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             insufficient_scope:
               value:
@@ -4265,7 +4281,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             invalid_spotify_url:
               summary: Malformed URL, unsupported type, or Spotify resource does not exist
@@ -4281,7 +4297,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           example:
             error:
               code: insufficient_credit
@@ -4297,7 +4313,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             invalid_genre:
               value:
@@ -4357,7 +4373,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             conflicting_body:
               value:
@@ -4381,7 +4397,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           example:
             error:
               code: tier_update_cooldown
@@ -4394,7 +4410,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           example:
             error:
               code: campaign_not_found
@@ -4413,7 +4429,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           example:
             error:
               code: rate_limit_exceeded
@@ -4426,7 +4442,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           example:
             error:
               code: internal_error
