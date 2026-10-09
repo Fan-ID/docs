@@ -86,9 +86,10 @@ for await (const campaign of soundlink.campaigns.listAll({ pageSize: 100 })) {
 
 ## Create and manage wallet campaigns
 
-Requires `campaigns:write`. Write methods take `{ idempotencyKey }` — the SDK sends the `Idempotency-Key` header. Only **`generation: 3`** (wallet) campaigns support budget, tiers, and stop. See [Creating campaigns](/creating-campaigns) and [Managing campaigns](/managing-campaigns).
+Requires `campaigns:write`. Write methods take `{ idempotencyKey }` — the SDK sends the `Idempotency-Key` header. Only **`generation: 3`** (wallet) campaigns support budget, tiers, auto-renew, and stop. Omit `autoRenew` on create to leave it off. See [Creating campaigns](/creating-campaigns) and [Managing campaigns](/managing-campaigns).
 
 ```typescript
+const { data: wallet } = await soundlink.wallet.get();
 const { data: catalog } = await soundlink.strategies.list();
 
 const { data: created, error: createError } = await soundlink.campaigns.create(
@@ -99,6 +100,7 @@ const { data: created, error: createError } = await soundlink.campaigns.create(
     genre: "Pop",
     strategyType: "maximum_growth",
     campaignName: "Summer single push",
+    autoRenew: false,
   },
   { idempotencyKey: "create-2026-07-21-mytrack-01" },
 );
@@ -123,6 +125,12 @@ await soundlink.campaigns.tiers.update(created.campaignId, {
     newAllocationPercent: tier.allocationPercent,
   })),
 });
+
+await soundlink.campaigns.updateAutoRenew(
+  created.campaignId,
+  { autoRenew: true },
+  { idempotencyKey: "auto-renew-01" },
+);
 
 await soundlink.campaigns.stop(created.campaignId, {
   idempotencyKey: "stop-01",
@@ -196,6 +204,10 @@ const { data: overview } = await soundlink.metrics.overview(
   },
 );
 
+const { data: creatives } = await soundlink.metrics.creatives(
+  "f1e28d31-c358-4284-9bef-00a2334625fd",
+);
+
 const { data: stream } = await soundlink.metrics.breakdown.export(
   "f1e28d31-c358-4284-9bef-00a2334625fd",
   {
@@ -239,6 +251,14 @@ Every method maps 1:1 to a Public API route. All return `Promise<ApiResponse<T>>
 | ------------------ | -------------- | ----------------------- |
 | `soundlink.ping()` | `GET /v1/ping` | `ApiResponse<PingData>` |
 
+### Wallet
+
+Requires `wallet:read`. **`soundlink` 2.4.0+**.
+
+| Method | REST endpoint | Returns |
+| ------ | ------------- | ------- |
+| `soundlink.wallet.get()` | `GET /v1/wallet` | `ApiResponse<WalletData>` |
+
 ### Strategies
 
 Requires `campaigns:read`.
@@ -259,13 +279,16 @@ Requires `campaigns:read`.
 
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt` \| `status`), `sortOrder` (`asc` \| `desc`).
 
+`CampaignStatus` (**2.4.0+**): `creating`, `active`, `inactive`, `ended`, `renewing`, `restarting`, `restart_failed`, `renew_awaiting_charge`, `renew_failed`, `stopped`.
+
 ### Campaigns (write)
 
-Requires `campaigns:write`. Pass `{ idempotencyKey }` on create, stop, and budget methods. Wallet campaigns only (`generation: 3`) for budget / tiers / stop.
+Requires `campaigns:write`. Pass `{ idempotencyKey }` on create, stop, auto-renew, and budget methods. Wallet campaigns only (`generation: 3`) for budget / tiers / auto-renew / stop.
 
 | Method | REST endpoint | Returns |
 | ------ | ------------- | ------- |
 | `soundlink.campaigns.create(body, { idempotencyKey })` | `POST /v1/campaigns` | `ApiResponse<CampaignCreateData>` |
+| `soundlink.campaigns.updateAutoRenew(id, body, { idempotencyKey })` | `PUT .../auto-renew` | `ApiResponse<CampaignAutoRenewData>` |
 | `soundlink.campaigns.stop(id, { idempotencyKey })` | `POST .../stop` | `ApiResponse<CampaignStopData>` |
 | `soundlink.campaigns.increaseBudget(id, body, { idempotencyKey })` | `POST .../budget/increase` | `ApiResponse<IncreaseCampaignBudgetData>` |
 | `soundlink.campaigns.decreaseBudget(id, body, { idempotencyKey })` | `POST .../budget/decrease` | `ApiResponse<DecreaseCampaignBudgetData>` |
@@ -302,13 +325,14 @@ Requires `metrics:read`.
 | Method                                                     | REST endpoint                       | Returns                                        |
 | ---------------------------------------------------------- | ----------------------------------- | ---------------------------------------------- |
 | `soundlink.metrics.overview(id, params?)`                  | `GET .../metrics/overview`          | `ApiResponse<MetricsOverview>`                 |
+| `soundlink.metrics.creatives(id)`                          | `GET .../metrics/creatives`         | `ApiResponse<CreativeMetrics>`                 |
 | `soundlink.metrics.breakdown.list(id, params?)`            | `GET .../metrics/breakdown`         | `ApiResponse<BreakdownListData>`               |
 | `soundlink.metrics.breakdown.export(id, params?)`          | `GET .../metrics/breakdown/export`  | `ApiResponse<JsonlStream<BreakdownRow>>`       |
 | `soundlink.metrics.breakdown.export.collect(id, params?)`  | Same export route                   | `ApiResponse<ExportCollection<BreakdownRow>>`  |
 | `soundlink.metrics.engagement.export(id, params?)`         | `GET .../metrics/engagement/export` | `ApiResponse<JsonlStream<EngagementRow>>`      |
 | `soundlink.metrics.engagement.export.collect(id, params?)` | Same export route                   | `ApiResponse<ExportCollection<EngagementRow>>` |
 
-Date params use inclusive `YYYY-MM-DD`. Export windows are capped at **90 days** per request. Breakdown list `pageSize` max is **500**. Paginated campaign engagement (`GET .../metrics/engagement`) is not in the SDK — use the HTTP path in [Campaign metrics](/understanding-metrics).
+Date params use inclusive `YYYY-MM-DD`. Export windows are capped at **90 days** per request. Breakdown list `pageSize` max is **500**. `metrics.creatives` is a lifetime snapshot — do not send `startDate` or `endDate`. Paginated campaign engagement (`GET .../metrics/engagement`) is not in the SDK — use the HTTP path in [Campaign metrics](/understanding-metrics).
 
 ## Types
 
@@ -354,10 +378,11 @@ import type {
 | Group          | Types                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------ |
 | **Envelope**   | `ApiResponse<T>`, `ApiError`, `ApiMeta`, `PublicApiErrorCode`                                    |
-| **Campaigns**  | `CampaignSummary`, `CampaignDetail`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
+| **Campaigns**  | `CampaignSummary`, `CampaignDetail`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus`, `CampaignAutoRenewData` |
+| **Wallet**     | `WalletData`                                                                                         |
 | **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkBreakdownRow`, `SoundlinkEngagementRow` |
 | **Strategies** | `StrategiesCatalogData`, `StrategyCatalogItem`, `StrategyType`                                  |
-| **Campaign metrics** | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
+| **Campaign metrics** | `MetricsOverview`, `CreativeMetrics`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`       |
 | **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkBreakdownListParams`, `SoundlinkEngagementListParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
 | **Exports**    | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
 | **Client**     | `Soundlink`, `SoundlinkClientOptions`                                                            |
