@@ -181,6 +181,7 @@
                 "expanded": true,
                 "pages": [
                   "GET /v1/campaigns/{campaignId}/metrics/overview",
+                  "GET /v1/campaigns/{campaignId}/metrics/creatives",
                   "GET /v1/campaigns/{campaignId}/metrics/breakdown",
                   "GET /v1/campaigns/{campaignId}/metrics/breakdown/export",
                   "GET /v1/campaigns/{campaignId}/metrics/engagement",
