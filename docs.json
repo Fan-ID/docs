@@ -68,6 +68,10 @@
             "pages": ["index"]
           },
           {
+            "group": "AI tools",
+            "pages": ["mcp"]
+          },
+          {
             "group": "For Developers",
             "pages": [
               "developers",
@@ -76,7 +80,7 @@
               "errors",
               {
                 "group": "SDKs and tools",
-                "pages": ["sdks", "typescript-sdk", "warehouse-connector", "mcp"]
+                "pages": ["sdks", "typescript-sdk", "warehouse-connector"]
               },
               {
                 "group": "API guides",
