@@ -1,0 +1,160 @@
+---
+title: MCP server
+description: Connect Cursor or Claude to your Soundlink organization. Read-only, nothing to install.
+---
+
+Soundlink hosts an MCP server. An AI client calls it over **Streamable HTTP** and gets read-only access to your organization. It does not create campaigns, change budgets, or import videos.
+
+```
+https://api.getsoundlink.com/mcp
+```
+
+## 1. Create a credential
+
+Pick one. An API key is enough when the client can send a header. OAuth is for clients that open a browser and ask for a client id and secret.
+
+Soundlink does not support dynamic client registration. You create the credential in the app, then paste it into the client.
+
+<CardGroup cols={2}>
+  <Card
+    title="API keys"
+    icon="key"
+    href="https://getsoundlink.com/settings/developer"
+  >
+    **Settings → Developer → API keys**. Sign in first. Soundlink opens the keys
+    page for your current organization.
+  </Card>
+  <Card
+    title="OAuth apps"
+    icon="user-check"
+    href="https://getsoundlink.com/settings/oauth-apps"
+  >
+    **Settings → Developer → OAuth apps**. Same shortcut. Use this when the
+    client runs an OAuth login.
+  </Card>
+</CardGroup>
+
+Owners and admins can create keys and OAuth apps. For the scopes each tool needs, see the table below. A key or app that should read everything the server exposes needs `campaigns:read`, `metrics:read`, `soundlinks:read`, and `wallet:read`.
+
+### API key
+
+<Steps>
+  <Step title="Open API keys">
+    Go to [Settings → Developer → API
+    keys](https://getsoundlink.com/settings/developer).
+  </Step>
+  <Step title="Create a key">
+    Click **Create key**. Set a name, an expiration, and the scopes above.
+    Details and screenshots are in [Authentication](/authentication).
+  </Step>
+  <Step title="Copy the secret">
+    Soundlink shows the full `sk_` key once. Store it where the MCP client can
+    read it. You cannot reveal it again.
+  </Step>
+</Steps>
+
+### OAuth app
+
+<Steps>
+  <Step title="Open OAuth apps">
+    Go to [Settings → Developer → OAuth
+    apps](https://getsoundlink.com/settings/oauth-apps).
+  </Step>
+  <Step title="Create the app">
+    Set a name. Enable the **Authorization code** grant. Paste the redirect URI
+    your MCP client shows you — it must match exactly, including `http` vs
+    `https` and `localhost` vs `127.0.0.1`. Select the scopes above.
+  </Step>
+  <Step title="Copy the client id and secret">
+    Paste both into the MCP client. The secret is shown once. Access tokens last
+    one hour, and Soundlink does not issue refresh tokens. When a token expires,
+    sign in again. See [OAuth](/set-up-soundlink-oauth).
+  </Step>
+</Steps>
+
+One connection is one organization. To use another org, disconnect and approve that org on the next consent screen.
+
+## 2. Add the server
+
+### Cursor
+
+Open **Cursor Settings → MCP → Add new global MCP server**.
+
+With an API key:
+
+```json
+{
+  "mcpServers": {
+    "soundlink": {
+      "url": "https://api.getsoundlink.com/mcp",
+      "headers": {
+        "Authorization": "Bearer sk_your_key"
+      }
+    }
+  }
+}
+```
+
+With OAuth, omit `headers`. Cursor starts the login. Enter the client id and secret from the OAuth app.
+
+```json
+{
+  "mcpServers": {
+    "soundlink": {
+      "url": "https://api.getsoundlink.com/mcp"
+    }
+  }
+}
+```
+
+### Claude
+
+In Claude, open **Settings → Connectors → Add custom connector** and paste:
+
+```
+https://api.getsoundlink.com/mcp
+```
+
+Complete the OAuth login with the client id and secret from the app you created.
+
+### Other clients
+
+Any client that speaks Streamable HTTP can use the same URL. If it cannot open a browser, send the API key as `Authorization: Bearer sk_your_key`.
+
+## 3. Check the connection
+
+Ask the client to call `ping`. A working credential returns `{"status":"ok"}`. `ping` does not require a specific scope.
+
+Then ask for a campaign list. If a tool fails with an authorization error, the key or app is missing the scope in the table below. Create a new key, or edit the OAuth app, and reconnect.
+
+## Tools
+
+| Tool                                      | Public API                                                   | Scope                |
+| ----------------------------------------- | ------------------------------------------------------------ | -------------------- |
+| `ping`                                    | `GET /v1/ping`                                               | any valid credential |
+| `get_campaigns`                           | `GET /v1/campaigns`                                          | `campaigns:read`     |
+| `get_campaign`                            | `GET /v1/campaigns/{campaignId}`                             | `campaigns:read`     |
+| `get_campaign_tiers`                      | `GET /v1/campaigns/{campaignId}/tiers`                       | `campaigns:read`     |
+| `get_campaign_metrics_overview`           | `GET /v1/campaigns/{campaignId}/metrics/overview`            | `metrics:read`       |
+| `get_campaign_metrics_creatives`          | `GET /v1/campaigns/{campaignId}/metrics/creatives`           | `metrics:read`       |
+| `get_campaign_metrics_breakdown`          | `GET /v1/campaigns/{campaignId}/metrics/breakdown`           | `metrics:read`       |
+| `get_campaign_metrics_engagement`         | `GET /v1/campaigns/{campaignId}/metrics/engagement`          | `metrics:read`       |
+| `get_campaign_metrics_breakdown_export`   | `GET /v1/campaigns/{campaignId}/metrics/breakdown/export`    | `metrics:read`       |
+| `get_campaign_metrics_engagement_export`  | `GET /v1/campaigns/{campaignId}/metrics/engagement/export`   | `metrics:read`       |
+| `get_soundlinks`                          | `GET /v1/soundlinks`                                         | `soundlinks:read`    |
+| `get_soundlink`                           | `GET /v1/soundlinks/{soundlinkId}`                           | `soundlinks:read`    |
+| `get_soundlink_metrics_overview`          | `GET /v1/soundlinks/{soundlinkId}/metrics/overview`          | `soundlinks:read`    |
+| `get_soundlink_metrics_breakdown`         | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown`         | `soundlinks:read`    |
+| `get_soundlink_metrics_engagement`        | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement`        | `soundlinks:read`    |
+| `get_soundlink_metrics_breakdown_export`  | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`  | `soundlinks:read`    |
+| `get_soundlink_metrics_engagement_export` | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export` | `soundlinks:read`    |
+| `get_strategies`                          | `GET /v1/strategies`                                         | `campaigns:read`     |
+| `get_wallet`                              | `GET /v1/wallet`                                             | `wallet:read`        |
+
+`get_campaign_tiers` only succeeds for a wallet campaign. Engagement tools take an optional `engagementContext` of `catalog` or `playlist`. Exports default to the last 90 days and return JSONL, not the JSON envelope. `get_soundlinks` does not include soundlinks created for a campaign.
+
+Field definitions: [Campaign metrics](/understanding-metrics), [Soundlink metrics](/soundlink-metrics), [JSONL exports](/jsonl-exports).
+
+## Next
+
+[SDK overview](/sdks) · [Authentication](/authentication) · [OAuth](/set-up-soundlink-oauth)
