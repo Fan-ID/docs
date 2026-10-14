@@ -21,8 +21,8 @@ Soundlink does not support dynamic client registration. You create the credentia
     icon="key"
     href="https://getsoundlink.com/settings/developer"
   >
-    **Settings → Developer → API keys**. Sign in first. Soundlink opens the
-    keys page for your current organization.
+    **Settings → Developer → API keys**. Sign in first. Soundlink opens the keys
+    page for your current organization.
   </Card>
   <Card
     title="OAuth apps"
@@ -34,15 +34,14 @@ Soundlink does not support dynamic client registration. You create the credentia
   </Card>
 </CardGroup>
 
-If you already know the organization id, the direct paths are `/orgs/{organizationId}/settings/developer` and `/orgs/{organizationId}/settings/oauth-apps`.
-
 Owners and admins can create keys and OAuth apps. For the scopes each tool needs, see the table below. A key or app that should read everything the server exposes needs `campaigns:read`, `metrics:read`, `soundlinks:read`, and `wallet:read`.
 
 ### API key
 
 <Steps>
   <Step title="Open API keys">
-    Go to [Settings → Developer → API keys](https://getsoundlink.com/settings/developer).
+    Go to [Settings → Developer → API
+    keys](https://getsoundlink.com/settings/developer).
   </Step>
   <Step title="Create a key">
     Click **Create key**. Set a name, an expiration, and the scopes above.
@@ -58,7 +57,8 @@ Owners and admins can create keys and OAuth apps. For the scopes each tool needs
 
 <Steps>
   <Step title="Open OAuth apps">
-    Go to [Settings → Developer → OAuth apps](https://getsoundlink.com/settings/oauth-apps).
+    Go to [Settings → Developer → OAuth
+    apps](https://getsoundlink.com/settings/oauth-apps).
   </Step>
   <Step title="Create the app">
     Set a name. Enable the **Authorization code** grant. Paste the redirect URI
@@ -66,9 +66,9 @@ Owners and admins can create keys and OAuth apps. For the scopes each tool needs
     `https` and `localhost` vs `127.0.0.1`. Select the scopes above.
   </Step>
   <Step title="Copy the client id and secret">
-    Paste both into the MCP client. The secret is shown once. Access tokens
-    last one hour, and Soundlink does not issue refresh tokens. When a token
-    expires, sign in again. See [OAuth](/set-up-soundlink-oauth).
+    Paste both into the MCP client. The secret is shown once. Access tokens last
+    one hour, and Soundlink does not issue refresh tokens. When a token expires,
+    sign in again. See [OAuth](/set-up-soundlink-oauth).
   </Step>
 </Steps>
 
