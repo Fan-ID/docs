@@ -1,6 +1,6 @@
 ---
 title: Overview
-description: When to use the TypeScript SDK, warehouse connector, or raw HTTP.
+description: When to use the TypeScript SDK, warehouse connector, MCP server, or raw HTTP.
 ---
 
 The Public API is **HTTP-first** — every endpoint works with `curl`, Python, or your own client. Pick the path that matches the job.
@@ -14,6 +14,9 @@ The Public API is **HTTP-first** — every endpoint works with `curl`, Python, o
   </Card>
   <Card title="Warehouse connector" icon="database" href="/warehouse-connector">
     ELT into DuckDB or BigQuery. Catalog + daily metrics, no pipeline code.
+  </Card>
+  <Card title="MCP server" icon="bot" href="/mcp">
+    Cursor, Claude, or another AI client. Read-only tools, no install.
   </Card>
 </CardGroup>
 
@@ -47,3 +50,7 @@ Requires **Node.js 18+** (native `fetch`). See the [TypeScript guide](/typescrip
 Python CLI that syncs campaigns and soundlinks into DuckDB or BigQuery. Read-only — it does not wrap create, budget, or video import.
 
 Clone from GitHub (not on PyPI yet): [github.com/Fan-ID/soundlink-warehouse-connector](https://github.com/Fan-ID/soundlink-warehouse-connector). See the [warehouse connector guide](/warehouse-connector).
+
+## MCP server
+
+Hosted at `https://api.getsoundlink.com/mcp`. Connect Cursor or Claude with an API key or an OAuth app. Read-only. See the [MCP server guide](/mcp).
