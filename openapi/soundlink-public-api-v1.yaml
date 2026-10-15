@@ -898,6 +898,82 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+  /v1/campaigns/{campaignId}/metrics/creatives/daily:
+    get:
+      operationId: getCampaignCreativeDailyMetrics
+      summary: Campaign creative daily metrics
+      description: |
+        Daily creative performance for one campaign. One row per day and
+        current Meta ad creative. `spend_media` is Meta media spend. `cpf` is
+        `spend_media / followers` for that row, and null when followers is zero.
+        For a longer window, divide the summed spend by the summed followers.
+        Do not average the daily `cpf` values.
+
+        The grain is the Meta ad creative, not the background-video groups from
+        the lifetime creatives endpoint. That endpoint still rejects dates.
+
+        `startDate` and `endDate` are optional and inclusive. Omit both to
+        return every day that has rows. Results are ordered by date, then
+        creative id, and paginated.
+
+        Requires the `metrics:read` scope. Accepts API key or OAuth Bearer.
+      tags: [Metrics]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: metrics:read
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Inclusive start date (`YYYY-MM-DD`). Omit to include every day from the first row.
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Inclusive end date (`YYYY-MM-DD`). Omit to include every day through the latest row.
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize500'
+      responses:
+        '200':
+          description: Daily creative rows for the campaign
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreativeDailyMetricsResponse'
+              example:
+                data:
+                  items:
+                    - date: '2026-03-01'
+                      meta_ad_creative_id: '1234567890'
+                      spend_media: 40
+                      impressions: 400
+                      followers: 4
+                      cpf: 10
+                    - date: '2026-03-02'
+                      meta_ad_creative_id: '1234567890'
+                      spend_media: 10.5
+                      impressions: 100
+                      followers: 0
+                      cpf: null
+                  pagination:
+                    page: 1
+                    pageSize: 50
+                    totalCount: 2
+                    totalPages: 1
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
   /v1/campaigns/{campaignId}/metrics/breakdown:
     get:
       operationId: getCampaignMetricsBreakdown
@@ -3064,6 +3140,57 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/CreativeMetrics'
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    CreativeDailyMetricsRow:
+      type: object
+      required:
+        - date
+        - meta_ad_creative_id
+        - spend_media
+        - impressions
+        - followers
+        - cpf
+      properties:
+        date:
+          type: string
+          format: date
+          description: UTC calendar date (`YYYY-MM-DD`).
+        meta_ad_creative_id:
+          type: string
+          description: Current Meta ad creative. Ads that share this id are summed for the day.
+        spend_media:
+          type: number
+          description: Meta media spend for the day. Fees are not included.
+        impressions:
+          type: number
+          description: Meta impressions for the day.
+        followers:
+          type: number
+          description: Follows attributed for the day.
+        cpf:
+          type: number
+          nullable: true
+          description: Cost per follower (`spend_media / followers`) for this row. Null when followers is zero.
+
+    CreativeDailyMetrics:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreativeDailyMetricsRow'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    CreativeDailyMetricsResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: '#/components/schemas/CreativeDailyMetrics'
         meta:
           $ref: '#/components/schemas/Meta'
 

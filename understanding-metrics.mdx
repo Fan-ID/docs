@@ -32,6 +32,21 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/creative
 
 See the [API Reference](/api-reference) for the response shape.
 
+### Daily rows
+
+`GET /v1/campaigns/{campaignId}/metrics/creatives/daily` (paginated)
+
+One row per day and current Meta ad creative: `spend_media`, `impressions`, `followers`, and `cpf`. `spend_media` is Meta media spend, without fees. `cpf` is `spend_media / followers` for that row, and null when followers is zero. For a longer window, divide the summed spend by the summed followers. Do not average the daily `cpf` values.
+
+This is not the background-video grouping of the lifetime endpoint above. Each ad is counted once, from its latest smartlink row. Ads that share a creative are summed for the day.
+
+`startDate` and `endDate` are optional and inclusive. Omit both to return every day that has rows. Page size defaults to 50 and maxes at 500.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/creatives/daily?startDate=2026-03-01&endDate=2026-03-31' \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
 ## Breakdown (by country)
 
 `GET /v1/campaigns/{campaignId}/metrics/breakdown` (paginated)
