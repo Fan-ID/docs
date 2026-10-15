@@ -770,6 +770,82 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+  /v1/campaigns/{campaignId}/activity:
+    get:
+      operationId: getCampaignActivity
+      summary: List campaign activity
+      description: |
+        Returns a page of creative adds, budget changes, tier updates, country
+        updates, playlist redirect heals, and auto-renew changes for one campaign.
+
+        Each item is an event type, a timestamp, and a short summary. The list
+        does not include campaign creation or pausing an old creative. Fee amounts,
+        Stripe ids, and internal file URIs are omitted.
+
+        `startDate` keeps events at or after that moment. A calendar date starts
+        at 00:00:00Z. Omit it to page through the full history. Any waiting rule,
+        such as 72 hours after a change, is applied by the caller.
+
+        Requires the `campaigns:read` scope. Accepts API key or OAuth Bearer.
+      tags: [Campaigns]
+      x-required-scope: campaigns:read
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - name: startDate
+          in: query
+          schema:
+            type: string
+          description: |
+            Return events at or after this moment. `YYYY-MM-DD` starts at
+            00:00:00Z. An ISO-8601 timestamp uses that instant.
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number (1-indexed).
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Items per page (max 100).
+      responses:
+        '200':
+          description: Campaign activity page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignActivityResponse'
+              example:
+                data:
+                  items:
+                    - event_type: CAMPAIGN_AD_CREATIVES_ADDED
+                      timestamp: "2026-03-02T15:04:05.000Z"
+                      summary: Creatives added (2)
+                    - event_type: BUDGET_TOPUP
+                      timestamp: "2026-03-01T12:00:00.000Z"
+                      summary: Budget increased
+                  pagination:
+                    page: 1
+                    pageSize: 20
+                    totalCount: 2
+                    totalPages: 1
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
   /v1/campaigns/{campaignId}/metrics/overview:
     get:
       operationId: getCampaignMetricsOverview
@@ -2512,6 +2588,41 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/CampaignTiersData'
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    CampaignActivityItem:
+      type: object
+      required: [event_type, timestamp, summary]
+      properties:
+        event_type:
+          type: string
+          description: Activity event type.
+        timestamp:
+          type: string
+          format: date-time
+          description: When the event was recorded.
+        summary:
+          type: string
+          description: Short description. Omits fees, payment ids, and file URIs.
+
+    CampaignActivityData:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CampaignActivityItem'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    CampaignActivityResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          $ref: '#/components/schemas/CampaignActivityData'
         meta:
           $ref: '#/components/schemas/Meta'
 
