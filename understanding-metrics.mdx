@@ -1,9 +1,9 @@
 ---
 title: Campaign metrics
-description: When to use campaign overview, creatives, country breakdown, and engagement endpoints.
+description: When to use campaign overview, creatives, creative daily, country breakdown, and engagement endpoints.
 ---
 
-Four layers of campaign performance. Pick the endpoint that matches how you store and report the data.
+Pick the endpoint that matches how you store and report the data.
 
 For soundlinks without a campaign, see [Soundlink metrics](/soundlink-metrics).
 
@@ -31,6 +31,21 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/creative
 ```
 
 See the [API Reference](/api-reference) for the response shape.
+
+## Creative daily
+
+`GET /v1/campaigns/{campaignId}/metrics/creative-daily` (paginated)
+
+One row per day and current Meta ad creative: `spend_media`, `impressions`, `followers`, and `cpf`. `spend_media` excludes fees. `cpf` is `spend_media / followers` for that row, and null when followers is zero. Across days, divide summed spend by summed followers.
+
+Separate from [Creatives](#creatives), which is a lifetime snapshot grouped by background video and rejects dates. Each ad is counted once, from its latest smartlink row.
+
+`startDate` and `endDate` are optional and inclusive. Omit both for every day that has rows. Page size defaults to 50 and maxes at 500.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/creative-daily?startDate=2026-03-01&endDate=2026-03-31' \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
 
 ## Breakdown (by country)
 
