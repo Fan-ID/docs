@@ -828,8 +828,11 @@ paths:
       summary: Campaign creative metrics
       description: |
         Lifetime creative performance for one campaign, grouped by background
-        video. Each group has a `children` array of variants. This is a
-        snapshot, not a date range. `startDate` and `endDate` are rejected.
+        video. Each group has a `children` array of variants. `timestamp_start_ms`
+        and `timestamp_end_ms` are the audio cut in milliseconds when that cut
+        is a ready sound for this organization. Otherwise both are null. Two
+        cuts of the same track stay separate. This is a snapshot, not a date
+        range. `startDate` and `endDate` are rejected.
 
         Spend is omitted until media spend and fees can be split. Ratios use
         the same lifetime basis as the Creatives tab.
@@ -865,6 +868,8 @@ paths:
                         - caption: Late night version
                           language: en
                           spotify_track_id: 11dFghVXANMlKmJXsNCbNl
+                          timestamp_start_ms: 45000
+                          timestamp_end_ms: 60000
                           listeners: 200
                           followers: 40
                           link_clicks: 120
@@ -875,6 +880,8 @@ paths:
                         - caption: Daytime version
                           language: en
                           spotify_track_id: 11dFghVXANMlKmJXsNCbNl
+                          timestamp_start_ms: 0
+                          timestamp_end_ms: 15000
                           listeners: 200
                           followers: 40
                           link_clicks: 160
@@ -2941,6 +2948,8 @@ components:
           caption,
           language,
           spotify_track_id,
+          timestamp_start_ms,
+          timestamp_end_ms,
           listeners,
           followers,
           link_clicks,
@@ -2958,6 +2967,18 @@ components:
           nullable: true
         spotify_track_id:
           type: string
+        timestamp_start_ms:
+          type: integer
+          nullable: true
+          description: |
+            Start of the audio cut in milliseconds from the beginning of the
+            track. Null when the cut is not a ready sound for this organization.
+        timestamp_end_ms:
+          type: integer
+          nullable: true
+          description: |
+            End of the audio cut in milliseconds. Null when the cut is not a
+            ready sound for this organization.
         listeners:
           type: integer
           nullable: true
