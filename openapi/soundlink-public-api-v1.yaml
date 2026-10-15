@@ -898,7 +898,7 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
-  /v1/campaigns/{campaignId}/metrics/creatives/daily:
+  /v1/campaigns/{campaignId}/metrics/creative-daily:
     get:
       operationId: getCampaignCreativeDailyMetrics
       summary: Campaign creative daily metrics
