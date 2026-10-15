@@ -903,18 +903,18 @@ paths:
       operationId: getCampaignCreativeDailyMetrics
       summary: Campaign creative daily metrics
       description: |
-        Daily creative performance for one campaign. One row per day and
-        current Meta ad creative. `spend_media` is Meta media spend. `cpf` is
-        `spend_media / followers` for that row, and null when followers is zero.
-        For a longer window, divide the summed spend by the summed followers.
-        Do not average the daily `cpf` values.
+        One row per day and current Meta ad creative: `spend_media`,
+        `impressions`, `followers`, and `cpf`. `spend_media` excludes fees.
+        `cpf` is `spend_media / followers` for that row, and null when
+        followers is zero. Across days, divide summed spend by summed
+        followers.
 
-        The grain is the Meta ad creative, not the background-video groups from
-        the lifetime creatives endpoint. That endpoint still rejects dates.
+        Separate from the lifetime creatives endpoint, which groups by
+        background video and rejects dates. Each ad is counted once, from its
+        latest smartlink row.
 
-        `startDate` and `endDate` are optional and inclusive. Omit both to
-        return every day that has rows. Results are ordered by date, then
-        creative id, and paginated.
+        `startDate` and `endDate` are optional and inclusive. Omit both for
+        every day that has rows. Ordered by date, then creative id.
 
         Requires the `metrics:read` scope. Accepts API key or OAuth Bearer.
       tags: [Metrics]

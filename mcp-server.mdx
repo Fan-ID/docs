@@ -138,6 +138,7 @@ Then ask for a campaign list. If a tool fails with an authorization error, the k
 | `get_campaign_tiers`                      | `GET /v1/campaigns/{campaignId}/tiers`                       | `campaigns:read`     |
 | `get_campaign_metrics_overview`           | `GET /v1/campaigns/{campaignId}/metrics/overview`            | `metrics:read`       |
 | `get_campaign_metrics_creatives`          | `GET /v1/campaigns/{campaignId}/metrics/creatives`           | `metrics:read`       |
+| `get_campaign_metrics_creative_daily`     | `GET /v1/campaigns/{campaignId}/metrics/creative-daily`      | `metrics:read`       |
 | `get_campaign_metrics_breakdown`          | `GET /v1/campaigns/{campaignId}/metrics/breakdown`           | `metrics:read`       |
 | `get_campaign_metrics_engagement`         | `GET /v1/campaigns/{campaignId}/metrics/engagement`          | `metrics:read`       |
 | `get_campaign_metrics_breakdown_export`   | `GET /v1/campaigns/{campaignId}/metrics/breakdown/export`    | `metrics:read`       |
@@ -152,7 +153,7 @@ Then ask for a campaign list. If a tool fails with an authorization error, the k
 | `get_strategies`                          | `GET /v1/strategies`                                         | `campaigns:read`     |
 | `get_wallet`                              | `GET /v1/wallet`                                             | `wallet:read`        |
 
-`get_campaign_tiers` only succeeds for a wallet campaign. Engagement tools take an optional `engagementContext` of `catalog` or `playlist`. Exports default to the last 90 days and return JSONL, not the JSON envelope. `get_soundlinks` does not include soundlinks created for a campaign.
+`get_campaign_tiers` only succeeds for a wallet campaign. `get_campaign_metrics_creative_daily` is one row per day and Meta ad creative, not the lifetime groups from `get_campaign_metrics_creatives`. Engagement tools take an optional `engagementContext` of `catalog` or `playlist`. Exports default to the last 90 days and return JSONL, not the JSON envelope. `get_soundlinks` does not include soundlinks created for a campaign.
 
 Field definitions: [Campaign metrics](/understanding-metrics), [Soundlink metrics](/soundlink-metrics), [JSONL exports](/jsonl-exports).
 
