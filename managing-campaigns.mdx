@@ -219,6 +219,21 @@ These statuses accept stop and return `stopped`: `active`, `inactive`, `restarti
 
 Stopped campaigns cannot be restarted via the API — create a new campaign instead.
 
+## Activity
+
+`GET /v1/campaigns/{campaignId}/activity`
+
+Requires `campaigns:read`. Returns a page of creative adds, budget changes, tier updates, country updates, playlist redirect heals, and auto-renew changes. Each item has `event_type`, `timestamp`, and `summary`.
+
+The list does not include campaign creation or pausing an old creative. Fee amounts, Stripe ids, and internal file URIs are left out. Apply any waiting rule, such as 72 hours after a change, on your side. This endpoint does not block the next change.
+
+`startDate` keeps events at or after that date (`YYYY-MM-DD`, from 00:00:00Z) or ISO-8601 timestamp. Omit it to page the full history. `page` defaults to 1. `pageSize` defaults to 20 and maxes at 100.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/activity?startDate=2026-03-01T00:00:00Z' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
 ## Common management errors
 
 | HTTP | Code                       | When                                                                |
