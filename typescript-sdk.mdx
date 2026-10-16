@@ -255,9 +255,12 @@ Requires `campaigns:read`.
 | -------------------------------------- | ------------------------ | --------------------------------- |
 | `soundlink.campaigns.list(params?)`    | `GET /v1/campaigns`      | `ApiResponse<CampaignListData>`   |
 | `soundlink.campaigns.get(campaignId)`  | `GET /v1/campaigns/{id}` | `ApiResponse<CampaignDetail>`     |
+| `soundlink.campaigns.activity(id, params?)` | `GET .../activity` | `ApiResponse<CampaignActivityData>` |
 | `soundlink.campaigns.listAll(params?)` | Paginated `list`         | `AsyncGenerator<CampaignSummary>` |
 
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt` \| `status`), `sortOrder` (`asc` \| `desc`).
+
+`activity` is a page of creative adds, budget changes, and other campaign events. `startDate` is `YYYY-MM-DD` (from 00:00:00Z) or an ISO-8601 timestamp. Omit it for the full history. `page` defaults to 1. `pageSize` defaults to 20 and maxes at **100**. See [Activity](/managing-campaigns#activity).
 
 ### Campaigns (write)
 
@@ -302,6 +305,8 @@ Requires `metrics:read`.
 | Method                                                     | REST endpoint                       | Returns                                        |
 | ---------------------------------------------------------- | ----------------------------------- | ---------------------------------------------- |
 | `soundlink.metrics.overview(id, params?)`                  | `GET .../metrics/overview`          | `ApiResponse<MetricsOverview>`                 |
+| `soundlink.metrics.creatives(id)`                          | `GET .../metrics/creatives`         | `ApiResponse<CreativeMetrics>`                 |
+| `soundlink.metrics.creativeDaily(id, params?)`             | `GET .../metrics/creative-daily`    | `ApiResponse<CreativeDailyData>`               |
 | `soundlink.metrics.breakdown.list(id, params?)`            | `GET .../metrics/breakdown`         | `ApiResponse<BreakdownListData>`               |
 | `soundlink.metrics.breakdown.export(id, params?)`          | `GET .../metrics/breakdown/export`  | `ApiResponse<JsonlStream<BreakdownRow>>`       |
 | `soundlink.metrics.breakdown.export.collect(id, params?)`  | Same export route                   | `ApiResponse<ExportCollection<BreakdownRow>>`  |
@@ -309,6 +314,10 @@ Requires `metrics:read`.
 | `soundlink.metrics.engagement.export.collect(id, params?)` | Same export route                   | `ApiResponse<ExportCollection<EngagementRow>>` |
 
 Date params use inclusive `YYYY-MM-DD`. Export windows are capped at **90 days** per request. Breakdown list `pageSize` max is **500**. Paginated campaign engagement (`GET .../metrics/engagement`) is not in the SDK — use the HTTP path in [Campaign metrics](/understanding-metrics).
+
+`creatives` is a lifetime snapshot grouped by background video. Each child has the audio cut as `timestamp_start_ms` and `timestamp_end_ms` (both null when the cut is not a ready sound). It rejects dates.
+
+`creativeDaily` is one row per day and Meta ad creative: `spend_media`, `impressions`, `followers`, and `cpf`. `cpf` is null when followers is zero. `pageSize` defaults to 50 and maxes at **500**. Omit both dates for every day that has rows. See [Creative daily](/understanding-metrics#creative-daily).
 
 ## Types
 
@@ -354,10 +363,10 @@ import type {
 | Group          | Types                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------ |
 | **Envelope**   | `ApiResponse<T>`, `ApiError`, `ApiMeta`, `PublicApiErrorCode`                                    |
-| **Campaigns**  | `CampaignSummary`, `CampaignDetail`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
+| **Campaigns**  | `CampaignSummary`, `CampaignDetail`, `CampaignActivityItem`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
 | **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkBreakdownRow`, `SoundlinkEngagementRow` |
 | **Strategies** | `StrategiesCatalogData`, `StrategyCatalogItem`, `StrategyType`                                  |
-| **Campaign metrics** | `MetricsOverview`, `BreakdownRow`, `BreakdownListData`, `EngagementRow`                          |
+| **Campaign metrics** | `MetricsOverview`, `CreativeMetrics`, `CreativeDailyRow`, `BreakdownRow`, `BreakdownListData`, `EngagementRow` |
 | **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkBreakdownListParams`, `SoundlinkEngagementListParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
 | **Exports**    | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
 | **Client**     | `Soundlink`, `SoundlinkClientOptions`                                                            |
