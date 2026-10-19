@@ -54,7 +54,7 @@ The soundlink is `active` immediately. Use `data.url` as the public landing page
 | `youtubeMusicUrl` | No | HTTPS YouTube Music song or playlist URL. See [YouTube Music URLs](#youtube-music-urls) |
 | `autoFollow` | No | Default `false`. When `true`, fans who connect Spotify from the landing page are asked to follow the track artist, or the playlist itself |
 | `artistIdFollow` | No | Spotify artist ID for auto-follow on **track** links. Kept even when `autoFollow` is `false`. Ignored for playlists. For multi-artist tracks, pass the artist that should be followed |
-| `attributionEnabled` | No | Default `true`. Omit or send `true` to keep Spotify login. `false` skips login and only tracks the landing-page click. The organization must be allowed to turn attribution off. Cannot be combined with `autoFollow: true` |
+| `attributionEnabled` | No | Default `true`. Omit or send `true` to keep Spotify login. `false` skips login and only tracks the landing-page click. Cannot be combined with `autoFollow: true` |
 | `metaPixelId` | No | Meta pixel ID. Must be sent together with `metaConversionAccessToken` |
 | `metaConversionAccessToken` | No | Meta Conversions API token. Write-only: accepted on create, never returned. Must be sent together with `metaPixelId` |
 
@@ -145,7 +145,6 @@ The `Idempotency-Key` header is **required** on `POST /v1/soundlinks`.
 | ---- | ---- | ---- |
 | 400 | `invalid_request` | Missing/malformed field, invalid `appleMusicUrl` or `youtubeMusicUrl`, unpaired Meta pixel fields, `attributionEnabled: false` with `autoFollow: true`, or missing `Idempotency-Key` |
 | 403 | `insufficient_scope` | Credential missing `soundlinks:write` |
-| 403 | `attribution_not_enabled` | Organization is not allowed to create a soundlink with attribution off |
 | 409 | `idempotency_key_conflict` | Key reused with a different body, or still processing |
 | 422 | `invalid_spotify_url` | Malformed Spotify URL, unsupported type, or resource does not exist |
 
