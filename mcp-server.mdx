@@ -12,9 +12,11 @@ https://api.getsoundlink.com/mcp
 
 ## 1. Create a credential
 
-Pick one. An API key is enough when the client can send a header. OAuth is for clients that open a browser and ask for a client id and secret.
+- **API key** — when the client can send `Authorization: Bearer sk_...` (recommended for Cursor).
+- **OAuth app** — when the client asks for a client id and secret.
+- **Claude and Codex** — paste the MCP URL and complete the browser login. Those hosts use CIMD; you do not create an OAuth app.
 
-Soundlink does not support dynamic client registration. You create the credential in the app, then paste it into the client.
+Soundlink does not support RFC 7591 dynamic client registration. Clients that try to register at runtime still need an API key or an OAuth app.
 
 <CardGroup cols={2}>
   <Card
@@ -31,7 +33,7 @@ Soundlink does not support dynamic client registration. You create the credentia
     href="https://getsoundlink.com/settings/oauth-apps"
   >
     **Settings → Developer → OAuth apps**. Same shortcut. Use this when the
-    client runs an OAuth login.
+    client asks for a client id and secret.
   </Card>
 </CardGroup>
 
@@ -116,7 +118,7 @@ In Claude, open **Settings → Connectors → Add custom connector** and paste:
 https://api.getsoundlink.com/mcp
 ```
 
-Complete the OAuth login with the client id and secret from the app you created.
+Complete the OAuth login in the browser. No OAuth app needed — Claude uses CIMD.
 
 ### Other clients
 
