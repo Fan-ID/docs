@@ -160,7 +160,7 @@ if (createError || !created) {
 }
 
 const { data: detail } = await soundlink.soundlinks.get("V1StGXR8_Z5jdHi6B-myT");
-// detail?.appleMusicUrl, detail?.youtubeMusicUrl, detail?.autoFollow, detail?.metaPixelId, detail?.tiktokPixelId
+// detail?.appleMusicUrl, detail?.youtubeMusicUrl, detail?.attributionEnabled, detail?.autoFollow, detail?.metaPixelId, detail?.tiktokPixelId
 
 const { data: overview } = await soundlink.soundlinks.metricsOverview(
   "V1StGXR8_Z5jdHi6B-myT",
