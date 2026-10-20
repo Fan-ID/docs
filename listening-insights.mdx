@@ -1,0 +1,44 @@
+---
+title: Listening insights
+description: Which listening-insight endpoint to call, and how long to wait.
+---
+
+Listening insights answer three questions about people who connected Spotify through a campaign or soundlink. Pick the `insight` that matches the question. The response window is the one stored on the listening graph. Do not send `startDate` or `endDate`.
+
+These calls often take 30–50 seconds. Set the client timeout to at least **120 seconds**.
+
+| Question | `insight` | Path |
+| --- | --- | --- |
+| What else do these listeners stream? | `other-artists` | Campaign or soundlink |
+| Did playlist listeners go on to the artist's catalog? | `catalog-dig-in` | Playlist campaigns and soundlinks. Track targets may return `artists: []`. |
+| How do streams split across promoted, playlist, and catalog? | `stream-split` | `track` returns attributed contexts such as `promoted` and `artist_catalog`. `playlist` returns `playlist` then `artist_catalog`. |
+
+A context row is left out when both `listeners` and `streams` are 0.
+
+## Campaign
+
+Requires `metrics:read`.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/listening-insights/other-artists' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  --max-time 120
+```
+
+A campaign outside the organization returns `404 campaign_not_found`. An owned campaign that is not in the listening graph returns `404 not_in_listening_graph`.
+
+## Soundlink
+
+Requires `soundlinks:read`.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/soundlinks/SOUNDLINK_ID/listening-insights/catalog-dig-in' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  --max-time 120
+```
+
+A soundlink created for a campaign is allowed on this path when your organization owns it, even though [list and detail](/soundlinks) hide campaign soundlinks. An unknown soundlink returns `404 not_found`. An owned soundlink that is not in the listening graph returns `404 not_in_listening_graph`.
+
+## Next
+
+[Campaign metrics](/understanding-metrics) · [Soundlink metrics](/soundlink-metrics) · [API Reference](/api-reference)

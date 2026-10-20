@@ -146,6 +146,14 @@ Your organization is determined only from the API key (or OAuth token). You neve
 
 **How do I get one row per day without country?** Sum that day's breakdown rows across `country_code`, or store the country rows and aggregate in your warehouse.
 
+## Listening insights
+
+`GET /v1/soundlinks/{soundlinkId}/listening-insights/{insight}`
+
+Same three questions as campaign listening insights, for a soundlink the organization owns. A soundlink created for a campaign is allowed here even when it is absent from `GET /v1/soundlinks/{soundlinkId}`. Requires `soundlinks:read`. Use a client timeout of at least 120 seconds.
+
+See [Listening insights](/listening-insights).
+
 ## Next
 
 [Warehouse connector](/warehouse-connector) · [Syncing soundlinks](/soundlinks) · [JSONL exports](/jsonl-exports) · [Campaign metrics](/understanding-metrics) · [API Reference](/api-reference)
