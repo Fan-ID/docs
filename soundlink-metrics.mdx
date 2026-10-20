@@ -1,9 +1,9 @@
 ---
 title: Soundlink metrics
-description: When to use soundlink overview, country breakdown, and engagement endpoints.
+description: When to use soundlink overview, country breakdown, engagement, and retention endpoints.
 ---
 
-Three layers of soundlink performance for soundlinks **without** a campaign. Pick the endpoint that matches how you store and report the data.
+Four layers of soundlink performance for soundlinks **without** a campaign. Pick the endpoint that matches how you store and report the data.
 
 For paid campaigns, see [Campaign metrics](/understanding-metrics).
 
@@ -16,10 +16,12 @@ Soundlink metrics omit spend, fees, and efficiency fields (`cpl`, `cpf`) — ads
 | Period totals     | `/metrics/overview`                 | **Overview**                 |
 | Per-day × country | `/metrics/breakdown` (+ `/export`)  | **Countries**                |
 | Per-day × track   | `/metrics/engagement` (+ `/export`) | Catalog / playlist spillover |
+| Per-cohort-date   | `/metrics/retention`                | —                            |
 
 `startDate` and `endDate` are inclusive (`YYYY-MM-DD`).
 
 - **Overview** and paginated **breakdown:** default to the soundlink creation date → today (no 90-day cap).
+- **Retention:** filters by cohort date. If you omit both dates, a recent window ending today is used. A range that is too wide returns `400 invalid_query_parameter`.
 - **Engagement** (paginated + export) and **breakdown export:** default to the last 90 days ending today; responses are capped at **90 days** per request. Page longer histories in 90-day slices. See [JSONL exports](/jsonl-exports).
 
 ## Overview
@@ -94,6 +96,33 @@ curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/engag
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
+## Retention (by cohort)
+
+`GET /v1/soundlinks/{soundlinkId}/metrics/retention`
+
+One row per cohort date (`soundlink_cohort_retention_daily` v1.0). Primary key:
+
+`(provider, account_id, cohort_date, soundlink_id)`
+
+The cohort date is the UTC date a listener first played through the soundlink. Each listener belongs to one cohort: their earliest first play across all countries. Dates with no first plays have no row. All rows come back in one response, with no pagination.
+
+| Column                | Meaning                                                                                  |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| `cohort_size`         | Unique listeners whose first play was on `cohort_date`.                                  |
+| `returned_on_day_N`   | Cohort listeners who played again on exactly day N (1–7) after their first play.         |
+| `retention_by_day_N`  | Share of `cohort_size` who played again on any day from 1 to N (end-day, cumulative).    |
+
+A day-N value is `null` until day N has passed for that cohort date. It is final after that.
+
+`retention_by_day_N` never decreases within a row, because each listener counts once. It can't tell you whether day-3 returners also played on day 2. Use `returned_on_day_N` for day-by-day behavior.
+
+`soundlink_target_isrc` is currently always `null`.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/retention?startDate=2026-08-01&endDate=2026-08-31' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
 ## Data mutability
 
 Rows for a given `report_date` can change for up to **7 days** after the date closes (delayed Spotify events). Re-fetch and re-ingest on the primary key — it is idempotent.
@@ -107,6 +136,7 @@ On breakdown and engagement rows, **do not sum `listeners` across days** — the
 1. **Daily:** [list soundlinks](/soundlinks) — upsert catalog
 2. **Daily:** overview and/or breakdown (paginated or export)
 3. **Optional:** engagement (paginated or export) for track-level spillover
+4. **Optional:** retention for cohort return rates
 
 Your organization is determined only from the API key (or OAuth token). You never pass an organization id in query params. Warehouse rows use `account_id` for the same organization UUID that catalog JSON calls `organizationId`. Join on `soundlink_id`.
 

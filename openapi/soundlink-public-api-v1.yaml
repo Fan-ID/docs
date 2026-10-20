@@ -39,7 +39,7 @@ info:
     | Metrics reads (overview, breakdown, exports) | `metrics:read` | API key (Bearer) or OAuth Bearer |
     | Campaign writes (create, stop, budget, tier updates) | `campaigns:write` | API key (Bearer) or OAuth Bearer |
     | Video import / import status | `videos:write` | API key (Bearer) or OAuth Bearer |
-    | Soundlink reads (list, detail, metrics overview/breakdown/engagement, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
+    | Soundlink reads (list, detail, metrics overview/breakdown/engagement/retention, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
     | Soundlink writes (create, archive, test events) | `soundlinks:write` | API key (Bearer) or OAuth Bearer |
     | Wallet read (`GET /v1/wallet`) | `wallet:read` | API key (Bearer) or OAuth Bearer |
 
@@ -2080,6 +2080,61 @@ paths:
               example: |
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-08-01","report_date_timezone":"UTC","exported_at":"2026-08-28T03:00:00Z","soundlink_id":"V1StGXR8_Z5jdHi6B-myT","soundlink_name":"Midnight Drive","soundlink_target_type":"track","soundlink_target_isrc":"DEXW62500259","soundlink_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","soundlink_target_playlist_id":null,"engagement_context":"catalog","country_code":"US","engaged_track_isrc":"DEXW62500001","engaged_spotify_track_id":"4cOdK2wGLETKBW3PvgPWqT","engaged_track_name":"Till The Sunrise","playlist_position":null,"new_listeners":42,"returning_listeners":18,"listeners":60,"new_listener_streams":58,"returning_listener_streams":31,"streams":89,"spl":1.48}
                 {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-08-01","report_date_timezone":"UTC","exported_at":"2026-08-28T03:00:00Z","soundlink_id":"V1StGXR8_Z5jdHi6B-myT","soundlink_name":"Midnight Drive","soundlink_target_type":"playlist","soundlink_target_isrc":null,"soundlink_target_spotify_track_id":null,"soundlink_target_playlist_id":"37i9dQZF1Epwit2GR54N9P","engagement_context":"playlist","country_code":"DE","engaged_track_isrc":"DEXW62500001","engaged_spotify_track_id":"4cOdK2wGLETKBW3PvgPWqT","engaged_track_name":"Till The Sunrise","playlist_position":14,"new_listeners":19,"returning_listeners":7,"listeners":26,"new_listener_streams":24,"returning_listener_streams":11,"streams":35,"spl":1.35}
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/soundlinks/{soundlinkId}/metrics/retention:
+    get:
+      operationId: getSoundlinkRetention
+      summary: Soundlink cohort retention
+      description: |
+        Cohort retention for a soundlink: one row per cohort date that has first
+        plays (dates with no first plays have no row), where the cohort date is
+        the UTC date listeners first played via the soundlink. A listener's
+        cohort date is their earliest first play across all countries.
+        Conforms to the `soundlink_cohort_retention_daily` v1.0 schema. All rows
+        are returned in `data.items` (one per cohort date), so there is no
+        pagination.
+
+        **Retention definitions:**
+        - `returned_on_day_N`: listeners from the cohort who played again on exactly day N
+          after their first play.
+        - `retention_by_day_N`: share of the cohort (`cohort_size`) who played again on any
+          day from 1 to N (end-day, cumulative). Each listener is counted once, so the
+          by-day rate never decreases within a row.
+        - A day-N value is `null` until day N has passed for that cohort date.
+
+        **Known limitation:** end-day rates are cumulative per listener, so whether
+        day-3 returners also returned on day 2 is not recoverable from the end-day
+        columns. Use the exact-day `returned_on_day_N` columns for day-by-day behaviour.
+
+        `soundlink_target_isrc` is currently always `null`.
+
+        **Date range:** `startDate` / `endDate` filter the cohort date (both inclusive).
+        If you omit both, a recent window ending today is used. A range that is too wide
+        returns `400 invalid_query_parameter`.
+
+        Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
+      tags: [Soundlinks]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: soundlinks:read
+      parameters:
+        - $ref: '#/components/parameters/soundlinkId'
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Cohort retention rows (`soundlink_cohort_retention_daily` schema), sorted by `cohort_date` ascending.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SoundlinkCohortRetentionResponse'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -4212,6 +4267,188 @@ components:
         spl:
           type: number
           description: Streams per listener (`streams / listeners`). Zero if `listeners` is zero.
+
+    SoundlinkCohortRetentionResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          required: [schemaVersion, items]
+          properties:
+            schemaVersion:
+              type: string
+              description: Version of the `soundlink_cohort_retention_daily` row schema. Pin your ingest pipeline to this.
+              example: "1.0"
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/SoundlinkCohortRetentionDailyRow'
+        meta:
+          $ref: '#/components/schemas/Meta'
+
+    SoundlinkCohortRetentionDailyRow:
+      type: object
+      description: |
+        One row of the `soundlink_cohort_retention_daily` v1.0 schema.
+        Primary key: `(provider, account_id, cohort_date, soundlink_id)`.
+        Rows are idempotent. Re-ingesting on the primary key is safe.
+        A day-N value is final once day N has passed for the cohort date.
+        Until then it is `null`.
+      required:
+        - provider
+        - account_id
+        - schema_version
+        - cohort_date
+        - cohort_date_timezone
+        - exported_at
+        - soundlink_id
+        - soundlink_name
+        - soundlink_target_type
+        - cohort_size
+        - returned_on_day_1
+        - retention_by_day_1
+        - returned_on_day_2
+        - retention_by_day_2
+        - returned_on_day_3
+        - retention_by_day_3
+        - returned_on_day_4
+        - retention_by_day_4
+        - returned_on_day_5
+        - retention_by_day_5
+        - returned_on_day_6
+        - retention_by_day_6
+        - returned_on_day_7
+        - retention_by_day_7
+      properties:
+        provider:
+          type: string
+          enum: [soundlink]
+          description: Always `soundlink`. Identifies the data provider for multi-source warehouses.
+        account_id:
+          type: string
+          description: Soundlink organization ID (UUID).
+        schema_version:
+          type: string
+          description: Schema version string. Pin your ingest pipeline to this value.
+          example: "1.0"
+        cohort_date:
+          type: string
+          format: date
+          description: UTC calendar date (`YYYY-MM-DD`) on which this cohort's listeners first played via the soundlink.
+        cohort_date_timezone:
+          type: string
+          enum: [UTC]
+          description: Always `UTC`.
+        exported_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp when this row was generated.
+        soundlink_id:
+          type: string
+          description: Unique ID of this soundlink.
+          example: V1StGXR8_Z5jdHi6B-myT
+        soundlink_name:
+          type: string
+          description: Human-readable soundlink name.
+        soundlink_target_type:
+          type: string
+          nullable: true
+          enum: [track, playlist]
+          description: Whether this soundlink promotes a track or playlist. `null` if undetermined.
+        soundlink_target_isrc:
+          type: string
+          nullable: true
+          description: ISRC of the promoted track. Currently always `null`.
+        soundlink_target_spotify_track_id:
+          type: string
+          nullable: true
+          description: Spotify track ID of the promoted track. Populated when `soundlink_target_type = track`; otherwise `null`.
+        soundlink_target_playlist_id:
+          type: string
+          nullable: true
+          description: Spotify playlist ID. Populated when `soundlink_target_type = playlist`; otherwise `null`.
+        cohort_size:
+          type: integer
+          minimum: 0
+          description: Unique listeners whose first play via this soundlink was on `cohort_date`.
+        returned_on_day_1:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Cohort listeners who played again on exactly day 1 after their first play. `null` until day 1 has passed.
+        retention_by_day_1:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 1
+          description: Share of `cohort_size` who played again on any day from 1 to 1 (end-day, cumulative), rounded to 4 decimals. `null` until day 1 has passed.
+        returned_on_day_2:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Cohort listeners who played again on exactly day 2 after their first play. `null` until day 2 has passed.
+        retention_by_day_2:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 1
+          description: Share of `cohort_size` who played again on any day from 1 to 2 (end-day, cumulative), rounded to 4 decimals. `null` until day 2 has passed.
+        returned_on_day_3:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Cohort listeners who played again on exactly day 3 after their first play. `null` until day 3 has passed.
+        retention_by_day_3:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 1
+          description: Share of `cohort_size` who played again on any day from 1 to 3 (end-day, cumulative), rounded to 4 decimals. `null` until day 3 has passed.
+        returned_on_day_4:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Cohort listeners who played again on exactly day 4 after their first play. `null` until day 4 has passed.
+        retention_by_day_4:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 1
+          description: Share of `cohort_size` who played again on any day from 1 to 4 (end-day, cumulative), rounded to 4 decimals. `null` until day 4 has passed.
+        returned_on_day_5:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Cohort listeners who played again on exactly day 5 after their first play. `null` until day 5 has passed.
+        retention_by_day_5:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 1
+          description: Share of `cohort_size` who played again on any day from 1 to 5 (end-day, cumulative), rounded to 4 decimals. `null` until day 5 has passed.
+        returned_on_day_6:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Cohort listeners who played again on exactly day 6 after their first play. `null` until day 6 has passed.
+        retention_by_day_6:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 1
+          description: Share of `cohort_size` who played again on any day from 1 to 6 (end-day, cumulative), rounded to 4 decimals. `null` until day 6 has passed.
+        returned_on_day_7:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Cohort listeners who played again on exactly day 7 after their first play. `null` until day 7 has passed.
+        retention_by_day_7:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 1
+          description: Share of `cohort_size` who played again on any day from 1 to 7 (end-day, cumulative), rounded to 4 decimals. `null` until day 7 has passed.
 
     # --- Videos ---
 
