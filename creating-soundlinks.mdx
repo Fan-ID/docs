@@ -66,7 +66,7 @@ Album, artist, `spotify:` URIs, and a track or playlist that does not exist on S
 
 ## Apple Music URLs
 
-Optional `appleMusicUrl` adds an Apple Music button on the landing page. The API checks the URL shape only. It does not look the link up in the Apple catalog.
+Optional `appleMusicUrl` adds an Apple Music button on the landing page. Songs and catalog playlists are checked in that storefront. Missing content returns `400 invalid_request`. If Apple is unavailable, create still succeeds. Library playlists (`pl.u-`) are format-checked only.
 
 Send an `https://music.apple.com` URL with a two-letter storefront:
 
@@ -89,7 +89,7 @@ A plain album link (no `?i=`), an artist link, `http`, or any other host returns
 
 ## YouTube Music URLs
 
-Optional `youtubeMusicUrl` adds a YouTube Music button on the landing page. The API checks the URL shape only. It does not look the link up in the YouTube catalog.
+Optional `youtubeMusicUrl` adds a YouTube Music button on the landing page. A song or playlist that does not exist on YouTube returns `400 invalid_request`. If YouTube is unavailable, create still succeeds.
 
 Send a song or playlist URL:
 

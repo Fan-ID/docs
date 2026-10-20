@@ -1503,6 +1503,7 @@ paths:
                   spotifyUrl: "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl"
                   autoFollow: true
                   artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
+                  attributionEnabled: true
                   metaPixelId: "1234567890123456"
                   metaConversionAccessToken: "EAAB..."
               playlist:
@@ -1529,6 +1530,7 @@ paths:
                   createdAt: "2026-04-01T10:00:00Z"
                   autoFollow: true
                   artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
+                  attributionEnabled: true
                   metaPixelId: "1234567890123456"
                   tiktokPixelId: null
                   appleMusicUrl: null
@@ -1578,6 +1580,7 @@ paths:
                   createdAt: "2026-04-01T10:00:00Z"
                   autoFollow: true
                   artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
+                  attributionEnabled: true
                   metaPixelId: "1234567890123456"
                   tiktokPixelId: null
                   appleMusicUrl: null
@@ -1626,6 +1629,7 @@ paths:
                   createdAt: "2026-04-01T10:00:00Z"
                   autoFollow: true
                   artistIdFollow: "4gzpq5DPGxSnKTe4SA8HAU"
+                  attributionEnabled: true
                   metaPixelId: "1234567890123456"
                   tiktokPixelId: null
                   appleMusicUrl: null
@@ -3817,9 +3821,11 @@ components:
             (`/song/{slug}/{id}`), a catalog playlist (`pl.`), a library
             playlist (`pl.u-`), or an album share-sheet link with `?i={songId}`
             (stored as the canonical song URL). Host must be `music.apple.com`
-            with a two-letter storefront. URL shape is checked only; the
-            Apple catalog is not looked up. Omit to create a Spotify-only
-            soundlink.
+            with a two-letter storefront. Songs and catalog playlists are
+            checked in that storefront. Missing content returns
+            `400 invalid_request`. If Apple is unavailable, create still
+            succeeds. Library playlists are format-checked only. Omit to
+            leave Apple Music unset.
           example: https://music.apple.com/us/song/anti-hero/1645937493
         youtubeMusicUrl:
           type: string
@@ -3828,9 +3834,18 @@ components:
             Optional HTTPS YouTube Music URL. Accepted shapes: a song
             (`music.youtube.com/watch?v=…`, `youtube.com/watch?v=…`, or
             `youtu.be/…`) or a playlist (`…/playlist?list=…`). Shorts,
-            live, channel, and browse links are rejected. URL shape is
-            checked only. Omit to leave YouTube Music unset.
+            live, channel, and browse links are rejected. A song or
+            playlist that does not exist returns `400 invalid_request`.
+            If YouTube is unavailable, create still succeeds. Omit to leave
+            YouTube Music unset.
           example: https://music.youtube.com/watch?v=dQw4w9WgXcQ
+        attributionEnabled:
+          type: boolean
+          default: true
+          description: |
+            When false, the landing page skips Spotify login and only tracks
+            the landing-page click. Omit or send true to keep Spotify login.
+            Cannot be combined with `autoFollow: true`.
 
     SoundlinkDetail:
       allOf:
@@ -3843,6 +3858,7 @@ components:
             - tiktokPixelId
             - appleMusicUrl
             - youtubeMusicUrl
+            - attributionEnabled
           properties:
             autoFollow:
               type: boolean
@@ -3876,6 +3892,12 @@ components:
                 YouTube Music URL stored on this soundlink. `null` if not set.
                 Input hosts such as `youtu.be` are returned as the canonical
                 `music.youtube.com` song or playlist URL.
+            attributionEnabled:
+              type: boolean
+              description: |
+                Whether this soundlink keeps Spotify attribution. `false`
+                means the landing page skips Spotify login and only tracks
+                the landing-page click.
 
     SoundlinkDetailResponse:
       type: object

@@ -62,7 +62,7 @@ Returned by `POST /v1/soundlinks` (`soundlinks:write`). See [Creating soundlinks
 
 | HTTP | Code                           | When                                                            |
 | ---- | ------------------------------ | --------------------------------------------------------------- |
-| 400  | `invalid_request`              | Missing/malformed field, unpaired Meta pixel fields, or missing `Idempotency-Key` |
+| 400  | `invalid_request`              | Missing/malformed field, invalid `appleMusicUrl` or `youtubeMusicUrl`, unpaired Meta pixel fields, `attributionEnabled: false` with `autoFollow: true`, or missing `Idempotency-Key` |
 | 409  | `idempotency_key_conflict`     | `Idempotency-Key` reused with a different body, or still processing |
 | 422  | `invalid_spotify_url`          | Malformed Spotify URL, or track/playlist does not exist         |
 
