@@ -296,7 +296,7 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked). Br
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt`), `sortOrder` (`asc` \| `desc`).
 Breakdown and engagement list `pageSize` max is **500**. Export windows are capped at **90 days** per request.
 
-`create` requires `soundlinks:write` and `{ idempotencyKey }`. Optional `appleMusicUrl` and `youtubeMusicUrl` are HTTPS song or playlist URLs. The API checks URL shape only; an Apple album share-sheet link (`?i=`) is stored as the canonical song URL. Detail returns each as `string` or `null`. List items do not include them. `delete` archives the soundlink and does not send `Idempotency-Key`. URL rules: [Creating soundlinks](/creating-soundlinks).
+`create` requires `soundlinks:write` and `{ idempotencyKey }`. Optional `appleMusicUrl` and `youtubeMusicUrl` are HTTPS song or playlist URLs. Songs and catalog playlists are checked with the provider; missing content returns `400 invalid_request`. An Apple library playlist is format-checked only, and an Apple album share-sheet link (`?i=`) is stored as the canonical song URL. Optional `attributionEnabled` defaults to `true`; `false` skips Spotify login and cannot be combined with `autoFollow: true`. Detail returns the music URLs and `attributionEnabled`. List items do not include them. `delete` archives the soundlink and does not send `Idempotency-Key`. URL rules: [Creating soundlinks](/creating-soundlinks).
 
 ### Campaign metrics
 
