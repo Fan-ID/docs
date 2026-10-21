@@ -214,7 +214,7 @@ Adds the `email` claim to the `userinfo` response. Unlocks no endpoint of its ow
 | --- | --- |
 | `GET /v1/strategies` | See reference |
 | `GET /v1/campaigns` | Paginated, `createdAt desc` by default. |
-| `GET /v1/campaigns/{campaignId}` | Adds `strategyType`. `404` when not owned. |
+| `GET /v1/campaigns/{campaignId}` | Adds `strategyType` and `nextRenewalAt`. `404` when not owned. |
 | `GET /v1/campaigns/{campaignId}/tiers` | See reference |
 
 ### `wallet:read`
