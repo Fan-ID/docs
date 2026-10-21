@@ -1418,6 +1418,7 @@ paths:
         `startDate` and `endDate` are not accepted. Extra query parameters are ignored.
 
         This request often takes 30–50 seconds. Use a client timeout of at least 120 seconds.
+        The Send button on this page stops around 30 seconds. The API keeps running and can still return 200.
         If the API Gateway deadline elapses, the response is `504`. That body is the gateway error, not the Public API envelope.
 
         - `other-artists` — other artists these listeners streamed, excluding attributed tracks and campaign artists. Top 30.
@@ -2202,6 +2203,7 @@ paths:
         `startDate` and `endDate` are not accepted. Extra query parameters are ignored.
 
         This request often takes 30–50 seconds. Use a client timeout of at least 120 seconds.
+        The Send button on this page stops around 30 seconds. The API keeps running and can still return 200.
         If the API Gateway deadline elapses, the response is `504`. That body is the gateway error, not the Public API envelope.
 
         - `other-artists` — other artists these listeners streamed, excluding attributed tracks and campaign artists. Top 30.
