@@ -2827,6 +2827,14 @@ components:
               description: |
                 Whether this wallet campaign renews at the end of each cycle.
                 `false` when auto-renew is off or the campaign has no stored value.
+            nextRenewalAt:
+              type: string
+              format: date-time
+              nullable: true
+              description: |
+                When the current wallet cycle ends and the campaign renews.
+                ISO-8601. `null` unless the campaign is wallet-funded, auto-renew
+                is on, and a cycle end is stored. Not on the list.
 
     CampaignListResponse:
       type: object

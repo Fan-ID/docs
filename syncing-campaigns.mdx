@@ -35,6 +35,8 @@ Both list and detail rows include `campaignUrl` — a logged-in insights URL (`/
 
 Both list and detail rows include `artistId`, `artistName`, `trackId`, `playlistId`, and `trackName` (nullable). `artistId` is the follow-attribution artist. `trackId` / `playlistId` identify the promoted Spotify target (one is set, the other is `null`).
 
+Detail includes `nextRenewalAt`. It is the current wallet cycle end when auto-renew is on, and `null` otherwise. The list does not include it.
+
 Use the `campaignId` from the list response in all `/metrics/*` paths.
 
 ## Typical sync flow
