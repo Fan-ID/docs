@@ -2833,8 +2833,8 @@ components:
               nullable: true
               description: |
                 When the current wallet cycle ends and the campaign renews.
-                ISO-8601. `null` unless the campaign is wallet-funded, auto-renew
-                is on, and a cycle end is stored. Not on the list.
+                `null` unless the campaign is wallet-funded, auto-renew is on,
+                and a cycle end is stored.
 
     CampaignListResponse:
       type: object
