@@ -36,10 +36,10 @@ info:
     | --- | --- | --- |
     | `GET /v1/ping` | any granted Public API scope | API key (Bearer) or OAuth Bearer |
     | Campaign reads (`GET /v1/strategies`, `GET /v1/campaigns`, campaign detail, tiers) | `campaigns:read` | API key (Bearer) or OAuth Bearer |
-    | Metrics reads (overview, breakdown, exports) | `metrics:read` | API key (Bearer) or OAuth Bearer |
+    | Metrics reads (overview, breakdown, exports, campaign listening insights) | `metrics:read` | API key (Bearer) or OAuth Bearer |
     | Campaign writes (create, stop, budget, tier updates) | `campaigns:write` | API key (Bearer) or OAuth Bearer |
     | Video import / import status | `videos:write` | API key (Bearer) or OAuth Bearer |
-    | Soundlink reads (list, detail, metrics overview/breakdown/engagement/retention, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
+    | Soundlink reads (list, detail, metrics overview/breakdown/engagement/retention, listening insights, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
     | Soundlink writes (create, archive, test events) | `soundlinks:write` | API key (Bearer) or OAuth Bearer |
     | Wallet read (`GET /v1/wallet`) | `wallet:read` | API key (Bearer) or OAuth Bearer |
 
@@ -1408,6 +1408,52 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+  /v1/campaigns/{campaignId}/listening-insights/{insight}:
+    get:
+      operationId: getCampaignListeningInsight
+      summary: Campaign listening insights
+      description: |
+        What listeners who connected through this campaign went on to play.
+        The date window comes from the listening graph (`nodes_smart_link`).
+        `startDate` and `endDate` are not accepted. Extra query parameters are ignored.
+
+        This request often takes 30–50 seconds. Use a client timeout of at least 120 seconds.
+        If the API Gateway deadline elapses, the response is `504`. That body is the gateway error, not the Public API envelope.
+
+        - `other-artists` — other artists these listeners streamed, excluding attributed tracks and campaign artists. Top 30.
+        - `catalog-dig-in` — playlist reach and catalog follow-through per artist. Track campaigns may return `artists: []`.
+        - `stream-split` — `track` campaigns return attributed contexts such as `promoted` and `artist_catalog`. `playlist` campaigns return `playlist` then `artist_catalog`. A context is omitted when listeners and streams are both 0. Any other campaign type returns `200` with `contexts: []`.
+
+        Requires the `metrics:read` scope. Accepts API key or OAuth Bearer.
+        A campaign outside the organization returns `404 campaign_not_found`.
+        An owned campaign with no listening-graph row returns `404 not_in_listening_graph`
+        (`Soundlink not available in listening graph`).
+      tags: [Metrics]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: metrics:read
+      x-recommended-timeout-seconds: 120
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/listeningInsight'
+      responses:
+        '200':
+          description: Listening insight for the campaign soundlink window. The `data.insight` value matches the path.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListeningInsightsResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '504':
+          description: |
+            The API Gateway deadline of 120 seconds elapsed. The body is the gateway error, not the Public API envelope (`data` or `error`, plus `meta`).
+
   /v1/soundlinks:
     get:
       operationId: listSoundlinks
@@ -2146,6 +2192,54 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+  /v1/soundlinks/{soundlinkId}/listening-insights/{insight}:
+    get:
+      operationId: getSoundlinkListeningInsight
+      summary: Soundlink listening insights
+      description: |
+        What listeners who connected through this soundlink went on to play.
+        The date window comes from the listening graph (`nodes_smart_link`).
+        `startDate` and `endDate` are not accepted. Extra query parameters are ignored.
+
+        This request often takes 30–50 seconds. Use a client timeout of at least 120 seconds.
+        If the API Gateway deadline elapses, the response is `504`. That body is the gateway error, not the Public API envelope.
+
+        - `other-artists` — other artists these listeners streamed, excluding attributed tracks and campaign artists. Top 30.
+        - `catalog-dig-in` — playlist reach and catalog follow-through per artist. Track soundlinks may return `artists: []`.
+        - `stream-split` — `track` soundlinks return attributed contexts such as `promoted` and `artist_catalog`. `playlist` soundlinks return `playlist` then `artist_catalog`. A context is omitted when listeners and streams are both 0. Any other campaign type returns `200` with `contexts: []`.
+
+        Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
+        A soundlink created for a campaign is allowed here when the organization owns it,
+        even though `GET /v1/soundlinks/{soundlinkId}` does not return campaign soundlinks.
+        An unknown soundlink, or one owned by another organization, returns `404 not_found`.
+        An owned soundlink with no listening-graph row returns `404 not_in_listening_graph`
+        (`Soundlink not available in listening graph`).
+      tags: [Soundlinks]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: soundlinks:read
+      x-recommended-timeout-seconds: 120
+      parameters:
+        - $ref: '#/components/parameters/soundlinkId'
+        - $ref: '#/components/parameters/listeningInsight'
+      responses:
+        '200':
+          description: Listening insight for the soundlink window. The `data.insight` value matches the path.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListeningInsightsResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '504':
+          description: |
+            The API Gateway deadline of 120 seconds elapsed. The body is the gateway error, not the Public API envelope (`data` or `error`, plus `meta`).
+
   /v1/videos/import:
     post:
       operationId: importVideo
@@ -2271,6 +2365,18 @@ components:
       schema:
         type: string
       description: Campaign identifier (UUID)
+
+    listeningInsight:
+      name: insight
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [other-artists, catalog-dig-in, stream-split]
+      description: |
+        `other-artists` — what else these listeners stream.
+        `catalog-dig-in` — playlist artists and catalog follow-through.
+        `stream-split` — promoted, playlist, and artist-catalog split.
 
     idempotencyKey:
       name: Idempotency-Key
@@ -2424,6 +2530,145 @@ components:
         totalPages:
           type: integer
 
+    ListeningInsightWindow:
+      type: object
+      required: [startDate, endDate]
+      properties:
+        startDate:
+          type: string
+          format: date
+          example: '2026-07-30'
+        endDate:
+          type: string
+          format: date
+          example: '2026-09-29'
+
+    OtherArtistsListeningInsight:
+      type: object
+      required: [soundlinkId, campaignId, insight, window, artists]
+      properties:
+        soundlinkId:
+          type: string
+        campaignId:
+          type: string
+          nullable: true
+        insight:
+          type: string
+          enum: [other-artists]
+        window:
+          $ref: '#/components/schemas/ListeningInsightWindow'
+        artists:
+          type: array
+          maxItems: 30
+          items:
+            type: object
+            required: [artist, listeners, streams]
+            properties:
+              artist:
+                type: string
+                description: Lowercased, trimmed artist name.
+              listeners:
+                type: number
+              streams:
+                type: number
+
+    CatalogDigInListeningInsight:
+      type: object
+      required: [soundlinkId, campaignId, insight, window, artists]
+      properties:
+        soundlinkId:
+          type: string
+        campaignId:
+          type: string
+          nullable: true
+        insight:
+          type: string
+          enum: [catalog-dig-in]
+        window:
+          $ref: '#/components/schemas/ListeningInsightWindow'
+        artists:
+          type: array
+          maxItems: 30
+          items:
+            type: object
+            required:
+              - artist
+              - playlistListeners
+              - playlistStreams
+              - catalogListeners
+              - catalogStreams
+              - catalogTracks
+              - catalogListenerRate
+            properties:
+              artist:
+                type: string
+              playlistListeners:
+                type: number
+              playlistStreams:
+                type: number
+              catalogListeners:
+                type: number
+              catalogStreams:
+                type: number
+              catalogTracks:
+                type: number
+              catalogListenerRate:
+                type: number
+                nullable: true
+                description: catalogListeners / playlistListeners. Null when playlistListeners is 0.
+
+    StreamSplitContext:
+      type: object
+      required: [engagementContext, listeners, streams, tracks]
+      properties:
+        engagementContext:
+          type: string
+          description: '`promoted`, `playlist`, or `artist_catalog`.'
+        listeners:
+          type: number
+        streams:
+          type: number
+        tracks:
+          type: number
+
+    StreamSplitListeningInsight:
+      type: object
+      required: [soundlinkId, campaignId, insight, window, contexts]
+      properties:
+        soundlinkId:
+          type: string
+        campaignId:
+          type: string
+          nullable: true
+        insight:
+          type: string
+          enum: [stream-split]
+        window:
+          $ref: '#/components/schemas/ListeningInsightWindow'
+        contexts:
+          type: array
+          description: Empty when the graph `campaign_type` is neither `track` nor `playlist`. The response is still `200`.
+          items:
+            $ref: '#/components/schemas/StreamSplitContext'
+
+    ListeningInsightsResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/OtherArtistsListeningInsight'
+            - $ref: '#/components/schemas/CatalogDigInListeningInsight'
+            - $ref: '#/components/schemas/StreamSplitListeningInsight'
+          discriminator:
+            propertyName: insight
+            mapping:
+              other-artists: '#/components/schemas/OtherArtistsListeningInsight'
+              catalog-dig-in: '#/components/schemas/CatalogDigInListeningInsight'
+              stream-split: '#/components/schemas/StreamSplitListeningInsight'
+        meta:
+          $ref: '#/components/schemas/Meta'
+
     Error:
       type: object
       required: [code, message]
@@ -2437,6 +2682,7 @@ components:
             - api_key_expired
             - insufficient_scope
             - not_found
+            - not_in_listening_graph
             - campaign_not_found
             - invalid_query_parameter
             - invalid_date_range
