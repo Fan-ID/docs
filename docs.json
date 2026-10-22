@@ -192,6 +192,7 @@
                   "GET /v1/campaigns/{campaignId}/metrics/breakdown/export",
                   "GET /v1/campaigns/{campaignId}/metrics/engagement",
                   "GET /v1/campaigns/{campaignId}/metrics/engagement/export",
+                  "GET /v1/campaigns/{campaignId}/metrics/retention",
                   "GET /v1/campaigns/{campaignId}/listening-insights/{insight}"
                 ]
               }
