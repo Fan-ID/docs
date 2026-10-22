@@ -1422,9 +1422,6 @@ paths:
         are returned in `data.items` (one per cohort date), so there is no
         pagination.
 
-        The campaign's `smart_link_id` is resolved from `dim_campaigns_current`
-        before the retention query runs.
-
         **Retention definitions:**
         - `returned_on_day_N`: listeners from the cohort who played again on exactly day N
           after their first play.
@@ -1445,8 +1442,8 @@ paths:
 
         Requires the `metrics:read` scope. Accepts API key or OAuth Bearer.
         A campaign outside the organization returns `404 campaign_not_found`.
-        An owned campaign with no linked soundlink in `dim_campaigns_current`
-        returns `404 not_found` (`Campaign soundlink not found.`).
+        An owned campaign with no linked soundlink returns `404 not_found`
+        (`Campaign soundlink not found.`).
       tags: [Metrics]
       security:
         - apiKeyBearerAuth: []
