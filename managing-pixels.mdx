@@ -1,0 +1,89 @@
+---
+title: Managing pixels
+description: Save and list organization Meta pixels, rotate Conversions API tokens, and send a test event.
+---
+
+The Pixels API lets you store Meta Conversions API credentials for your organization: save or rotate a token, list configured pixels (never the token), and send a live test event.
+
+Requires custom pixels to be enabled for your organization. Otherwise every route returns `403 custom_pixel_not_enabled`. Scopes: `campaigns:read` to list, `campaigns:write` to save or test — see [Authentication](/authentication#scopes-v1).
+
+<Note>
+  These routes manage organization pixel credentials. They are separate from the Meta
+  pixel fields on [self-serve soundlink create](/creating-soundlinks#meta-pixel).
+</Note>
+
+## Save or rotate a pixel
+
+`PUT /v1/pixels/{pixelId}`
+
+```bash
+curl -sS -X PUT 'https://api.getsoundlink.com/v1/pixels/PIXEL_ID' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "platform": "meta",
+    "accessToken": "EAAB..."
+  }'
+```
+
+Expected (`200`). The response never includes the access token:
+
+```json
+{
+  "data": { "id": "PIXEL_ID", "platform": "meta" },
+  "meta": { "requestId": "..." }
+}
+```
+
+| Situation | Result |
+| --- | --- |
+| New `pixelId` for your organization | Pixel is saved |
+| Same `pixelId` you already own | Access token is replaced |
+| Another `pixelId` for the same organization | Saved alongside existing pixels |
+| Pixel owned by another organization | `409 meta_pixel_conflict` |
+| Access token already used with another pixel | `400 invalid_request` |
+| `platform` other than `meta` | `400 invalid_request` |
+
+`Idempotency-Key` is not required. Repeating the same request is safe.
+
+## List pixels
+
+`GET /v1/pixels`
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/pixels' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+Expected (`200`):
+
+```json
+{
+  "data": {
+    "pixels": [{ "id": "PIXEL_ID", "platform": "meta" }]
+  },
+  "meta": { "requestId": "..." }
+}
+```
+
+## Send a test event
+
+`POST /v1/pixels/{pixelId}/test-events`
+
+Sends a live Meta Conversions API event named `Soundlink Stream` to the stored pixel and token. This is not a sandbox event — it appears in Events Manager.
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/pixels/PIXEL_ID/test-events' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+Expected (`200`):
+
+```json
+{
+  "data": { "status": "sent", "pixelId": "PIXEL_ID" },
+  "meta": { "requestId": "..." }
+}
+```
+
+Unknown `pixelId` for your organization returns `404`. A rejected pixel id or token returns `400 invalid_request`.

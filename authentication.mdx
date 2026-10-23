@@ -103,12 +103,12 @@ Scopes limit which endpoints a key can call. Select them when you create the key
 
 | Scope             | Access                                                                 | Self-serve UI |
 | ----------------- | ---------------------------------------------------------------------- | ------------- |
-| `campaigns:read`  | List campaigns, campaign detail, strategy catalog, campaign tiers      | Yes           |
+| `campaigns:read`  | List campaigns, campaign detail, strategy catalog, campaign tiers, list pixels | Yes           |
 | `wallet:read`     | Organization wallet balance (`GET /v1/wallet`)                         | Yes           |
 | `metrics:read`    | Metrics overview, breakdown, exports                                   | Yes           |
 | `soundlinks:read` | List soundlinks, soundlink detail, soundlink metrics                    | Yes           |
 | `soundlinks:write` | Create, archive, and send test events for self-serve soundlinks | Yes |
-| `campaigns:write` | Create/stop wallet campaigns, budget, tiers, auto-renew   | Yes           |
+| `campaigns:write` | Create/stop wallet campaigns, budget, tiers, auto-renew, save/test pixels | Yes           |
 | `videos:write`    | Import partner videos for Full Control creatives                       | Yes           |
 
 Typical read-only integrations enable **both** `campaigns:read` and `metrics:read`.

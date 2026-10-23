@@ -216,6 +216,7 @@ Adds the `email` claim to the `userinfo` response. Unlocks no endpoint of its ow
 | `GET /v1/campaigns` | Paginated, `createdAt desc` by default. |
 | `GET /v1/campaigns/{campaignId}` | Adds `strategyType` and `nextRenewalAt`. `404` when not owned. |
 | `GET /v1/campaigns/{campaignId}/tiers` | See reference |
+| `GET /v1/pixels` | Organization Meta pixels. Never returns access tokens. `403` when custom pixels are not enabled. |
 
 ### `wallet:read`
 
@@ -237,6 +238,8 @@ Wallet-funded campaigns only. Same endpoints and rules as the API key scope of t
 | `PUT /v1/campaigns/{campaignId}/auto-renew` | Toggle auto-renew. |
 | `POST /v1/campaigns/{campaignId}/budget/increase` | Increase daily budget. |
 | `POST /v1/campaigns/{campaignId}/budget/decrease` | Decrease daily budget. |
+| `PUT /v1/pixels/{pixelId}` | Save or rotate a Meta pixel token. See [Managing pixels](/managing-pixels). |
+| `POST /v1/pixels/{pixelId}/test-events` | Send a live Meta test event to a saved pixel. |
 
 ### `metrics:read`
 

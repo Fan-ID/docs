@@ -109,6 +109,10 @@
                   {
                     "group": "Videos",
                     "pages": ["importing-videos"]
+                  },
+                  {
+                    "group": "Pixels",
+                    "pages": ["managing-pixels"]
                   }
                 ]
               },
@@ -228,6 +232,15 @@
             "pages": [
               "POST /v1/videos/import",
               "GET /v1/videos/import/{sessionId}"
+            ]
+          },
+          {
+            "group": "Pixels",
+            "openapi": "openapi/soundlink-public-api-v1.yaml",
+            "pages": [
+              "GET /v1/pixels",
+              "PUT /v1/pixels/{pixelId}",
+              "POST /v1/pixels/{pixelId}/test-events"
             ]
           }
         ]
