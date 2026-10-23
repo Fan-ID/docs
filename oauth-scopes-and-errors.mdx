@@ -303,9 +303,9 @@ All OAuth errors return `{ "error": "<code>" }`.
 | --- | --- | --- |
 | `invalid_request` | `400` | Missing/malformed parameter, or a JSON body where form encoding is required |
 | `invalid_client` | `401` | `client_id`/`client_secret` rejected |
-| `invalid_grant` | `400` | Code invalid, reused or expired; or no active grant |
+| `invalid_grant` | `400` | Code or refresh token invalid, reused, revoked or expired; or no active grant |
 | `unauthorized_client` | `400` | Client not allowed to use this grant type |
-| `unsupported_grant_type` | `400` | `grant_type` is not one of the two supported values |
+| `unsupported_grant_type` | `400` | `grant_type` is not `authorization_code`, `client_credentials`, or `refresh_token` |
 | `unsupported_response_type` | `400` | `response_type` is not `code` |
 | `invalid_scope` | `400` | Scope unknown, duplicated, or outside what was granted |
 | `invalid_token` | `401` | Bearer token missing, malformed or expired |

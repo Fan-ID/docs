@@ -84,11 +84,12 @@ This is the **consent-establishing** flow — a user signs in, approves scopes, 
       "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.PAYLOAD.SIGNATURE",
       "token_type": "Bearer",
       "expires_in": 3600,
+      "refresh_token": "REFRESH_TOKEN",
       "scope": "openid email campaigns:read"
     }
     ```
 
-    `redirect_uri` must be identical to the one used in the previous step. Authorization codes are single-use.
+    `redirect_uri` must be identical to the one used in the previous step. Authorization codes are single-use. Store the `refresh_token` server-side; it is shown only in this response.
   </Step>
   <Step title="Record the organization id">
     `organization_id` is a claim on the access token, so no extra request is needed to read it.
@@ -106,6 +107,55 @@ This is the **consent-establishing** flow — a user signs in, approves scopes, 
 <Warning>
   Access tokens are signed with a symmetric key and **no JWKS endpoint is published**, so you cannot verify their signature. Decode claims only for values you need (such as `organization_id`) from a token you have just received over TLS, and never treat a decoded claim as proof of anything. Treat tokens as opaque credentials otherwise.
 </Warning>
+
+---
+
+## Refresh the access token
+
+When the access token expires, trade the refresh token for a new pair. The user is not involved.
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.getsoundlink.com/api/v1/oauth/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=refresh_token" \
+  -d "refresh_token=YOUR_STORED_REFRESH_TOKEN" \
+  -d "client_id=YOUR_CLIENT_ID"
+```
+
+```ts TypeScript
+const res = await fetch("https://api.getsoundlink.com/api/v1/oauth/token", {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: new URLSearchParams({
+    grant_type: "refresh_token",
+    refresh_token: storedRefreshToken,
+    client_id: process.env.SOUNDLINK_CLIENT_ID!,
+  }),
+});
+```
+
+</CodeGroup>
+
+```json 200 Response
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.PAYLOAD.SIGNATURE",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "NEW_REFRESH_TOKEN",
+  "scope": "openid email campaigns:read"
+}
+```
+
+- **Every refresh rotates the token.** Replace the stored refresh token with the new one. The old one stops working.
+- **A refresh token is valid for 30 days.** Each refresh issues a new one with a fresh 30 days, so an integration that refreshes at least once a month stays connected.
+- **Never reuse a refresh token.** Sending one that was already used revokes every refresh token for that grant, and the user must consent again. If two requests race with the same token, only one wins. Refresh from one place, not from every worker.
+- **You can narrow, not widen.** Send `scope` to get an access token with fewer scopes. The new refresh token keeps the original scopes. Asking for more returns `invalid_scope`.
+- **Send `client_secret` if your client has one.** A wrong secret returns `401 invalid_client`.
+- A refreshed token still acts as the user, so `userinfo` works with it.
+
+An expired, revoked, or reused refresh token returns `400 invalid_grant`. Treat it as a disconnect and send the user through consent again.
 
 ---
 
