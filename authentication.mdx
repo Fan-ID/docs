@@ -103,18 +103,21 @@ Scopes limit which endpoints a key can call. Select them when you create the key
 
 | Scope             | Access                                                                 | Self-serve UI |
 | ----------------- | ---------------------------------------------------------------------- | ------------- |
-| `campaigns:read`  | List campaigns, campaign detail, strategy catalog, campaign tiers      | Yes           |
+| `campaigns:read`  | List campaigns, campaign detail, strategy catalog, campaign tiers | Yes           |
 | `wallet:read`     | Organization wallet balance (`GET /v1/wallet`)                         | Yes           |
 | `metrics:read`    | Metrics overview, breakdown, exports                                   | Yes           |
 | `soundlinks:read` | List soundlinks, soundlink detail, soundlink metrics                    | Yes           |
 | `soundlinks:write` | Create, archive, and send test events for self-serve soundlinks | Yes |
-| `campaigns:write` | Create/stop wallet campaigns, budget, tiers, auto-renew   | Yes           |
+| `campaigns:write` | Create/stop wallet campaigns, budget, tiers, auto-renew | Yes           |
 | `videos:write`    | Import partner videos for Full Control creatives                       | Yes           |
+| `pixels:read`     | List organization Meta pixels (`GET /v1/pixels`)                       | Yes           |
+| `pixels:write`    | Save/rotate Meta pixel tokens and send test events                     | Yes           |
 
 Typical read-only integrations enable **both** `campaigns:read` and `metrics:read`.
 Add `soundlinks:read` when you need self-serve soundlink catalog or Insights metrics.
 Add `soundlinks:write` to [create](/creating-soundlinks), [archive](/creating-soundlinks#archive-a-soundlink), or [send a test event](/creating-soundlinks#send-a-test-event).
 Add `campaigns:write` only when the integration should spend wallet credit or manage delivery.
+Add `pixels:read` / `pixels:write` to [manage organization Meta pixels](/managing-pixels).
 
 <Note>
   Existing keys keep their original scopes. Create a new key to get `wallet:read`,
@@ -174,6 +177,8 @@ Revoked keys stay visible in the list with status and date so you can audit past
 | `POST /v1/soundlinks/{soundlinkId}/test-events` | `soundlinks:write`           |
 | Create / stop / budget / tier write routes    | `campaigns:write`             |
 | Video import routes                           | `videos:write`                |
+| `GET /v1/pixels`                              | `pixels:read`                 |
+| `PUT /v1/pixels/{pixelId}`, test-events       | `pixels:write`                |
 
 ## Next
 

@@ -176,11 +176,13 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
 | `soundlinks:read` | View self-serve soundlinks and their metrics |
 | `soundlinks:write` | Create and archive self-serve soundlinks |
 | `videos:write` | Import partner videos for Full Control creatives |
+| `pixels:read` | View organization Meta pixels |
+| `pixels:write` | Save and test organization Meta pixels |
 
 Request the minimum you need — the consent screen shows each scope to the user, and a shorter list converts better. `scope` values are space-separated, must be unique, and must fall within your client's registered `allowedScopes`.
 
 <Note>
-  `scopes_supported` in the [discovery document](/set-up-soundlink-oauth#discovery) is the authoritative list — it currently returns `openid`, `email`, `campaigns:read`, `campaigns:write`, `metrics:read`, `videos:write`, `soundlinks:read`, `soundlinks:write`, and `wallet:read`.
+  `scopes_supported` in the [discovery document](/set-up-soundlink-oauth#discovery) is the authoritative list — it currently returns `openid`, `email`, `campaigns:read`, `campaigns:write`, `metrics:read`, `videos:write`, `soundlinks:read`, `soundlinks:write`, `wallet:read`, `pixels:read`, and `pixels:write`.
 </Note>
 
 ### No token — client authentication only
@@ -237,6 +239,19 @@ Wallet-funded campaigns only. Same endpoints and rules as the API key scope of t
 | `PUT /v1/campaigns/{campaignId}/auto-renew` | Toggle auto-renew. |
 | `POST /v1/campaigns/{campaignId}/budget/increase` | Increase daily budget. |
 | `POST /v1/campaigns/{campaignId}/budget/decrease` | Decrease daily budget. |
+
+### `pixels:read`
+
+| Endpoint | Notes |
+| --- | --- |
+| `GET /v1/pixels` | Organization Meta pixels. Never returns access tokens. `403` when custom pixels are not enabled. See [Managing pixels](/managing-pixels). |
+
+### `pixels:write`
+
+| Endpoint | Notes |
+| --- | --- |
+| `PUT /v1/pixels/{pixelId}` | Save or rotate a Meta pixel token. See [Managing pixels](/managing-pixels). |
+| `POST /v1/pixels/{pixelId}/test-events` | Send a live Meta test event to a saved pixel. |
 
 ### `metrics:read`
 
