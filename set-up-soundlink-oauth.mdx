@@ -8,7 +8,7 @@ icon: "key"
 Soundlink's authorization server lets your application act on behalf of a Soundlink organization. A user grants consent once; your application records the organization id and uses it for ongoing access.
 
 <Info>
-  **Issuer:** `https://api.getsoundlink.com` · **Access token lifetime:** 3600 seconds · **PKCE:** required (`S256`) · **Refresh tokens:** issued with Authorization Code, rotated on every use, valid 30 days
+  **Issuer:** `https://api.getsoundlink.com` · **Access token lifetime:** 3600 seconds · **PKCE:** required (`S256`) · **Refresh tokens:** Authorization Code only, 30 days, rotated
 </Info>
 
 ## Which grant do I need?
@@ -30,7 +30,7 @@ Soundlink's authorization server lets your application act on behalf of a Soundl
 You will need **both**. Only the consent flow creates a grant, and Client Credentials requires an existing grant — so a client configured with Client Credentials alone cannot bootstrap itself.
 
 <Note>
-  An Authorization Code token comes with a refresh token. When the access token expires after one hour, [refresh it](/oauth-authorization-code#refresh-the-access-token) instead of asking the user to consent again. Client Credentials tokens have no refresh token; request a new one at any time.
+  When an Authorization Code token expires, [refresh it](/oauth-authorization-code#refresh-the-access-token) instead of asking the user to consent again. Client Credentials tokens have no refresh token; request a new one at any time.
 </Note>
 
 ---

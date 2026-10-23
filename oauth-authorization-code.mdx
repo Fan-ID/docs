@@ -89,7 +89,7 @@ This is the **consent-establishing** flow — a user signs in, approves scopes, 
     }
     ```
 
-    `redirect_uri` must be identical to the one used in the previous step. Authorization codes are single-use. Store the `refresh_token` server-side; it is shown only in this response.
+    `redirect_uri` must be identical to the one used in the previous step. Authorization codes are single-use. Store the `refresh_token` server-side.
   </Step>
   <Step title="Record the organization id">
     `organization_id` is a claim on the access token, so no extra request is needed to read it.
@@ -112,7 +112,7 @@ This is the **consent-establishing** flow — a user signs in, approves scopes, 
 
 ## Refresh the access token
 
-When the access token expires, trade the refresh token for a new pair. The user is not involved.
+When the access token expires, trade the refresh token for a new pair.
 
 <CodeGroup>
 
@@ -149,11 +149,10 @@ const res = await fetch("https://api.getsoundlink.com/api/v1/oauth/token", {
 ```
 
 - **Every refresh rotates the token.** Replace the stored refresh token with the new one. The old one stops working.
-- **A refresh token is valid for 30 days.** Each refresh issues a new one with a fresh 30 days, so an integration that refreshes at least once a month stays connected.
-- **Never reuse a refresh token.** Sending one that was already used revokes every refresh token for that grant, and the user must consent again. If two requests race with the same token, only one wins. Refresh from one place, not from every worker.
+- **A refresh token is valid for 30 days.** Each new one gets its own 30 days.
+- **Never reuse a refresh token.** Sending one that was already used revokes every refresh token for that grant, and the user must consent again. Two concurrent refreshes with the same token count as reuse, so refresh from one place.
 - **You can narrow, not widen.** Send `scope` to get an access token with fewer scopes. The new refresh token keeps the original scopes. Asking for more returns `invalid_scope`.
 - **Send `client_secret` if your client has one.** A wrong secret returns `401 invalid_client`.
-- A refreshed token still acts as the user, so `userinfo` works with it.
 
 An expired, revoked, or reused refresh token returns `400 invalid_grant`. Treat it as a disconnect and send the user through consent again.
 
