@@ -5,7 +5,7 @@ description: Save and list organization Meta pixels, rotate Conversions API toke
 
 The Pixels API lets you store Meta Conversions API credentials for your organization: save or rotate a token, list configured pixels (never the token), and send a live test event.
 
-Requires custom pixels to be enabled for your organization. Otherwise every route returns `403 custom_pixel_not_enabled`. Scopes: `campaigns:read` to list, `campaigns:write` to save or test — see [Authentication](/authentication#scopes-v1).
+Requires custom pixels to be enabled for your organization. Otherwise every route returns `403 custom_pixel_not_enabled`. Scopes: `pixels:read` to list, `pixels:write` to save or test — see [Authentication](/authentication#scopes-v1).
 
 <Note>
   These routes manage organization pixel credentials. They are separate from the Meta
