@@ -96,15 +96,15 @@ A success response returns `accepted: true`. The refund of unused budget is appl
 
 ## Update geographic tiers
 
-`GET /v1/campaigns/{campaignId}/tiers` (requires `campaigns:read`) returns the current allocation:
+`GET /v1/campaigns/{campaignId}/tiers` (requires `campaigns:read`) returns the current allocation and each tier's `learningStatus` (`LEARNING`, `FAIL`, `SUCCESS`, or `null`):
 
 ```json
 {
   "data": {
     "lastUpdate": "2026-07-18T10:00:00Z",
     "tiers": [
-      { "tierId": 1, "tierName": "US + UK", "isEnabled": true, "allocationPercent": 60 },
-      { "tierId": 2, "tierName": "DACH", "isEnabled": true, "allocationPercent": 40 }
+      { "tierId": 1, "tierName": "US + UK", "isEnabled": true, "allocationPercent": 60, "learningStatus": "LEARNING" },
+      { "tierId": 2, "tierName": "DACH", "isEnabled": true, "allocationPercent": 40, "learningStatus": null }
     ]
   },
   "meta": { "requestId": "..." }
@@ -121,7 +121,8 @@ curl -sS -X PATCH 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/tiers' 
     "items": [
       { "targetingTierId": 1, "isEnabled": true, "newAllocationPercent": 100 },
       { "targetingTierId": 2, "isEnabled": false, "newAllocationPercent": 0 }
-    ]
+    ],
+    "acknowledgeLearningWarning": true
   }'
 ```
 
@@ -130,11 +131,10 @@ Request rules:
 - Include **all** of the campaign's tiers in `items` — not just the ones you change
 - `newAllocationPercent` values must sum to exactly **100**
 - At least one tier must have `isEnabled: true`
+- `acknowledgeLearningWarning` is optional. Omit it or send `false` to leave the warning unacknowledged. Only `true` acknowledges it.
 
 <Warning>
-  After a successful update, further tier changes on that campaign are blocked for **72 hours**.
-  During the cooldown, `PATCH` returns `409 tier_update_cooldown`. Use `lastUpdate` from the `GET`
-  response to know when the last change happened.
+  Within 72 hours of the latest tier or country targeting update, `PATCH` returns `409 learning_edit_ack_required` when a tier that is active before the update has `learningStatus` `LEARNING` or `FAIL`. `details.tierIds` lists those tiers. Send the same body with `acknowledgeLearningWarning: true` to continue. `SUCCESS`, `null`, and updates outside that window do not need acknowledgement. A body that matches the current tiers is accepted and does not change them.
 </Warning>
 
 ## Toggle auto-renew
@@ -242,7 +242,7 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/activity?startDa
 | 400  | `invalid_tier_status`      | Tier items invalid (missing tiers, sum ≠ 100, none enabled)          |
 | 402  | `insufficient_credit`      | Wallet balance too low for the budget increase                       |
 | 404  | `campaign_not_found`       | Unknown campaign or a campaign in another organization               |
-| 409  | `tier_update_cooldown`     | Tier update within 72 hours of the previous one                      |
+| 409  | `learning_edit_ack_required` | An active tier is `LEARNING` or `FAIL` within 72 hours, and the warning was not acknowledged |
 | 409  | `idempotency_key_conflict` | `Idempotency-Key` reused with a different body, or still processing  |
 
 See [Errors](/errors) for the full list.

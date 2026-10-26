@@ -816,8 +816,9 @@ paths:
       summary: Get campaign tier allocation
       description: |
         Returns the current geographic tier allocation for a wallet campaign:
-        which tiers are enabled, their budget share, and when tiers were last
-        updated (`lastUpdate`). Use this before `PATCH` to build a valid request.
+        which tiers are enabled, their budget share, learning status
+        (`learningStatus`), and when tiers were last updated (`lastUpdate`).
+        Use this before `PATCH` to build a valid request.
 
         **Wallet campaigns only** (`generation: 3`).
 
@@ -844,10 +845,12 @@ paths:
                       tierName: US
                       isEnabled: true
                       allocationPercent: 60
+                      learningStatus: LEARNING
                     - tierId: 2
                       tierName: UK
                       isEnabled: false
                       allocationPercent: 40
+                      learningStatus: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -871,8 +874,13 @@ paths:
         - `newAllocationPercent` values must sum to **100**
         - At least one tier must have `isEnabled: true`
 
-        **Cooldown:** after a successful update, further tier changes are
-        blocked for **72 hours** (`409 tier_update_cooldown`).
+        **Learning:** within 72 hours of the latest tier or country targeting
+        update, a change is rejected with `409 learning_edit_ack_required`
+        when a tier that is active before the update has `learningStatus`
+        `LEARNING` or `FAIL`. Retry with `acknowledgeLearningWarning: true`
+        to continue. `SUCCESS`, `null`, and updates outside that window do
+        not require acknowledgement. A request that matches the current tier
+        state is accepted without writing.
 
         **Auth:** Accepts API key or OAuth Bearer (`campaigns:write`).
       tags: [Campaigns]
@@ -896,6 +904,7 @@ paths:
                 - targetingTierId: 2
                   isEnabled: true
                   newAllocationPercent: 30
+              acknowledgeLearningWarning: true
       responses:
         '200':
           description: Updated tier allocation
@@ -927,7 +936,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/TierUpdateCooldown' }
+        '409': { $ref: '#/components/responses/LearningEditAckRequired' }
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
@@ -2987,7 +2996,7 @@ components:
             - invalid_spotify_url
             - invalid_tier_budget_allocation
             - invalid_tier_status
-            - tier_update_cooldown
+            - learning_edit_ack_required
             - wallet_not_enabled
             - custom_pixel_not_enabled
             - meta_pixel_conflict
@@ -3156,7 +3165,7 @@ components:
 
     CampaignTier:
       type: object
-      required: [tierId, tierName, isEnabled, allocationPercent]
+      required: [tierId, tierName, isEnabled, allocationPercent, learningStatus]
       properties:
         tierId:
           type: integer
@@ -3172,6 +3181,13 @@ components:
           minimum: 0
           maximum: 100
           description: Share of campaign budget allocated to this tier.
+        learningStatus:
+          type: string
+          nullable: true
+          enum: [LEARNING, FAIL, SUCCESS]
+          description: |
+            Stored ad set learning status for this tier. `null` means no status
+            is stored and does not require acknowledgement before a tier edit.
 
     CampaignTiersData:
       type: object
@@ -3259,6 +3275,11 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/TierStatusUpdateItem'
+        acknowledgeLearningWarning:
+          type: boolean
+          description: |
+            Set to true to continue a tier edit while ad sets are still learning.
+            Omit or false to leave the warning unacknowledged.
 
     Genre:
       type: string
@@ -5530,18 +5551,20 @@ components:
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 
-    TierUpdateCooldown:
+    LearningEditAckRequired:
       description: |
-        Campaign tiers were updated in the last 72 hours. Wait for the cooldown
-        to end before updating again.
+        Ad sets for one or more active tiers are still learning. Send the same
+        request with `acknowledgeLearningWarning: true` to continue.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
             error:
-              code: tier_update_cooldown
-              message: "Campaign tiers were updated in the last 72 hours. Wait for the cooldown to end before updating again."
+              code: learning_edit_ack_required
+              message: "Ad sets are still learning. Acknowledge the warning to continue."
+              details:
+                tierIds: [1, 2]
             meta:
               requestId: 550e8400-e29b-41d4-a716-446655440000
 
