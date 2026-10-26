@@ -156,7 +156,7 @@ Then ask for a campaign list. If a tool fails with an authorization error, the k
 | `get_strategies`                          | `GET /v1/strategies`                                         | `campaigns:read`     |
 | `get_wallet`                              | `GET /v1/wallet`                                             | `wallet:read`        |
 
-`get_campaign_tiers` only succeeds for a wallet campaign. `get_campaign_activity` is a page of creative adds, budget changes, and other campaign events. Omit `startDate` to page the full history. `get_campaign_metrics_creative_daily` is one row per day and Meta ad creative, not the lifetime groups from `get_campaign_metrics_creatives`. Engagement tools take an optional `engagementContext` of `catalog` or `playlist`. Exports default to the last 90 days and return JSONL, not the JSON envelope. `get_soundlinks` does not include soundlinks created for a campaign.
+`get_campaign_tiers` only succeeds for a wallet campaign. Each tier includes `learningStatus` (`LEARNING`, `FAIL`, `SUCCESS`, or `null`). `get_campaign_activity` is a page of creative adds, budget changes, and other campaign events. Omit `startDate` to page the full history. `get_campaign_metrics_creative_daily` is one row per day and Meta ad creative, not the lifetime groups from `get_campaign_metrics_creatives`. Engagement tools take an optional `engagementContext` of `catalog` or `playlist`. Exports default to the last 90 days and return JSONL, not the JSON envelope. `get_soundlinks` does not include soundlinks created for a campaign.
 
 Field definitions: [Campaign metrics](/understanding-metrics), [Soundlink metrics](/soundlink-metrics), [JSONL exports](/jsonl-exports).
 

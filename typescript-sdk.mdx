@@ -114,7 +114,9 @@ await soundlink.campaigns.increaseBudget(
   { idempotencyKey: "budget-inc-01" },
 );
 
-// GET returns `tierId`; PATCH expects the same value as `targetingTierId`
+// GET returns `tierId` and `learningStatus`. PATCH expects `tierId` as `targetingTierId`.
+// Sending the current allocation does not write. To edit while an active tier is
+// LEARNING or FAIL, see Managing campaigns for `acknowledgeLearningWarning`.
 const { data: tiers } = await soundlink.campaigns.tiers.get(created.campaignId);
 await soundlink.campaigns.tiers.update(created.campaignId, {
   items: (tiers?.tiers ?? []).map((tier) => ({
