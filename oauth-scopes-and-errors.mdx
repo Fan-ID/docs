@@ -130,6 +130,7 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
 {
   "data": {
     "listeners": 4821,
+    "total_listeners": 5100,
     "streams": 9340,
     "followers": 312,
     "impressions": 48210,
@@ -141,7 +142,7 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
     "currency": "USD",
     "cpl": 0.028,
     "cpf": 0.43,
-    "streams_per_listener": 1.94
+    "streams_per_listener": 1.83
   },
   "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
 }
@@ -155,7 +156,7 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
   `YYYY-MM-DD`, inclusive. Must be greater than or equal to `startDate`, or you get `400`.
 </ParamField>
 
-`cpl`, `cpf` and `streams_per_listener` are derived server-side — media spend per listener, per follower, and streams per listener, each `0` when listeners or followers are `0`. Handle `impressions`, `ad_clicks` and `link_clicks` as **nullable**: a platform that did not report them sends `null`, which is not the same as zero.
+`cpl` is media spend per new listener (`listeners`). `streams_per_listener` is streams per distinct listener (`total_listeners`). `cpf` is media spend per follower. Each ratio is `0` when its denominator is `0`. Handle `impressions`, `ad_clicks` and `link_clicks` as **nullable**: a platform that did not report them sends `null`, which is not the same as zero.
 
 <Warning>
   `campaigns:read` does not imply `metrics:read`. A token holding only the first reads campaigns and gets `403 insufficient_scope` on metrics — so request both if you show them together, and handle each independently if you request them separately.
