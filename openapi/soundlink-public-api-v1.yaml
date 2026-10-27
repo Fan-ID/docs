@@ -35,9 +35,11 @@ info:
     | Operations | Required scope | Auth |
     | --- | --- | --- |
     | `GET /v1/ping` | any granted Public API scope | API key (Bearer) or OAuth Bearer |
-    | Campaign reads (`GET /v1/strategies`, `GET /v1/campaigns`, campaign detail, tiers, pixels) | `campaigns:read` | API key (Bearer) or OAuth Bearer |
+    | Campaign reads (`GET /v1/strategies`, `GET /v1/campaigns`, campaign detail, tiers) | `campaigns:read` | API key (Bearer) or OAuth Bearer |
     | Metrics reads (overview, breakdown, exports, campaign listening insights, campaign retention) | `metrics:read` | API key (Bearer) or OAuth Bearer |
-    | Campaign writes (create, stop, budget, tier updates, pixels) | `campaigns:write` | API key (Bearer) or OAuth Bearer |
+    | Campaign writes (create, stop, budget, tier updates) | `campaigns:write` | API key (Bearer) or OAuth Bearer |
+    | Pixel reads (`GET /v1/pixels`) | `pixels:read` | API key (Bearer) or OAuth Bearer |
+    | Pixel writes (save pixel, test events) | `pixels:write` | API key (Bearer) or OAuth Bearer |
     | Video import / import status | `videos:write` | API key (Bearer) or OAuth Bearer |
     | Soundlink reads (list, detail, metrics overview/breakdown/engagement/retention, listening insights, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
     | Soundlink writes (create, archive, test events) | `soundlinks:write` | API key (Bearer) or OAuth Bearer |
@@ -168,10 +170,10 @@ paths:
         Returns the Meta pixels configured for the organization. Access tokens
         are never returned. Today each entry has `platform: meta`.
 
-        Requires `campaigns:read`. Organizations without custom pixels enabled
+        Requires `pixels:read`. Organizations without custom pixels enabled
         get `403 custom_pixel_not_enabled`.
       tags: [Pixels]
-      x-required-scope: campaigns:read
+      x-required-scope: pixels:read
       security:
         - apiKeyBearerAuth: []
         - oauthBearer: []
@@ -217,13 +219,13 @@ paths:
         The response never includes the access token. Use
         `POST /v1/pixels/{pixelId}/test-events` to check the pixel and token.
 
-        Requires `campaigns:write`. Organizations without custom pixels enabled
+        Requires `pixels:write`. Organizations without custom pixels enabled
         get `403 custom_pixel_not_enabled`. Does not require `Idempotency-Key`;
         repeating the same request is safe.
 
-        **Auth:** Accepts API key or OAuth Bearer (`campaigns:write`).
+        **Auth:** Accepts API key or OAuth Bearer (`pixels:write`).
       tags: [Pixels]
-      x-required-scope: campaigns:write
+      x-required-scope: pixels:write
       security:
         - apiKeyBearerAuth: []
         - oauthBearer: []
@@ -280,12 +282,12 @@ paths:
         event because the pixel id or access token is wrong. Does not require
         `Idempotency-Key`; each call sends a new event.
 
-        Requires `campaigns:write`. Organizations without custom pixels enabled
+        Requires `pixels:write`. Organizations without custom pixels enabled
         get `403 custom_pixel_not_enabled`.
 
-        **Auth:** Accepts API key or OAuth Bearer (`campaigns:write`).
+        **Auth:** Accepts API key or OAuth Bearer (`pixels:write`).
       tags: [Pixels]
-      x-required-scope: campaigns:write
+      x-required-scope: pixels:write
       security:
         - apiKeyBearerAuth: []
         - oauthBearer: []
@@ -1021,8 +1023,9 @@ paths:
       operationId: getCampaignMetricsOverview
       summary: Campaign metrics overview
       description: |
-        Campaign-level totals for a date range: spend, conversions, listeners,
-        streams, followers, and derived ratios. No per-day rows — use
+        Campaign-level totals for a date range: spend, listeners (new),
+        `total_listeners` (distinct), streams, followers, and derived ratios.
+        `streams_per_listener` uses `total_listeners`. No per-day rows — use
         `/metrics/breakdown` for those.
 
         Suitable for dashboards and quick syncs.
@@ -1047,6 +1050,7 @@ paths:
               example:
                 data:
                   listeners: 4821
+                  total_listeners: 5100
                   streams: 9340
                   followers: 312
                   impressions: 48210
@@ -1058,7 +1062,7 @@ paths:
                   currency: USD
                   cpl: 0.028
                   cpf: 0.43
-                  streams_per_listener: 1.94
+                  streams_per_listener: 1.83
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -1262,18 +1266,18 @@ paths:
         - $ref: '#/components/parameters/sortOrder'
       responses:
         '200':
-          description: Paginated per-day country rows (`campaign_country_daily` schema)
+          description: Paginated per-day country rows (`campaign_country_daily` schema v1.1)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MetricsBreakdownResponse'
               example:
                 data:
-                  schemaVersion: "1.0"
+                  schemaVersion: "1.1"
                   items:
                     - provider: soundlink
                       account_id: a7ac3173-2f71-4e79-921f-d15d7112dd11
-                      schema_version: "1.0"
+                      schema_version: "1.1"
                       report_date: "2026-04-01"
                       report_date_timezone: UTC
                       exported_at: "2026-05-20T03:00:00Z"
@@ -1289,8 +1293,11 @@ paths:
                       link_clicks: 89
                       streams: 203
                       listeners: 145
+                      new_listeners: 145
+                      returning_listeners: 40
+                      total_listeners: 185
                       followers: 12
-                      streams_per_listener: 1.4
+                      streams_per_listener: 1.1
                       spend_media: 42.50
                       spend_total: 53.13
                       fees: 10.63
@@ -1378,8 +1385,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/BreakdownRow'
               example: |
-                {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-04-01","report_date_timezone":"UTC","exported_at":"2026-05-20T03:00:00Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"track","campaign_target_isrc":"DEXW62500259","campaign_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","campaign_target_playlist_id":null,"country_code":"US","impressions":4821,"ad_clicks":112,"link_clicks":89,"streams":203,"listeners":145,"followers":12,"streams_per_listener":1.4,"spend_media":42.50,"spend_total":53.13,"fees":10.63,"currency":"USD","currency_account":"USD","cpl":0.293,"cpf":3.542,"cpc_linkclick":0.478,"ctr_linkclick":0.0185,"ctr_adclick":0.0232,"cost_per_result":3.542,"result_type":"follow"}
-                {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.0","report_date":"2026-04-01","report_date_timezone":"UTC","exported_at":"2026-05-20T03:00:00Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"track","campaign_target_isrc":"DEXW62500259","campaign_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","campaign_target_playlist_id":null,"country_code":"DE","impressions":2103,"ad_clicks":48,"link_clicks":31,"streams":87,"listeners":61,"followers":4,"streams_per_listener":1.43,"spend_media":18.20,"spend_total":22.75,"fees":4.55,"currency":"USD","currency_account":"USD","cpl":0.298,"cpf":4.55,"cpc_linkclick":0.587,"ctr_linkclick":0.0148,"ctr_adclick":0.0228,"cost_per_result":4.55,"result_type":"follow"}
+                {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.1","report_date":"2026-04-01","report_date_timezone":"UTC","exported_at":"2026-05-20T03:00:00Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"track","campaign_target_isrc":"DEXW62500259","campaign_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","campaign_target_playlist_id":null,"country_code":"US","impressions":4821,"ad_clicks":112,"link_clicks":89,"streams":203,"listeners":145,"new_listeners":145,"returning_listeners":40,"total_listeners":185,"followers":12,"streams_per_listener":1.1,"spend_media":42.50,"spend_total":53.13,"fees":10.63,"currency":"USD","currency_account":"USD","cpl":0.293,"cpf":3.542,"cpc_linkclick":0.478,"ctr_linkclick":0.0185,"ctr_adclick":0.0232,"cost_per_result":3.542,"result_type":"follow"}
+                {"provider":"soundlink","account_id":"a7ac3173-2f71-4e79-921f-d15d7112dd11","schema_version":"1.1","report_date":"2026-04-01","report_date_timezone":"UTC","exported_at":"2026-05-20T03:00:00Z","campaign_id":"f1e28d31-c358-4284-9bef-00a2334625fd","campaign_name":"Sleep Playlist","campaign_target_type":"track","campaign_target_isrc":"DEXW62500259","campaign_target_spotify_track_id":"11dFghVXANMlKmJXsNCbNl","campaign_target_playlist_id":null,"country_code":"DE","impressions":2103,"ad_clicks":48,"link_clicks":31,"streams":87,"listeners":61,"new_listeners":61,"returning_listeners":12,"total_listeners":73,"followers":4,"streams_per_listener":1.19,"spend_media":18.20,"spend_total":22.75,"fees":4.55,"currency":"USD","currency_account":"USD","cpl":0.298,"cpf":4.55,"cpc_linkclick":0.587,"ctr_linkclick":0.0148,"ctr_adclick":0.0228,"cost_per_result":4.55,"result_type":"follow"}
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -3699,14 +3706,23 @@ components:
     MetricsOverview:
       type: object
       description: |
-        Campaign-level totals aggregated across all countries for the requested
-        date range. Field names align with the `campaign_country_daily` row
-        schema — values here are the sum of country rows.
-      required: [listeners, streams, followers, spend_media, spend_total, fees, currency, cpl, cpf, streams_per_listener]
+        Campaign-level totals for the requested date range. Spend, streams,
+        followers, delivery, and `listeners` come from summing
+        `campaign_country_daily` rows. `total_listeners` is distinct listeners
+        in the window (same definition as the dashboard), so it is not the sum
+        of daily `total_listeners` from breakdown rows.
+      required: [listeners, total_listeners, streams, followers, spend_media, spend_total, fees, currency, cpl, cpf, streams_per_listener]
       properties:
         listeners:
           type: integer
-          description: Unique attributed Spotify listeners (sum of country rows).
+          description: |
+            Attributed new Spotify listeners in the window (dashboard Super
+            Listeners). Same basis as `cpl`. Sum of country-day `listeners`.
+        total_listeners:
+          type: integer
+          description: |
+            Distinct listeners in the window (new + returning). Same basis as
+            dashboard S/L. Not equal to the sum of breakdown `total_listeners`.
         streams:
           type: integer
           description: Attributed Spotify streams (sum of country rows).
@@ -3739,13 +3755,15 @@ components:
           description: Currency for spend fields. Currently always `USD`.
         cpl:
           type: number
-          description: Cost per listener (spend_media / listeners).
+          description: Cost per new listener (spend_media / listeners).
         cpf:
           type: number
           description: Cost per follower (spend_media / followers).
         streams_per_listener:
           type: number
-          description: streams / listeners. Zero if listeners is zero.
+          description: |
+            streams / total_listeners. Matches dashboard S/L. Zero if
+            total_listeners is zero.
 
     MetricsOverviewResponse:
       type: object
@@ -3937,7 +3955,7 @@ components:
     BreakdownRow:
       type: object
       description: |
-        One row of the `campaign_country_daily` v1.0 schema.
+        One row of the `campaign_country_daily` v1.1 schema.
         Primary key: `(provider, account_id, report_date, campaign_id, country_code)`.
         Rows are idempotent — re-ingesting on the primary key is safe.
         Values for a given `report_date` may be revised for up to 7 days after
@@ -3955,6 +3973,9 @@ components:
         - country_code
         - streams
         - listeners
+        - new_listeners
+        - returning_listeners
+        - total_listeners
         - followers
         - streams_per_listener
         - spend_media
@@ -3975,8 +3996,8 @@ components:
           description: Soundlink organization ID (UUID).
         schema_version:
           type: string
-          description: Schema version. Pin your ingest pipeline to this value.
-          example: "1.0"
+          description: Schema version. Pin your ingest pipeline to this value. `1.1` adds listener splits.
+          example: "1.1"
         report_date:
           type: string
           format: date
@@ -4032,13 +4053,28 @@ components:
           description: Spotify streams attributed to this campaign in this country on this day (7-day click-through window). Observed events, not modelled estimates.
         listeners:
           type: integer
-          description: Unique Spotify listeners attributed to this campaign in this country on this day (7-day click-through window). Summing country rows gives the correct campaign-level total.
+          description: |
+            Attributed new Spotify listeners for this country-day (same as
+            `new_listeners`). Basis for `cpl`.
+        new_listeners:
+          type: integer
+          description: Alias of `listeners` (attributed new).
+        returning_listeners:
+          type: integer
+          description: |
+            Returning Spotify listeners for this country-day. Meta known-tier
+            conversion rows are `0`.
+        total_listeners:
+          type: integer
+          description: new_listeners + returning_listeners for this row.
         followers:
           type: integer
           description: Spotify artist follower gains attributed to this campaign in this country on this day (7-day click-through window).
         streams_per_listener:
           type: number
-          description: streams / listeners for this row. Zero if listeners is zero.
+          description: |
+            streams / total_listeners for this row. Zero if total_listeners is
+            zero.
         spend_media:
           type: number
           description: Amount billed to Meta for ad delivery in this country on this day. Excludes Soundlink service fees. In `currency`.
@@ -4056,7 +4092,7 @@ components:
           description: Account billing currency. Currently always `USD`. Will differ from `currency` once EUR delivery is available.
         cpl:
           type: number
-          description: Cost per listener (spend_media / listeners). Zero if listeners is zero.
+          description: Cost per new listener (spend_media / listeners). Zero if listeners is zero.
         cpf:
           type: number
           description: Cost per follower (spend_media / followers). Zero if followers is zero.

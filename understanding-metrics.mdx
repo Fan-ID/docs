@@ -11,11 +11,13 @@ For soundlinks without a campaign, see [Soundlink metrics](/soundlink-metrics).
 
 `GET /v1/campaigns/{campaignId}/metrics/overview`
 
-Campaign-level totals for a date range: listeners, streams, followers, delivery (`impressions`, `ad_clicks`, `link_clicks`), spend (`spend_media`, `spend_total`, `fees`), and efficiency metrics (`cpl`, `cpf`, `streams_per_listener`). One row per campaign per request window.
+Campaign-level totals for a date range: `listeners` (attributed new / Super Listeners), `total_listeners` (distinct new + returning in the window), streams, followers, delivery (`impressions`, `ad_clicks`, `link_clicks`), spend (`spend_media`, `spend_total`, `fees`), and efficiency metrics (`cpl`, `cpf`, `streams_per_listener`). One row per campaign per request window.
+
+`cpl` uses `listeners`. `streams_per_listener` uses `total_listeners`, matching dashboard S/L. `total_listeners` is not the sum of daily breakdown `total_listeners` — returning listeners count once in the overview window.
 
 Use for dashboards, executive summaries, and quick health checks. Not broken down by country or track. CTR fields (`ctr_linkclick`, `ctr_adclick`) are on [breakdown](#breakdown-by-country) rows, not overview.
 
-**New and returning splits are not on overview.** Use [breakdown](#breakdown-by-country) or [engagement](#engagement-by-track) rows for `new_listeners`, `returning_listeners`, and the stream splits.
+**Per-day `new_listeners` / `returning_listeners` are on breakdown (and engagement), not overview.** Overview only adds the window-level `total_listeners`.
 
 ## Creatives
 
@@ -53,9 +55,11 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/creative
 
 `GET /v1/campaigns/{campaignId}/metrics/breakdown/export` (JSONL)
 
-Per-day, per-country rows (`campaign_country_daily` v1.0). Primary key:
+Per-day, per-country rows (`campaign_country_daily` v1.1). Primary key:
 
 `(provider, account_id, report_date, campaign_id, country_code)`
+
+Each row includes `listeners` (new), `new_listeners`, `returning_listeners`, and `total_listeners`. `streams_per_listener` is streams / `total_listeners` for that row. `schema_version` is `1.1`.
 
 On track campaigns (`campaign_target_type = track`), each row also includes `campaign_target_isrc` and `campaign_target_spotify_track_id`. Use `campaign_target_spotify_track_id` to join with partner track catalogs when ISRC is unavailable.
 
@@ -117,7 +121,7 @@ Rows for a given `report_date` can change for up to **7 days** after the date cl
 
 ## Listeners vs streams
 
-On breakdown and engagement rows, **do not sum `listeners` across days** — the same listener can appear on multiple `report_date` rows. Summing `streams` within a day is safe; across days it counts repeat listens.
+On breakdown and engagement rows, **do not sum `listeners` or `total_listeners` across days** — the same listener can appear on multiple `report_date` rows. That sum will not match overview `total_listeners`. Summing `streams` within a day is safe; across days it counts repeat listens.
 
 ## Listening insights
 
