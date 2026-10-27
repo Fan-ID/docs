@@ -1683,6 +1683,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListeningInsightsResponse'
+              examples:
+                otherArtists:
+                  $ref: '#/components/examples/ListeningInsightOtherArtists'
+                catalogDigIn:
+                  $ref: '#/components/examples/ListeningInsightCatalogDigIn'
+                streamSplit:
+                  $ref: '#/components/examples/ListeningInsightStreamSplit'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2469,6 +2476,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListeningInsightsResponse'
+              examples:
+                otherArtists:
+                  $ref: '#/components/examples/ListeningInsightOtherArtists'
+                catalogDigIn:
+                  $ref: '#/components/examples/ListeningInsightCatalogDigIn'
+                streamSplit:
+                  $ref: '#/components/examples/ListeningInsightStreamSplit'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -2716,6 +2730,78 @@ components:
         type: string
         format: date
       description: Inclusive end date (`YYYY-MM-DD`). Defaults to today.
+
+  examples:
+    ListeningInsightOtherArtists:
+      summary: Other artists these listeners stream
+      value:
+        data:
+          soundlinkId: V1StGXR8_Z5jdHi6B-myT
+          campaignId: f1e28d31-c358-4284-9bef-00a2334625fd
+          insight: other-artists
+          window:
+            startDate: '2026-07-30'
+            endDate: '2026-09-29'
+          artists:
+            - artist: fred again..
+              listeners: 420
+              streams: 3100
+            - artist: jamie xx
+              listeners: 310
+              streams: 1800
+            - artist: four tet
+              listeners: 280
+              streams: 1500
+        meta:
+          requestId: 550e8400-e29b-41d4-a716-446655440000
+    ListeningInsightCatalogDigIn:
+      summary: Playlist reach and catalog follow-through
+      value:
+        data:
+          soundlinkId: V1StGXR8_Z5jdHi6B-myT
+          campaignId: f1e28d31-c358-4284-9bef-00a2334625fd
+          insight: catalog-dig-in
+          window:
+            startDate: '2026-07-30'
+            endDate: '2026-09-29'
+          artists:
+            - artist: overmono
+              playlistListeners: 900
+              playlistStreams: 4200
+              catalogListeners: 210
+              catalogStreams: 980
+              catalogTracks: 12
+              catalogListenerRate: 0.233
+            - artist: joy orbison
+              playlistListeners: 650
+              playlistStreams: 2800
+              catalogListeners: 80
+              catalogStreams: 240
+              catalogTracks: 5
+              catalogListenerRate: 0.123
+        meta:
+          requestId: 550e8400-e29b-41d4-a716-446655440000
+    ListeningInsightStreamSplit:
+      summary: Promoted vs artist catalog stream split
+      value:
+        data:
+          soundlinkId: V1StGXR8_Z5jdHi6B-myT
+          campaignId: f1e28d31-c358-4284-9bef-00a2334625fd
+          insight: stream-split
+          window:
+            startDate: '2026-07-30'
+            endDate: '2026-09-29'
+          contexts:
+            - engagementContext: promoted
+              listeners: 1200
+              streams: 5400
+              tracks: 1
+            - engagementContext: artist_catalog
+              listeners: 340
+              streams: 1100
+              tracks: 18
+        meta:
+          requestId: 550e8400-e29b-41d4-a716-446655440000
 
   schemas:
     # --- Shared ---

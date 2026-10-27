@@ -1,11 +1,11 @@
 ---
 title: Listening insights
-description: Which listening-insight endpoint to call, and how long to wait.
+description: Which listening-insight to call, example responses, and what you can do with them.
 ---
 
 Listening insights answer three questions about people who connected Spotify through a campaign or soundlink. Pick the `insight` that matches the question. The response window is the one stored on the listening graph. Do not send `startDate` or `endDate`.
 
-These calls often take 30–50 seconds. Set the client timeout to at least **120 seconds**. The **Send** button on the API reference stops around 30 seconds. The API keeps running and can still return 200. If the gateway deadline elapses, the response is `504`. That body is the gateway error, not the `{ data, meta }` envelope.
+These calls often take 30–50 seconds. Set the client timeout to at least **120 seconds**. The TypeScript SDK (`soundlink` **2.7.0+**) already uses 120s for these methods. The **Send** button on the API reference stops around 30 seconds. The API keeps running and can still return 200. If the gateway deadline elapses, the response is `504`. That body is the gateway error, not the `{ data, meta }` envelope.
 
 | Question | `insight` | Path |
 | --- | --- | --- |
@@ -15,9 +15,15 @@ These calls often take 30–50 seconds. Set the client timeout to at least **120
 
 A context row is left out when both `listeners` and `streams` are 0.
 
-## Campaign
+## Other artists
 
-Requires `metrics:read`.
+**Question:** What else do these listeners stream?
+
+**Use for:** Meta lookalike / interest seeding, collab shortlists, playlist pitch angles — ranked by how many of *your* connected listeners also stream that artist (top 30; names are lowercased).
+
+Campaign path requires `metrics:read`. Soundlink path requires `soundlinks:read`.
+
+<CodeGroup>
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/listening-insights/other-artists' \
@@ -25,20 +31,196 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/listening-insigh
   --max-time 120
 ```
 
-A campaign outside the organization returns `404 campaign_not_found`. An owned campaign that is not in the listening graph returns `404 not_in_listening_graph`.
+```typescript
+import Soundlink from 'soundlink';
 
-## Soundlink
+const soundlink = new Soundlink({ apiKey: process.env.SOUNDLINK_API_KEY! });
 
-Requires `soundlinks:read`.
+const { data, error } = await soundlink.campaigns.listeningInsights(
+  'CAMPAIGN_ID',
+  'other-artists',
+);
+
+if (error) throw error;
+console.log(data.artists.slice(0, 10));
+```
+
+</CodeGroup>
+
+Example response:
+
+```json
+{
+  "data": {
+    "soundlinkId": "V1StGXR8_Z5jdHi6B-myT",
+    "campaignId": "f1e28d31-c358-4284-9bef-00a2334625fd",
+    "insight": "other-artists",
+    "window": { "startDate": "2026-07-30", "endDate": "2026-09-29" },
+    "artists": [
+      { "artist": "fred again..", "listeners": 420, "streams": 3100 },
+      { "artist": "jamie xx", "listeners": 310, "streams": 1800 },
+      { "artist": "four tet", "listeners": 280, "streams": 1500 }
+    ]
+  },
+  "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
+}
+```
+
+Attributed campaign tracks and campaign artists are excluded from this list.
+
+## Catalog dig-in
+
+**Question:** Did playlist listeners go on to the artist's catalog?
+
+**Use for:** Label playlist campaigns — which artists on the playlist converted playlist reach into catalog listening. Sort by `catalogListenerRate` (catalog listeners ÷ playlist listeners; `null` when playlist listeners is 0).
+
+Best fit for **playlist** targets. Track campaigns and soundlinks may return `artists: []`.
+
+<CodeGroup>
 
 ```bash
-curl -sS 'https://api.getsoundlink.com/v1/soundlinks/SOUNDLINK_ID/listening-insights/catalog-dig-in' \
+curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/listening-insights/catalog-dig-in' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   --max-time 120
 ```
 
-A soundlink created for a campaign is allowed on this path when your organization owns it, even though [list and detail](/soundlinks) hide campaign soundlinks. An unknown soundlink returns `404 not_found`. An owned soundlink that is not in the listening graph returns `404 not_in_listening_graph`.
+```typescript
+const { data, error } = await soundlink.campaigns.listeningInsights(
+  'CAMPAIGN_ID',
+  'catalog-dig-in',
+);
+
+if (error) throw error;
+const ranked = [...data.artists].sort(
+  (a, b) => (b.catalogListenerRate ?? 0) - (a.catalogListenerRate ?? 0),
+);
+```
+
+</CodeGroup>
+
+Example response:
+
+```json
+{
+  "data": {
+    "soundlinkId": "V1StGXR8_Z5jdHi6B-myT",
+    "campaignId": "f1e28d31-c358-4284-9bef-00a2334625fd",
+    "insight": "catalog-dig-in",
+    "window": { "startDate": "2026-07-30", "endDate": "2026-09-29" },
+    "artists": [
+      {
+        "artist": "overmono",
+        "playlistListeners": 900,
+        "playlistStreams": 4200,
+        "catalogListeners": 210,
+        "catalogStreams": 980,
+        "catalogTracks": 12,
+        "catalogListenerRate": 0.233
+      },
+      {
+        "artist": "joy orbison",
+        "playlistListeners": 650,
+        "playlistStreams": 2800,
+        "catalogListeners": 80,
+        "catalogStreams": 240,
+        "catalogTracks": 5,
+        "catalogListenerRate": 0.123
+      }
+    ]
+  },
+  "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
+}
+```
+
+## Stream split
+
+**Question:** How do streams split across promoted, playlist, and catalog?
+
+**Use for:** Post-campaign halo reporting — how much listening stayed on the promoted target vs spilled into the artist's catalog (or, for playlist campaigns, playlist vs catalog).
+
+- **Track** campaigns: contexts such as `promoted` and `artist_catalog`.
+- **Playlist** campaigns: `playlist` then `artist_catalog`.
+- Other campaign types: `200` with `contexts: []`.
+
+<CodeGroup>
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/listening-insights/stream-split' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  --max-time 120
+```
+
+```typescript
+const { data, error } = await soundlink.campaigns.listeningInsights(
+  'CAMPAIGN_ID',
+  'stream-split',
+);
+
+if (error) throw error;
+const byContext = Object.fromEntries(
+  data.contexts.map((c) => [c.engagementContext, c]),
+);
+const promoted = byContext.promoted?.streams ?? 0;
+const catalog = byContext.artist_catalog?.streams ?? 0;
+```
+
+</CodeGroup>
+
+Example response (track campaign):
+
+```json
+{
+  "data": {
+    "soundlinkId": "V1StGXR8_Z5jdHi6B-myT",
+    "campaignId": "f1e28d31-c358-4284-9bef-00a2334625fd",
+    "insight": "stream-split",
+    "window": { "startDate": "2026-07-30", "endDate": "2026-09-29" },
+    "contexts": [
+      {
+        "engagementContext": "promoted",
+        "listeners": 1200,
+        "streams": 5400,
+        "tracks": 1
+      },
+      {
+        "engagementContext": "artist_catalog",
+        "listeners": 340,
+        "streams": 1100,
+        "tracks": 18
+      }
+    ]
+  },
+  "meta": { "requestId": "550e8400-e29b-41d4-a716-446655440000" }
+}
+```
+
+## Soundlink path
+
+Same three insights on a soundlink id. Scope is `soundlinks:read`. A soundlink created for a campaign is allowed on this path when your organization owns it, even though [list and detail](/soundlinks) hide campaign soundlinks.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/soundlinks/SOUNDLINK_ID/listening-insights/other-artists' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  --max-time 120
+```
+
+```typescript
+const { data } = await soundlink.soundlinks.listeningInsights(
+  'SOUNDLINK_ID',
+  'other-artists',
+);
+```
+
+## Empty states and retries
+
+| Response | Meaning |
+| --- | --- |
+| `404 campaign_not_found` | Campaign outside the organization |
+| `404 not_found` | Unknown soundlink (soundlink path) |
+| `404 not_in_listening_graph` | Owned resource, but no row on the listening graph yet — treat as empty, not a hard failure |
+| `403 premium_plan_required` | Plan below Label / Enterprise / committed / self-serve |
+| `504` | Gateway deadline (120s). One retry often succeeds because BigQuery caches the result |
 
 ## Next
 
-[Campaign metrics](/understanding-metrics) · [Soundlink metrics](/soundlink-metrics) · [API Reference](/api-reference)
+[Campaign metrics](/understanding-metrics) · [Soundlink metrics](/soundlink-metrics) · [TypeScript SDK](/typescript-sdk) · [API Reference](/api-reference)
