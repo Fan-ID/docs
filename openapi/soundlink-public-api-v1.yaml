@@ -3008,7 +3008,6 @@ components:
             - learning_edit_ack_required
             - wallet_not_enabled
             - premium_plan_required
-            - attribution_not_enabled
             - soundlink_plan_required
             - custom_pixel_not_enabled
             - meta_pixel_conflict
@@ -4456,8 +4455,7 @@ components:
           description: |
             When false, the landing page skips Spotify login and only tracks
             the landing-page click. Omit or send true to keep attribution.
-            Sending false requires the organization to be allowed to turn
-            attribution off, and cannot be combined with `autoFollow: true`.
+            Cannot be combined with `autoFollow: true`.
 
     SoundlinkDetail:
       allOf:
@@ -5377,7 +5375,7 @@ components:
     CreateSoundlinkForbidden:
       description: |
         Valid credentials but missing the `soundlinks:write` scope, or the
-        organization is not allowed to create a soundlink with attribution off.
+        organization has no self-serve plan.
       content:
         application/json:
           schema:
@@ -5390,11 +5388,11 @@ components:
                   message: "This key does not have the soundlinks:write scope."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-            attribution_not_enabled:
+            soundlink_plan_required:
               value:
                 error:
-                  code: attribution_not_enabled
-                  message: "This organization cannot create a soundlink with attribution off."
+                  code: soundlink_plan_required
+                  message: "Creating a Soundlink requires a self-serve plan."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
     CreateSoundlinkUnprocessable:
