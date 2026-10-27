@@ -3008,7 +3008,6 @@ components:
             - learning_edit_ack_required
             - wallet_not_enabled
             - premium_plan_required
-            - youtube_music_not_enabled
             - attribution_not_enabled
             - soundlink_plan_required
             - custom_pixel_not_enabled
