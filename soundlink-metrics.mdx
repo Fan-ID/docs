@@ -53,6 +53,8 @@ Per-day, per-country rows (`soundlink_country_daily` v1.0). Primary key:
 
 On track soundlinks (`soundlink_target_type = track`), each row also includes `soundlink_target_isrc` and `soundlink_target_spotify_track_id`.
 
+Each row includes `spotify_link_clicks`, `apple_music_link_clicks`, and `youtube_music_link_clicks`. `link_clicks` is the all-DSP total and is always greater than or equal to their sum — do not derive a DSP count by subtraction. Apple Music and YouTube Music are outbound clicks only (no playback attribution). YouTube Music is often `0` on standalone soundlinks.
+
 Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and daily warehouse loads by territory. Summing country rows for a given `report_date` reconstructs the day total across territories.
 
 | Use case                           | Endpoint              |
