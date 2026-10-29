@@ -1,20 +1,23 @@
 ---
 title: Managing pixels
-description: Save and list organization Meta pixels, rotate Conversions API tokens, and send a test event.
+description: Save, list, delete, and test organization Meta pixels — including default and send-health fields.
 ---
 
-The Pixels API lets you store Meta Conversions API credentials for your organization: save or rotate a token, list configured pixels (never the token), and send a live test event.
+Store Meta Conversions API credentials for your organization: save or rotate a token, set a default, list pixels (never the token), delete, and send a live test event.
 
-Requires custom pixels to be enabled for your organization. Otherwise every route returns `403 custom_pixel_not_enabled`. Scopes: `pixels:read` to list, `pixels:write` to save or test — see [Authentication](/authentication#scopes-v1).
+Requires custom pixels to be enabled for your organization. Otherwise every route returns `403 custom_pixel_not_enabled`. Scopes: `pixels:read` to list, `pixels:write` to save, delete, or test — see [Authentication](/authentication#scopes-v1).
 
 <Note>
   These routes manage organization pixel credentials. They are separate from the Meta
   pixel fields on [self-serve soundlink create](/creating-soundlinks#meta-pixel).
+  `isDefault` only affects the app soundlink picker — create via the API never applies a default.
 </Note>
 
 ## Save or rotate a pixel
 
 `PUT /v1/pixels/{pixelId}`
+
+At least one of `accessToken` or `isDefault` is required. `platform` must be `meta`.
 
 ```bash
 curl -sS -X PUT 'https://api.getsoundlink.com/v1/pixels/PIXEL_ID' \
@@ -22,7 +25,8 @@ curl -sS -X PUT 'https://api.getsoundlink.com/v1/pixels/PIXEL_ID' \
   -H 'Content-Type: application/json' \
   -d '{
     "platform": "meta",
-    "accessToken": "EAAB..."
+    "accessToken": "EAAB...",
+    "isDefault": true
   }'
 ```
 
@@ -30,15 +34,22 @@ Expected (`200`). The response never includes the access token:
 
 ```json
 {
-  "data": { "id": "PIXEL_ID", "platform": "meta" },
+  "data": {
+    "id": "PIXEL_ID",
+    "platform": "meta",
+    "isDefault": true,
+    "status": "ok",
+    "lastErrorCode": null,
+    "errorSince": null
+  },
   "meta": { "requestId": "..." }
 }
 ```
 
 | Situation | Result |
 | --------- | ------ |
-| New `pixelId` for your organization | Pixel is saved |
-| Same `pixelId` you already own | Access token is replaced |
+| New `pixelId` for your organization | Pixel is saved (`accessToken` required) |
+| Same `pixelId` you already own | Token replaced when `accessToken` is sent; `isDefault` updated when sent |
 | Another `pixelId` for the same organization | Saved alongside existing pixels |
 | Pixel owned by another organization | `409 meta_pixel_conflict` |
 | Access token already used with another pixel | `400 invalid_request` |
@@ -60,11 +71,38 @@ Expected (`200`):
 ```json
 {
   "data": {
-    "pixels": [{ "id": "PIXEL_ID", "platform": "meta" }]
+    "pixels": [
+      {
+        "id": "PIXEL_ID",
+        "platform": "meta",
+        "isDefault": true,
+        "status": "ok",
+        "lastErrorCode": null,
+        "errorSince": null
+      }
+    ]
   },
   "meta": { "requestId": "..." }
 }
 ```
+
+`status`, `lastErrorCode`, and `errorSince` reflect recent Conversions API send health.
+
+## Delete a pixel
+
+`DELETE /v1/pixels/{pixelId}`
+
+```bash
+curl -sS -X DELETE 'https://api.getsoundlink.com/v1/pixels/PIXEL_ID' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+Expected (`204`) with an empty body.
+
+| Situation | Result |
+| --------- | ------ |
+| Pixel not configured for your organization | `404 not_found` |
+| Any soundlink still uses the pixel | `409 pixel_in_use` (`details.smartLinkCount`) |
 
 ## Send a test event
 

@@ -240,6 +240,7 @@
             "pages": [
               "GET /v1/pixels",
               "PUT /v1/pixels/{pixelId}",
+              "DELETE /v1/pixels/{pixelId}",
               "POST /v1/pixels/{pixelId}/test-events"
             ]
           }
