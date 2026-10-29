@@ -36,12 +36,14 @@ info:
     | --- | --- | --- |
     | `GET /v1/ping` | any granted Public API scope | API key (Bearer) or OAuth Bearer |
     | Campaign reads (`GET /v1/strategies`, `GET /v1/campaigns`, campaign detail, tiers) | `campaigns:read` | API key (Bearer) or OAuth Bearer |
-    | Metrics reads (overview, breakdown, exports, campaign listening insights, campaign retention) | `metrics:read` | API key (Bearer) or OAuth Bearer |
+    | Metrics reads (overview, breakdown, exports) | `metrics:read` | API key (Bearer) or OAuth Bearer |
+    | Campaign listening insights + campaign cohort retention (**Label / Enterprise / committed / self-serve**) | `metrics:read` | API key (Bearer) or OAuth Bearer |
     | Campaign writes (create, stop, budget, tier updates) | `campaigns:write` | API key (Bearer) or OAuth Bearer |
     | Pixel reads (`GET /v1/pixels`) | `pixels:read` | API key (Bearer) or OAuth Bearer |
     | Pixel writes (save pixel, test events) | `pixels:write` | API key (Bearer) or OAuth Bearer |
     | Video import / import status | `videos:write` | API key (Bearer) or OAuth Bearer |
-    | Soundlink reads (list, detail, metrics overview/breakdown/engagement/retention, listening insights, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
+    | Soundlink reads (list, detail, metrics overview/breakdown/engagement, JSONL exports) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
+    | Soundlink listening insights + soundlink cohort retention (**Label / Enterprise / committed / self-serve**) | `soundlinks:read` | API key (Bearer) or OAuth Bearer |
     | Soundlink writes (create, archive, test events) | `soundlinks:write` | API key (Bearer) or OAuth Bearer |
     | Wallet read (`GET /v1/wallet`) | `wallet:read` | API key (Bearer) or OAuth Bearer |
 
@@ -170,6 +172,11 @@ paths:
         Returns the Meta pixels configured for the organization. Access tokens
         are never returned. Today each entry has `platform: meta`.
 
+        Each pixel includes `isDefault` and send-health fields (`status`,
+        `lastErrorCode`, `errorSince`). `isDefault` only affects the app's
+        soundlink create picker; this API never applies a default pixel on
+        create.
+
         Requires `pixels:read`. Organizations without custom pixels enabled
         get `403 custom_pixel_not_enabled`.
       tags: [Pixels]
@@ -190,6 +197,10 @@ paths:
                   pixels:
                     - id: "1234567890123456"
                       platform: meta
+                      isDefault: true
+                      status: ok
+                      lastErrorCode: null
+                      errorSince: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '401': { $ref: '#/components/responses/Unauthorized' }
@@ -202,12 +213,13 @@ paths:
       operationId: updatePixel
       summary: Save an organization pixel
       description: |
-        Saves the Conversions API access token for `pixelId`. The same call
-        creates the pixel or rotates its token, and both return `200`:
+        Saves the Conversions API access token and/or default flag for
+        `pixelId`. The same call creates the pixel or rotates its token, and
+        both return `200`:
 
-        - No Meta pixel yet: the pixel is saved.
+        - No Meta pixel yet: the pixel is saved (`accessToken` required).
         - `pixelId` matches a Meta pixel the organization already has: its
-          access token is replaced.
+          access token is replaced when `accessToken` is sent.
         - A different Meta pixel for the same organization: the new pixel is
           saved alongside existing ones.
         - The pixel is configured by another organization: `409
@@ -215,6 +227,8 @@ paths:
         - The access token is already used with another pixel: `400
           invalid_request`.
         - `platform` other than `meta`: `400 invalid_request`.
+        - Optional `isDefault` sets or clears the org default for Meta. At
+          least one of `accessToken` or `isDefault` is required.
 
         The response never includes the access token. Use
         `POST /v1/pixels/{pixelId}/test-events` to check the pixel and token.
@@ -247,6 +261,7 @@ paths:
             example:
               platform: meta
               accessToken: "EAAB..."
+              isDefault: true
       responses:
         '200':
           description: Pixel saved or token rotated
@@ -258,12 +273,55 @@ paths:
                 data:
                   id: "1234567890123456"
                   platform: meta
+                  isDefault: true
+                  status: ok
+                  lastErrorCode: null
+                  errorSince: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '400': { $ref: '#/components/responses/UpdatePixelBadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/PixelForbidden' }
         '409': { $ref: '#/components/responses/PixelConflict' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+    delete:
+      operationId: deletePixel
+      summary: Delete an organization pixel
+      description: |
+        Deletes the Meta pixel `pixelId` for the organization.
+
+        - `204` when deleted.
+        - `404 not_found` when the pixel is not configured for the organization.
+        - `409 pixel_in_use` when any smart link still uses the pixel as its
+          main or side pixel (`details.smartLinkCount`).
+
+        Requires `pixels:write`. Organizations without custom pixels enabled
+        get `403 custom_pixel_not_enabled`.
+
+        **Auth:** Accepts API key or OAuth Bearer (`pixels:write`).
+      tags: [Pixels]
+      x-required-scope: pixels:write
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+
+      parameters:
+        - name: pixelId
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          description: Pixel id on the ad platform.
+      responses:
+        '204':
+          description: Pixel deleted
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/PixelForbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/PixelInUse' }
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
@@ -1620,6 +1678,9 @@ paths:
         If you omit both, a recent window ending today is used. A range that is too wide
         returns `400 invalid_query_parameter`.
 
+        **Plan requirement:** Label, Enterprise, committed, and self-serve plans.
+        Organizations on a lower plan receive `403 premium_plan_required`.
+
         Requires the `metrics:read` scope. Accepts API key or OAuth Bearer.
         A campaign outside the organization returns `404 campaign_not_found`.
         An owned campaign with no linked soundlink in `dim_campaigns_current`
@@ -1629,6 +1690,7 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       x-required-scope: metrics:read
+      x-premium-plan-level-min: 3
       parameters:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/startDate'
@@ -1642,7 +1704,7 @@ paths:
                 $ref: '#/components/schemas/SoundlinkCohortRetentionResponse'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
+        '403': { $ref: '#/components/responses/PremiumAnalyticsForbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
@@ -1663,6 +1725,9 @@ paths:
         - `catalog-dig-in` — playlist reach and catalog follow-through per artist. Track campaigns may return `artists: []`.
         - `stream-split` — `track` campaigns return attributed contexts such as `promoted` and `artist_catalog`. `playlist` campaigns return `playlist` then `artist_catalog`. A context is omitted when listeners and streams are both 0. Any other campaign type returns `200` with `contexts: []`.
 
+        **Plan requirement:** Label, Enterprise, committed, and self-serve plans.
+        Organizations on a lower plan receive `403 premium_plan_required`.
+
         Requires the `metrics:read` scope. Accepts API key or OAuth Bearer.
         A campaign outside the organization returns `404 campaign_not_found`.
         An owned campaign with no listening-graph row returns `404 not_in_listening_graph`
@@ -1672,6 +1737,7 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       x-required-scope: metrics:read
+      x-premium-plan-level-min: 3
       x-recommended-timeout-seconds: 120
       parameters:
         - $ref: '#/components/parameters/campaignId'
@@ -1685,7 +1751,7 @@ paths:
                 $ref: '#/components/schemas/ListeningInsightsResponse'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
+        '403': { $ref: '#/components/responses/PremiumAnalyticsForbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
@@ -1760,7 +1826,8 @@ paths:
         API equivalent of the in-app create flow. It does not create a wallet
         campaign and does not appear on `GET /v1/campaigns`.
 
-        Requires the `soundlinks:write` scope.
+        Requires the `soundlinks:write` scope and a self-serve plan on the
+        organization; otherwise returns `403 soundlink_plan_required`.
 
         `Idempotency-Key` is **required**. Reusing the key with an unchanged
         body replays the original `201`; a different body returns
@@ -2410,12 +2477,16 @@ paths:
         If you omit both, a recent window ending today is used. A range that is too wide
         returns `400 invalid_query_parameter`.
 
+        **Plan requirement:** Label, Enterprise, committed, and self-serve plans.
+        Organizations on a lower plan receive `403 premium_plan_required`.
+
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
       tags: [Soundlinks]
       security:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       x-required-scope: soundlinks:read
+      x-premium-plan-level-min: 3
       parameters:
         - $ref: '#/components/parameters/soundlinkId'
         - $ref: '#/components/parameters/startDate'
@@ -2429,7 +2500,7 @@ paths:
                 $ref: '#/components/schemas/SoundlinkCohortRetentionResponse'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
+        '403': { $ref: '#/components/responses/PremiumAnalyticsForbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
@@ -2450,6 +2521,9 @@ paths:
         - `catalog-dig-in` — playlist reach and catalog follow-through per artist. Track soundlinks may return `artists: []`.
         - `stream-split` — `track` soundlinks return attributed contexts such as `promoted` and `artist_catalog`. `playlist` soundlinks return `playlist` then `artist_catalog`. A context is omitted when listeners and streams are both 0. Any other campaign type returns `200` with `contexts: []`.
 
+        **Plan requirement:** Label, Enterprise, committed, and self-serve plans.
+        Organizations on a lower plan receive `403 premium_plan_required`.
+
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
         A soundlink created for a campaign is allowed here when the organization owns it,
         even though `GET /v1/soundlinks/{soundlinkId}` does not return campaign soundlinks.
@@ -2461,6 +2535,7 @@ paths:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       x-required-scope: soundlinks:read
+      x-premium-plan-level-min: 3
       x-recommended-timeout-seconds: 120
       parameters:
         - $ref: '#/components/parameters/soundlinkId'
@@ -2474,7 +2549,7 @@ paths:
                 $ref: '#/components/schemas/ListeningInsightsResponse'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
+        '403': { $ref: '#/components/responses/PremiumAnalyticsForbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
@@ -2769,12 +2844,33 @@ components:
 
     Pixel:
       type: object
-      required: [id, platform]
+      required: [id, platform, isDefault, status, lastErrorCode, errorSince]
       properties:
         id:
           type: string
         platform:
           $ref: '#/components/schemas/PixelPlatform'
+        isDefault:
+          type: boolean
+          description: |
+            Whether this pixel is the organization's default for its platform.
+            Only drives the app soundlink create picker; create APIs never
+            fall back to it.
+        status:
+          type: string
+          enum: [ok, error]
+          description: |
+            `error` while an open send-error episode exists for this pixel;
+            `ok` otherwise.
+        lastErrorCode:
+          type: string
+          nullable: true
+          description: Platform error code for the open episode, or `null`.
+        errorSince:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the open error episode started, or `null`.
 
     PixelListResponse:
       type: object
@@ -2794,14 +2890,21 @@ components:
 
     UpdatePixelRequest:
       type: object
-      required: [platform, accessToken]
+      required: [platform]
       properties:
         platform:
           $ref: '#/components/schemas/PixelPlatform'
         accessToken:
           type: string
           minLength: 1
-          description: Conversions API access token. Stored and never returned.
+          description: |
+            Conversions API access token. Stored and never returned. Required
+            when creating a new pixel; optional when only updating `isDefault`.
+        isDefault:
+          type: boolean
+          description: |
+            Sets or clears the organization's default Meta pixel. At least one
+            of `accessToken` or `isDefault` must be present.
 
     UpdatePixelResponse:
       type: object
@@ -3014,6 +3117,7 @@ components:
             - soundlink_plan_required
             - custom_pixel_not_enabled
             - meta_pixel_conflict
+            - pixel_in_use
             - insufficient_credit
             - idempotency_key_conflict
             - rate_limit_exceeded
@@ -4418,14 +4522,16 @@ components:
         metaPixelId:
           type: string
           description: |
-            Meta pixel ID. Must be sent together with
-            `metaConversionAccessToken`. Omit both to skip Meta tracking.
+            Meta pixel ID. Send with `metaConversionAccessToken` to save or
+            rotate the token (unchanged). Or send `metaPixelId` alone to reuse
+            a pixel the organization already saved (requires pixel settings).
+            Omit both to skip Meta tracking. Never applies an org default.
         metaConversionAccessToken:
           type: string
           writeOnly: true
           description: |
             Meta Conversions API access token. Write-only: accepted on create,
-            never returned on GET. Must be sent together with `metaPixelId`.
+            never returned on GET. When present, `metaPixelId` is required.
         appleMusicUrl:
           type: string
           format: uri
@@ -5343,6 +5449,31 @@ components:
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 
+    PremiumAnalyticsForbidden:
+      description: |
+        Authenticated with a valid scope, but the organization's subscription
+        is not on a Label, Enterprise, committed, or self-serve plan.
+        Applies to listening insights and cohort retention endpoints.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            premium_plan_required:
+              value:
+                error:
+                  code: premium_plan_required
+                  message: "Listening insights and cohort retention require a Label, Enterprise, committed, or self-serve plan."
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+            insufficient_scope:
+              value:
+                error:
+                  code: insufficient_scope
+                  message: "This token does not have the metrics:read scope."
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+
     CreateCampaignForbidden:
       description: |
         Valid key but missing the `campaigns:write` scope, or the calling
@@ -5390,11 +5521,18 @@ components:
                   message: "Idempotency-Key header is required and must not be empty."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
-            pixel_pair:
+            pixel_token_without_id:
               value:
                 error:
                   code: invalid_request
                   message: "metaPixelId and metaConversionAccessToken must both be provided, or both omitted."
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+            pixel_not_owned:
+              value:
+                error:
+                  code: invalid_request
+                  message: "This pixel can't be used with this account. Check the pixel ID and access token, or contact support."
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 
@@ -5499,6 +5637,24 @@ components:
                 error:
                   code: meta_pixel_conflict
                   message: "This pixel can't be used with this account. Check the pixel ID and access token, or contact support."
+                meta:
+                  requestId: 550e8400-e29b-41d4-a716-446655440000
+
+    PixelInUse:
+      description: |
+        The pixel is still used by one or more smart links and cannot be deleted.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            pixel_in_use:
+              value:
+                error:
+                  code: pixel_in_use
+                  message: "This pixel is used by smart links and can't be deleted."
+                  details:
+                    smartLinkCount: 2
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
 

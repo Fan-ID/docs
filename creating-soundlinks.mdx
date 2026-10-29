@@ -56,8 +56,8 @@ The soundlink is `active` immediately. Use `data.url` as the public landing page
 | `autoFollow` | No | Default `false`. When `true`, fans who connect Spotify from the landing page are asked to follow the track artist, or the playlist itself |
 | `artistIdFollow` | No | Spotify artist ID for auto-follow on **track** links. Kept even when `autoFollow` is `false`. Ignored for playlists. For multi-artist tracks, pass the artist that should be followed |
 | `attributionEnabled` | No | Default `true`. Omit or send `true` to keep Spotify login. `false` skips login and only tracks the landing-page click. Cannot be combined with `autoFollow: true` |
-| `metaPixelId` | No | Meta pixel ID. Must be sent together with `metaConversionAccessToken` |
-| `metaConversionAccessToken` | No | Meta Conversions API token. Write-only: accepted on create, never returned. Must be sent together with `metaPixelId` |
+| `metaPixelId` | No | Meta pixel ID. Alone: reuse a pixel already saved via [Managing pixels](/managing-pixels). With token: save or rotate |
+| `metaConversionAccessToken` | No | Meta Conversions API token. Write-only; never returned. Requires `metaPixelId` |
 
 ## Spotify URLs
 
@@ -111,7 +111,12 @@ Shorts, live, channel, and browse links, `http`, or any other host return `400 i
 
 ## Meta pixel
 
-To attach a Meta pixel, send **both** `metaPixelId` and `metaConversionAccessToken`. Sending only one returns `400 invalid_request`. Omit both to skip Meta tracking.
+Attach a Meta pixel in one of two ways:
+
+- **Save or rotate** — send `metaPixelId` and `metaConversionAccessToken` together.
+- **Reuse a saved pixel** — send `metaPixelId` alone for a pixel your organization already stored via [Managing pixels](/managing-pixels).
+
+Token without ID, or an ID your organization does not own, returns `400 invalid_request`. Omit both to skip Meta tracking. Create never applies an organization default.
 
 ```json
 {
@@ -119,6 +124,16 @@ To attach a Meta pixel, send **both** `metaPixelId` and `metaConversionAccessTok
   "spotifyUrl": "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl",
   "metaPixelId": "1234567890123456",
   "metaConversionAccessToken": "EAAB..."
+}
+```
+
+Reuse only:
+
+```json
+{
+  "name": "Midnight Drive",
+  "spotifyUrl": "https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl",
+  "metaPixelId": "1234567890123456"
 }
 ```
 
@@ -144,7 +159,7 @@ The `Idempotency-Key` header is **required** on `POST /v1/soundlinks`.
 
 | HTTP | Code | When |
 | ---- | ---- | ---- |
-| 400 | `invalid_request` | Missing/malformed field, invalid `appleMusicUrl` or `youtubeMusicUrl`, unpaired Meta pixel fields, `attributionEnabled: false` with `autoFollow: true`, or missing `Idempotency-Key` |
+| 400 | `invalid_request` | Missing/malformed field, invalid `appleMusicUrl` or `youtubeMusicUrl`, Meta pixel token without ID or unowned pixel ID, `attributionEnabled: false` with `autoFollow: true`, or missing `Idempotency-Key` |
 | 403 | `insufficient_scope` | Credential missing `soundlinks:write` |
 | 403 | `soundlink_plan_required` | Organization has no Self-Serve plan |
 | 409 | `idempotency_key_conflict` | Key reused with a different body, or still processing |
