@@ -80,7 +80,7 @@
               "errors",
               {
                 "group": "SDKs and tools",
-                "pages": ["sdks", "typescript-sdk", "warehouse-connector"]
+                "pages": ["sdks", "typescript-sdk", "api-emulator", "warehouse-connector"]
               },
               {
                 "group": "API guides",

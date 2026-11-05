@@ -1,0 +1,249 @@
+---
+title: API emulator
+description: Run the campaign lifecycle locally with soundlink/api-emulator. No Meta spend and no hosted sandbox.
+---
+
+Use **`soundlink/api-emulator`** to exercise wallet campaign flows on your machine. It is a stateful stand-in for a subset of the Public API. It does not call Meta and it does not spend. The import is not re-exported from `soundlink`. Requires **`soundlink` 2.10.0** or later. For the typed client against production, see [Access the API with TypeScript](/typescript-sdk).
+
+<Note>
+  Listen binds `127.0.0.1` only. Another machine, or a container without host
+  networking, cannot reach it. Harness routes under `/__emulator` have no auth,
+  so listen refuses any other host.
+</Note>
+
+## Prerequisites
+
+- **Node.js 18+**
+- An API key string that starts with `sk_`. The emulator checks that the `Authorization: Bearer` value matches the key you passed to `createApiEmulator`. It does not call Soundlink to validate the key.
+
+## 1. Install
+
+<CodeGroup>
+
+```bash npm
+npm install soundlink
+```
+
+```bash yarn
+yarn add soundlink
+```
+
+```bash pnpm
+pnpm add soundlink
+```
+
+```bash bun
+bun add soundlink
+```
+
+</CodeGroup>
+
+## 2. Start the emulator
+
+```typescript
+import { Soundlink } from "soundlink";
+import { createApiEmulator } from "soundlink/api-emulator";
+
+const apiKey = "sk_emulator_test";
+const emulator = createApiEmulator({
+  apiKey,
+  initialWalletBalance: 500,
+  plan: "enterprise",
+});
+
+const server = await emulator.listen();
+const soundlink = new Soundlink({ apiKey, baseUrl: server.baseUrl });
+```
+
+`listen()` with no port binds an ephemeral port on `127.0.0.1`. `server.baseUrl` is `http://127.0.0.1:<port>`. Pass that value as `baseUrl`. The SDK adds `/v1`. Do not pass a URL that already ends in `/v1`.
+
+Same process, no TCP: `emulator.dispatch({ method, path, headers, body })`.
+
+## 3. Create, read metrics, stop
+
+Create debits `dailyBudget × durationDays` immediately and returns status `creating`. `reserved` stays `0`. `available` equals `balance`.
+
+```typescript
+const { data: created, error } = await soundlink.campaigns.create(
+  {
+    spotifyUrl: "https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh",
+    dailyBudget: 10,
+    durationDays: 7,
+    genre: "Pop",
+    strategyType: "maximum_growth",
+    autoRenew: false,
+  },
+  { idempotencyKey: "demo-1" },
+);
+
+if (error || !created) {
+  console.error(error?.code, error?.message);
+  return;
+}
+
+emulator.transition(created.campaignId, "activate");
+emulator.transition(created.campaignId, "set_spend", 40);
+
+const { data: overview } = await soundlink.metrics.overview(created.campaignId);
+
+await soundlink.campaigns.stop(created.campaignId, {
+  idempotencyKey: "stop-1",
+});
+
+await server.close();
+```
+
+With `plan: "enterprise"` (fee `0.1`) and a starting balance of `500`, that sequence moves the wallet **500 → 430 → 455.56**. Overview after `set_spend(40)` is `spend_media` **40**, `fees` **4.44**, `spend_total` **44.44**. The refund on stop is **25.56**.
+
+`activate` and `set_spend` are harness calls. They are not Public API routes. `activate` seeds listeners at 120 and does not set spend. Only `set_spend` raises `spend_media`.
+
+Create returns `{ campaignId, status: "creating", autoRenew }`. `generation` (`3`) is on the later GET, not on the 201.
+
+## Call it from another process
+
+Fix the port and leave the process running. Any local `fetch` or `curl` on the same machine can call it. The client does not need the SDK.
+
+```typescript
+const server = await emulator.listen({ port: 8787 });
+console.log(server.baseUrl);
+```
+
+```bash
+curl -s http://127.0.0.1:8787/v1/ping \
+  -H "Authorization: Bearer sk_emulator_test"
+```
+
+```bash
+curl -s -X POST "http://127.0.0.1:8787/__emulator/campaigns/CAMPAIGN_ID/transition" \
+  -H "Content-Type: application/json" \
+  -d '{"action":"activate"}'
+```
+
+`set_spend` sends `{ "action": "set_spend", "mediaSpendUsd": 40 }`. Spend must be between 0 and the committed amount, and only while the campaign is `creating`, `active`, or `inactive`, and only before a refund.
+
+## Harness
+
+Prefer `emulator.transition`, `emulator.setWallet`, and `emulator.reset` when this process owns the emulator.
+
+| Action                    | Effect                                                            |
+| ------------------------- | ----------------------------------------------------------------- |
+| `activate`                | `creating` → `active`. Seeds overview listeners.                  |
+| `reject_meta`             | `creating` or `active` → `inactive`. Does **not** refund.         |
+| `set_spend`               | Sets media spend before a refund.                                 |
+| `end`                     | `active` or `inactive` → `ended`, then the same refund as `stop`. |
+| `POST /__emulator/wallet` | `{ "balance": number }`. Tops up without deleting campaigns.      |
+| `POST /__emulator/reset`  | Clears campaigns and idempotency. Restores the initial balance.   |
+
+A campaign that never spends is refunded in full on stop. Stopping while status is still `creating` returns `400`. The path for a campaign that never went live is `reject_meta`, then `stop`.
+
+There is no calendar end date. `end` is the harness action that settles the cycle.
+
+A second stop on `stopped` or `ended` does not refund again.
+
+## Plans and refunds
+
+Reconcile against `GET /v1/wallet`. The emulator does not keep a second credit ledger. A refund is the wallet credit on `stop` or `end`.
+
+Presets are local test values, not the public price list. Pass `feeRate` when the test needs a specific rate. `feeRate` overrides the plan. It must be in `[0, 1)`.
+
+| Plan                           | Fee    |
+| ------------------------------ | ------ |
+| _(omit)_                       | `0`    |
+| `free`, `artist_pro`, `studio` | `0.2`  |
+| `label_power`                  | `0.15` |
+| `enterprise`                   | `0.1`  |
+
+With a fee, media spend grosses up before the refund:
+
+```text
+grossSpend = mediaSpend / (1 − feeRate)
+refund     = max(0, committed − grossSpend)
+```
+
+Omit `plan` and `feeRate` and the fee is `0`, so the refund is `committed − mediaSpend`. `emulator.getPlan()` returns the fee and a `premium` flag. `premium` is metadata only. It does not change `/v1` payloads.
+
+## Insufficient credit
+
+A create that the wallet cannot pay returns `402` with code `insufficient_credit`. `error.details.available` is the current balance. `error.details.required` is the committed debit.
+
+Create `402` does not store the Idempotency-Key in this emulator, so the same key would also succeed after a top-up. Do not rely on that. The public API can replay a recorded `402`. Retry with a **new** key.
+
+```typescript
+const apiKey = "sk_emulator_test";
+const low = createApiEmulator({ apiKey, initialWalletBalance: 10 });
+const server = await low.listen();
+const soundlink = new Soundlink({ apiKey, baseUrl: server.baseUrl });
+
+const body = {
+  spotifyUrl: "https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh",
+  dailyBudget: 10,
+  durationDays: 7,
+  genre: "Pop",
+  strategyType: "maximum_growth",
+};
+
+const denied = await soundlink.campaigns.create(body, {
+  idempotencyKey: "create-1",
+});
+
+low.setWallet(500);
+
+const created = await soundlink.campaigns.create(body, {
+  idempotencyKey: "create-2",
+});
+```
+
+## Options
+
+| Option                 | Default              | Notes                                                                  |
+| ---------------------- | -------------------- | ---------------------------------------------------------------------- |
+| `apiKey`               | `sk_emulator_test`   | Must start with `sk_`. Send the same value as `Authorization: Bearer`. |
+| `initialWalletBalance` | `1000`               | USD.                                                                   |
+| `plan`                 | —                    | Sets the paid-campaign fee. See the table above.                       |
+| `feeRate`              | `0`, or the plan fee | Overrides the plan fee. Must be in `[0, 1)`.                           |
+| `organizationId`       | `org_emulator`       | Returned on campaign detail.                                           |
+
+## Errors
+
+The SDK returns `{ data, error }` and does not throw on these responses. See [Errors](/errors).
+
+| Case                                                 | Status | Code                       |
+| ---------------------------------------------------- | ------ | -------------------------- |
+| Wallet below the committed debit                     | 402    | `insufficient_credit`      |
+| Missing or empty `Idempotency-Key` on create or stop | 400    | `invalid_request`          |
+| `Idempotency-Key` longer than 255 characters         | 400    | `invalid_request`          |
+| Same key, different body                             | 409    | `idempotency_key_conflict` |
+| `dailyBudget` below 10                               | 422    | `invalid_daily_budget`     |
+| Bad `durationDays`                                   | 422    | `invalid_duration_days`    |
+| Missing or wrong API key                             | 401    | `invalid_api_key`          |
+| Stop while `creating`                                | 400    | `invalid_request`          |
+
+Stop hashes `{ campaignId }` only. Stopping while `creating` releases the key, so the same key works after `activate`.
+
+## Not production
+
+<Warning>
+  Genre, Spotify URL shape, and `strategyType` are not validated. A value
+  production would reject with `422` can return `201` here.
+</Warning>
+
+- Overview ignores the date query. Invalid date order is not a `400`.
+- Implemented routes: `GET /v1/ping`, `GET /v1/wallet`, `GET /v1/strategies`, campaign create, get, list, and stop, and `GET /v1/campaigns/{id}/metrics/overview`.
+- Pixels, soundlinks, budget changes, tiers, activity, and JSONL exports are not implemented.
+- `campaignUrl` on detail is a placeholder. It is not a live dashboard for these ids.
+
+## Worked example
+
+[soundlink-api-emulator-example](https://github.com/Fan-ID/soundlink-api-emulator-example) seeds six campaigns and serves them at `http://127.0.0.1:3000`. The emulator stays on `http://127.0.0.1:8787`.
+
+```bash
+npm install
+npm run check
+npm run dev
+```
+
+`npm run check` asserts the single-campaign wallet **500 → 430 → 455.56**, a Meta rejection that does not refund until stop, and the `402` retry with a new Idempotency-Key. The page balance is the shared wallet after every seeded campaign, not the refund of one campaign.
+
+## Next
+
+[Access the API with TypeScript](/typescript-sdk) → [Creating campaigns](/creating-campaigns) → [Errors](/errors)
