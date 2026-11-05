@@ -3,14 +3,12 @@ title: API emulator
 description: Run the campaign lifecycle locally with soundlink/api-emulator. No Meta spend and no hosted sandbox.
 ---
 
-Use **`soundlink/api-emulator`** to exercise wallet campaign flows on your machine. It is a stateful stand-in for a subset of the Public API. It does not call Meta and it does not spend.
-
-The import is `soundlink/api-emulator`. It is not re-exported from `soundlink`. Requires **`soundlink` 2.10.0** or later. For the typed client against production, see [Access the API with TypeScript](/typescript-sdk).
+Use **`soundlink/api-emulator`** to exercise wallet campaign flows on your machine. It is a stateful stand-in for a subset of the Public API. It does not call Meta and it does not spend. The import is not re-exported from `soundlink`. Requires **`soundlink` 2.10.0** or later. For the typed client against production, see [Access the API with TypeScript](/typescript-sdk).
 
 <Note>
-  The emulator listens on `127.0.0.1` only. Another machine, or a container
-  without host networking, cannot reach it. Harness routes under `/__emulator`
-  have no auth. That is why listen refuses any other host.
+  Listen binds `127.0.0.1` only. Another machine, or a container without host
+  networking, cannot reach it. Harness routes under `/__emulator` have no auth,
+  so listen refuses any other host.
 </Note>
 
 ## Prerequisites
@@ -127,18 +125,18 @@ curl -s -X POST "http://127.0.0.1:8787/__emulator/campaigns/CAMPAIGN_ID/transiti
 
 Prefer `emulator.transition`, `emulator.setWallet`, and `emulator.reset` when this process owns the emulator.
 
-| Action | Effect |
-| --- | --- |
-| `activate` | `creating` → `active`. Seeds overview listeners. |
-| `reject_meta` | `creating` or `active` → `inactive`. Does **not** refund. |
-| `set_spend` | Sets media spend before a refund. |
-| `end` | `active` or `inactive` → `ended`, then the same refund as `stop`. |
-| `POST /__emulator/wallet` | `{ "balance": number }`. Tops up without deleting campaigns. |
-| `POST /__emulator/reset` | Clears campaigns and idempotency. Restores the initial balance. |
+| Action                    | Effect                                                            |
+| ------------------------- | ----------------------------------------------------------------- |
+| `activate`                | `creating` → `active`. Seeds overview listeners.                  |
+| `reject_meta`             | `creating` or `active` → `inactive`. Does **not** refund.         |
+| `set_spend`               | Sets media spend before a refund.                                 |
+| `end`                     | `active` or `inactive` → `ended`, then the same refund as `stop`. |
+| `POST /__emulator/wallet` | `{ "balance": number }`. Tops up without deleting campaigns.      |
+| `POST /__emulator/reset`  | Clears campaigns and idempotency. Restores the initial balance.   |
 
-`reject_meta` does not credit the wallet. Refund happens on public `POST /v1/campaigns/{id}/stop` or harness `end`. A campaign that never spends is refunded in full on stop. Stopping while status is still `creating` returns `400`. The path for a campaign that never went live is `reject_meta`, then `stop`.
+A campaign that never spends is refunded in full on stop. Stopping while status is still `creating` returns `400`. The path for a campaign that never went live is `reject_meta`, then `stop`.
 
-There is no calendar end date. Harness `end` settles the cycle the same way as `stop` and sets status `ended`. Nothing waits for a date.
+There is no calendar end date. `end` is the harness action that settles the cycle.
 
 A second stop on `stopped` or `ended` does not refund again.
 
@@ -148,12 +146,12 @@ Reconcile against `GET /v1/wallet`. The emulator does not keep a second credit l
 
 Presets are local test values, not the public price list. Pass `feeRate` when the test needs a specific rate. `feeRate` overrides the plan. It must be in `[0, 1)`.
 
-| Plan | Fee |
-| --- | --- |
-| _(omit)_ | `0` |
-| `free`, `artist_pro`, `studio` | `0.2` |
-| `label_power` | `0.15` |
-| `enterprise` | `0.1` |
+| Plan                           | Fee    |
+| ------------------------------ | ------ |
+| _(omit)_                       | `0`    |
+| `free`, `artist_pro`, `studio` | `0.2`  |
+| `label_power`                  | `0.15` |
+| `enterprise`                   | `0.1`  |
 
 With a fee, media spend grosses up before the refund:
 
@@ -187,10 +185,6 @@ const body = {
 const denied = await soundlink.campaigns.create(body, {
   idempotencyKey: "create-1",
 });
-// denied.error?.code === "insufficient_credit"
-// denied.error?.status === 402
-// denied.error?.details.available === 10
-// denied.error?.details.required === 70
 
 low.setWallet(500);
 
@@ -201,28 +195,28 @@ const created = await soundlink.campaigns.create(body, {
 
 ## Options
 
-| Option | Default | Notes |
-| --- | --- | --- |
-| `apiKey` | `sk_emulator_test` | Must start with `sk_`. Send the same value as `Authorization: Bearer`. |
-| `initialWalletBalance` | `1000` | USD. |
-| `plan` | — | Sets the paid-campaign fee. See the table above. |
-| `feeRate` | `0`, or the plan fee | Overrides the plan fee. Must be in `[0, 1)`. |
-| `organizationId` | `org_emulator` | Returned on campaign detail. |
+| Option                 | Default              | Notes                                                                  |
+| ---------------------- | -------------------- | ---------------------------------------------------------------------- |
+| `apiKey`               | `sk_emulator_test`   | Must start with `sk_`. Send the same value as `Authorization: Bearer`. |
+| `initialWalletBalance` | `1000`               | USD.                                                                   |
+| `plan`                 | —                    | Sets the paid-campaign fee. See the table above.                       |
+| `feeRate`              | `0`, or the plan fee | Overrides the plan fee. Must be in `[0, 1)`.                           |
+| `organizationId`       | `org_emulator`       | Returned on campaign detail.                                           |
 
 ## Errors
 
 The SDK returns `{ data, error }` and does not throw on these responses. See [Errors](/errors).
 
-| Case | Status | Code |
-| --- | --- | --- |
-| Wallet below the committed debit | 402 | `insufficient_credit` |
-| Missing or empty `Idempotency-Key` on create or stop | 400 | `invalid_request` |
-| `Idempotency-Key` longer than 255 characters | 400 | `invalid_request` |
-| Same key, different body | 409 | `idempotency_key_conflict` |
-| `dailyBudget` below 10 | 422 | `invalid_daily_budget` |
-| Bad `durationDays` | 422 | `invalid_duration_days` |
-| Missing or wrong API key | 401 | `invalid_api_key` |
-| Stop while `creating` | 400 | `invalid_request` |
+| Case                                                 | Status | Code                       |
+| ---------------------------------------------------- | ------ | -------------------------- |
+| Wallet below the committed debit                     | 402    | `insufficient_credit`      |
+| Missing or empty `Idempotency-Key` on create or stop | 400    | `invalid_request`          |
+| `Idempotency-Key` longer than 255 characters         | 400    | `invalid_request`          |
+| Same key, different body                             | 409    | `idempotency_key_conflict` |
+| `dailyBudget` below 10                               | 422    | `invalid_daily_budget`     |
+| Bad `durationDays`                                   | 422    | `invalid_duration_days`    |
+| Missing or wrong API key                             | 401    | `invalid_api_key`          |
+| Stop while `creating`                                | 400    | `invalid_request`          |
 
 Stop hashes `{ campaignId }` only. Stopping while `creating` releases the key, so the same key works after `activate`.
 
