@@ -62,10 +62,20 @@ Returned by `POST /v1/soundlinks` (`soundlinks:write`). See [Creating soundlinks
 
 | HTTP | Code                           | When                                                            |
 | ---- | ------------------------------ | --------------------------------------------------------------- |
-| 400  | `invalid_request`              | Missing/malformed field, invalid `appleMusicUrl` or `youtubeMusicUrl`, unpaired Meta pixel fields, `attributionEnabled: false` with `autoFollow: true`, or missing `Idempotency-Key` |
+| 400  | `invalid_request`              | Missing/malformed field, invalid `appleMusicUrl` or `youtubeMusicUrl`, Meta pixel token without ID or unowned pixel ID, `attributionEnabled: false` with `autoFollow: true`, or missing `Idempotency-Key` |
 | 403  | `soundlink_plan_required`      | Organization has no Self-Serve plan                             |
 | 409  | `idempotency_key_conflict`     | `Idempotency-Key` reused with a different body, or still processing |
 | 422  | `invalid_spotify_url`          | Malformed Spotify URL, or track/playlist does not exist         |
+
+## Pixel codes
+
+Returned by `/v1/pixels` (`pixels:read` / `pixels:write`). See [Managing pixels](/managing-pixels).
+
+| HTTP | Code                        | When |
+| ---- | --------------------------- | ---- |
+| 403  | `custom_pixel_not_enabled`  | Organization does not have custom pixels enabled |
+| 409  | `meta_pixel_conflict`       | Pixel is owned by another organization |
+| 409  | `pixel_in_use`              | Delete blocked because a soundlink still uses the pixel (`details.smartLinkCount`) |
 
 ## Video import codes
 
