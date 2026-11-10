@@ -56,6 +56,7 @@ The soundlink is `active` immediately. Use `data.url` as the public landing page
 | `autoFollow` | No | Default `false`. When `true`, fans who connect Spotify from the landing page are asked to follow the track artist, or the playlist itself |
 | `artistIdFollow` | No | Spotify artist ID for auto-follow on **track** links. Kept even when `autoFollow` is `false`. Ignored for playlists. For multi-artist tracks, pass the artist that should be followed |
 | `attributionEnabled` | No | Default `true`. Omit or send `true` to keep Spotify login. `false` skips login and only tracks the landing-page click. Cannot be combined with `autoFollow: true` |
+| `streamValueEventEnabled` | No | Default `false`. Send `true` to turn on Soundlink Stream Value. Your organization must already be enabled for it, or the request returns `403 stream_value_not_enabled`. Cannot be combined with `attributionEnabled: false`. Can only be set at creation |
 | `metaPixelId` | No | Meta pixel ID. Alone: reuse a pixel already saved via [Managing pixels](/managing-pixels). With token: save or rotate |
 | `metaConversionAccessToken` | No | Meta Conversions API token. Write-only; never returned. Requires `metaPixelId` |
 
@@ -139,6 +140,16 @@ Reuse only:
 
 GET returns `metaPixelId` when set. The CAPI token is never returned.
 
+## Soundlink Stream Value
+
+Send `streamValueEventEnabled: true` to turn on Soundlink Stream Value for that soundlink. Your organization must already be enabled for it. Otherwise the request returns `403 stream_value_not_enabled`.
+
+`true` cannot be combined with `attributionEnabled: false`. That returns `400 invalid_request`.
+
+You can set this only when you create the soundlink. Omit the field or send `false` to leave it off.
+
+Events are sent only when the soundlink has a Meta pixel and conversion access token. Detail returns `streamValueEventEnabled`. List items do not.
+
 ## Idempotency
 
 The `Idempotency-Key` header is **required** on `POST /v1/soundlinks`.
@@ -159,9 +170,10 @@ The `Idempotency-Key` header is **required** on `POST /v1/soundlinks`.
 
 | HTTP | Code | When |
 | ---- | ---- | ---- |
-| 400 | `invalid_request` | Missing/malformed field, invalid `appleMusicUrl` or `youtubeMusicUrl`, Meta pixel token without ID or unowned pixel ID, `attributionEnabled: false` with `autoFollow: true`, or missing `Idempotency-Key` |
+| 400 | `invalid_request` | Missing/malformed field, invalid `appleMusicUrl` or `youtubeMusicUrl`, Meta pixel token without ID or unowned pixel ID, `attributionEnabled: false` with `autoFollow: true` or with `streamValueEventEnabled: true`, or missing `Idempotency-Key` |
 | 403 | `insufficient_scope` | Credential missing `soundlinks:write` |
 | 403 | `soundlink_plan_required` | Organization has no Self-Serve plan |
+| 403 | `stream_value_not_enabled` | Organization is not enabled for Soundlink Stream Value |
 | 409 | `idempotency_key_conflict` | Key reused with a different body, or still processing |
 | 422 | `invalid_spotify_url` | Malformed Spotify URL, unsupported type, or resource does not exist |
 
