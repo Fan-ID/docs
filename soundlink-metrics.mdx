@@ -17,11 +17,13 @@ Soundlink metrics omit spend, fees, and efficiency fields (`cpl`, `cpf`) — ads
 | Per-day × country | `/metrics/breakdown` (+ `/export`)  | **Countries**                |
 | Per-day × track   | `/metrics/engagement` (+ `/export`) | Catalog / playlist spillover |
 | Per-cohort-date   | `/metrics/retention`                | —                            |
+| Per-cohort-week   | `/metrics/retention-weekly`         | —                            |
 
 `startDate` and `endDate` are inclusive (`YYYY-MM-DD`).
 
 - **Overview** and paginated **breakdown:** default to the soundlink creation date → today (no 90-day cap).
 - **Retention:** filters by cohort date. If you omit both dates, a recent window ending today is used. A range that is too wide returns `400 invalid_query_parameter`.
+- **Weekly retention:** filters by cohort week, with the same default window and the same `400` when the range is too wide.
 - **Engagement** (paginated + export) and **breakdown export:** default to the last 90 days ending today; responses are capped at **90 days** per request. Page longer histories in 90-day slices. See [JSONL exports](/jsonl-exports).
 
 ## Overview
@@ -125,6 +127,34 @@ curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/reten
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
+## Weekly retention (by cohort week)
+
+`GET /v1/soundlinks/{soundlinkId}/metrics/retention-weekly`
+
+One item per cohort week. The week is anchored on the soundlink creation date in UTC, not on a calendar Monday. Each listener has one acquisition country: the country of their earliest first play.
+
+The response `schemaVersion` is `2.0`, with `granularity` `week` and `scope` `attributed`. All items come back in one response, with no pagination. Items do not repeat soundlink target fields. Use the soundlink detail for that.
+
+`startDate` and `endDate` filter `cohort_week` (inclusive). If you omit both, a recent window ending today is used. A range that is too wide returns `400 invalid_query_parameter`.
+
+Omit `groupBy` for one item per cohort week. `country_code` is `null`. Counts are summed across countries, and `pct` is `active_users / cohort_size` after that sum. `groupBy=country` returns one item per cohort week and country (`XX` when the country is unknown). There is no filter for a single country.
+
+| Field | Meaning |
+| ----- | ------- |
+| `cohort_size` | Listeners whose first play falls in that cohort week. |
+| `days` | Relative days 0–7. `pct` is the share of `cohort_size` active that day. `streams` is plays that day. |
+| `weeks` | Relative weeks 0–26. Week N covers days `7N` through `7N+6`. |
+| Week 0 `pct` | Share of the cohort active on any of days 1–6. Day 0 is excluded. |
+| Week 0 `streams` | Plays on days 0–6. Day 0 is included. |
+| Week 1+ `pct` | Share active on any day in that week. |
+
+A day or week is included only after every listener in that cohort week has aged past it, so a young cohort has a shorter array. Cells stop at week 26.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/retention-weekly?startDate=2026-08-01&endDate=2026-08-31' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
 ## Data mutability
 
 Rows for a given `report_date` can change for up to **7 days** after the date closes (delayed Spotify events). Re-fetch and re-ingest on the primary key — it is idempotent.
@@ -138,7 +168,7 @@ On breakdown and engagement rows, **do not sum `listeners` across days** — the
 1. **Daily:** [list soundlinks](/soundlinks) — upsert catalog
 2. **Daily:** overview and/or breakdown (paginated or export)
 3. **Optional:** engagement (paginated or export) for track-level spillover
-4. **Optional:** retention for cohort return rates
+4. **Optional:** retention, or weekly retention
 
 Your organization is determined only from the API key (or OAuth token). You never pass an organization id in query params. Warehouse rows use `account_id` for the same organization UUID that catalog JSON calls `organizationId`. Join on `soundlink_id`.
 

@@ -115,6 +115,21 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns/{campaignId}/metrics/retenti
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
+## Weekly retention (by cohort week)
+
+`GET /v1/campaigns/{campaignId}/metrics/retention-weekly`
+
+Same item shape as [Soundlink weekly retention](/soundlink-metrics#weekly-retention-by-cohort-week). Cohort weeks are anchored on the campaign start in UTC, not on a calendar Monday.
+
+`startDate` and `endDate` filter `cohort_week` (inclusive). If you omit both, a recent window ending today is used. A range that is too wide returns `400 invalid_query_parameter`.
+
+If the campaign isn't in your organization, the response is `404 campaign_not_found`. Requires `metrics:read`.
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns/{campaignId}/metrics/retention-weekly?startDate=2026-08-01&endDate=2026-08-31' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
 ## Data mutability
 
 Rows for a given `report_date` can change for up to **7 days** after the date closes (delayed Meta and Spotify events). Re-fetch and re-ingest on the primary key — it is idempotent.
