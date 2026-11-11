@@ -110,11 +110,11 @@ One row per cohort date (`soundlink_cohort_retention_daily` v1.0). Primary key:
 
 The cohort date is the UTC date a listener first played through the soundlink. Each listener belongs to one cohort: their earliest first play across all countries. Dates with no first plays have no row. All rows come back in one response, with no pagination.
 
-| Column                | Meaning                                                                                  |
-| --------------------- | ---------------------------------------------------------------------------------------- |
-| `cohort_size`         | Unique listeners whose first play was on `cohort_date`.                                  |
-| `returned_on_day_N`   | Cohort listeners who played again on exactly day N (1–7) after their first play.         |
-| `retention_by_day_N`  | Share of `cohort_size` who played again on any day from 1 to N (end-day, cumulative).    |
+| Column               | Meaning                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------- |
+| `cohort_size`        | Unique listeners whose first play was on `cohort_date`.                               |
+| `returned_on_day_N`  | Cohort listeners who played again on exactly day N (1–7) after their first play.      |
+| `retention_by_day_N` | Share of `cohort_size` who played again on any day from 1 to N (end-day, cumulative). |
 
 A day-N value is `null` until day N has passed for that cohort date. It is final after that.
 
@@ -139,14 +139,14 @@ The response `schemaVersion` is `2.0`, with `granularity` `week` and `scope` `at
 
 Omit `groupBy` for one item per cohort week. `country_code` is `null`. Counts are summed across countries, and `pct` is `active_users / cohort_size` after that sum. `groupBy=country` returns one item per cohort week and country (`XX` when the country is unknown). There is no filter for a single country.
 
-| Field | Meaning |
-| ----- | ------- |
-| `cohort_size` | Listeners whose first play falls in that cohort week. |
-| `days` | Relative days 0–7. `pct` is the share of `cohort_size` active that day. `streams` is plays that day. |
-| `weeks` | Relative weeks 0–26. Week N covers days `7N` through `7N+6`. |
-| Week 0 `pct` | Share of the cohort active on any of days 1–6. Day 0 is excluded. |
-| Week 0 `streams` | Plays on days 0–6. Day 0 is included. |
-| Week 1+ `pct` | Share active on any day in that week. |
+| Field            | Meaning                                                                                              |
+| ---------------- | ---------------------------------------------------------------------------------------------------- |
+| `cohort_size`    | Listeners whose first play falls in that cohort week.                                                |
+| `days`           | Relative days 0–7. `pct` is the share of `cohort_size` active that day. `streams` is plays that day. |
+| `weeks`          | Relative weeks 0–26. Week N covers days `7N` through `7N+6`.                                         |
+| Week 0 `pct`     | Share of the cohort active on any of days 1–6. Day 0 is excluded.                                    |
+| Week 0 `streams` | Plays on days 0–6. Day 0 is included.                                                                |
+| Week 1+ `pct`    | Share active on any day in that week.                                                                |
 
 A day or week is included only after every listener in that cohort week has aged past it, so a young cohort has a shorter array. Cells stop at week 26.
 
