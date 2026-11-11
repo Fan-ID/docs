@@ -1005,12 +1005,15 @@ paths:
       operationId: getCampaignActivity
       summary: List campaign activity
       description: |
-        Returns a page of creative adds, budget changes, tier updates, country
-        updates, playlist redirect heals, and auto-renew changes for one campaign.
+        Returns a page of creative adds, creative pause/resume (user request or
+        Meta sync), budget changes, tier updates, country updates, playlist
+        redirect heals, and auto-renew changes for one campaign.
 
-        Each item is an event type, a timestamp, and a short summary. The list
-        does not include campaign creation or pausing an old creative. Fee amounts,
-        Stripe ids, and internal file URIs are omitted.
+        Each item is an event type, a timestamp, and a short summary. Replacing
+        a creative appears as a pause of the old creative plus
+        `CAMPAIGN_AD_CREATIVES_ADDED` for the new one. The list does not include
+        campaign creation. Fee amounts, Stripe ids, and internal file URIs are
+        omitted.
 
         `startDate` keeps events at or after that moment. A calendar date starts
         at 00:00:00Z. Omit it to page through the full history. Any waiting rule,
@@ -1056,6 +1059,9 @@ paths:
               example:
                 data:
                   items:
+                    - event_type: CAMPAIGN_CREATIVE_STATUS_UPDATE_REQUESTED
+                      timestamp: "2026-03-03T12:00:00.000Z"
+                      summary: Creative paused by user
                     - event_type: CAMPAIGN_AD_CREATIVES_ADDED
                       timestamp: "2026-03-02T15:04:05.000Z"
                       summary: Creatives added (2)
@@ -1065,7 +1071,7 @@ paths:
                   pagination:
                     page: 1
                     pageSize: 20
-                    totalCount: 2
+                    totalCount: 3
                     totalPages: 1
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
