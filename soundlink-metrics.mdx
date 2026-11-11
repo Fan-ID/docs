@@ -133,7 +133,7 @@ curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/reten
 
 One item per cohort week. The week is anchored on the soundlink creation date in UTC, not on a calendar Monday. Each listener has one acquisition country: the country of their earliest first play.
 
-The response `schemaVersion` is `2.0`, with `granularity` `week` and `scope` `attributed`. All items come back in one response, with no pagination. Items do not repeat soundlink target fields. Use the soundlink detail for that.
+The response uses `granularity` `week` and `scope` `attributed`. All items come back in one response, with no pagination. Items do not repeat soundlink target fields. Use the soundlink detail for that.
 
 `startDate` and `endDate` filter `cohort_week` (inclusive). If you omit both, a recent window ending today is used. A range that is too wide returns `400 invalid_query_parameter`.
 
