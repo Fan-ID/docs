@@ -197,6 +197,7 @@
                   "GET /v1/campaigns/{campaignId}/metrics/engagement",
                   "GET /v1/campaigns/{campaignId}/metrics/engagement/export",
                   "GET /v1/campaigns/{campaignId}/metrics/retention",
+                  "GET /v1/campaigns/{campaignId}/metrics/retention-weekly",
                   "GET /v1/campaigns/{campaignId}/listening-insights/{insight}"
                 ]
               }
@@ -221,6 +222,7 @@
                   "GET /v1/soundlinks/{soundlinkId}/metrics/engagement",
                   "GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export",
                   "GET /v1/soundlinks/{soundlinkId}/metrics/retention",
+                  "GET /v1/soundlinks/{soundlinkId}/metrics/retention-weekly",
                   "GET /v1/soundlinks/{soundlinkId}/listening-insights/{insight}"
                 ]
               }
