@@ -123,7 +123,9 @@ curl -s -X POST "http://127.0.0.1:8787/__emulator/campaigns/CAMPAIGN_ID/transiti
 
 ## Harness
 
-Prefer `emulator.transition`, `emulator.setWallet`, and `emulator.reset` when this process owns the emulator.
+Prefer `emulator.transition`, `emulator.setWallet`, `emulator.reset`, and `emulator.failNext` when this process owns the emulator.
+
+`failNext` (or `POST /__emulator/fault`) takes `timeout`, `conflict`, or `server_error`. `conflict` is `409 idempotency_key_conflict`. `server_error` is `500 internal_error`. `timeout` does not write a response. The fault runs once, does not change the wallet, and `reset` clears it. A missing API key still returns `401` and leaves the fault armed.
 
 | Action                    | Effect                                                            |
 | ------------------------- | ----------------------------------------------------------------- |
@@ -133,6 +135,7 @@ Prefer `emulator.transition`, `emulator.setWallet`, and `emulator.reset` when th
 | `end`                     | `active` or `inactive` → `ended`, then the same refund as `stop`. |
 | `POST /__emulator/wallet` | `{ "balance": number }`. Tops up without deleting campaigns.      |
 | `POST /__emulator/reset`  | Clears campaigns and idempotency. Restores the initial balance.   |
+| `POST /__emulator/fault`  | Fails the next authenticated `/v1` call once.                     |
 
 A campaign that never spends is refunded in full on stop. Stopping while status is still `creating` returns `400`. The path for a campaign that never went live is `reject_meta`, then `stop`.
 
