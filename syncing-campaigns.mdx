@@ -52,7 +52,7 @@ flowchart LR
 2. **Daily:** [overview](/understanding-metrics#overview) or [creatives](/understanding-metrics#creatives) **batch** for many campaigns (up to 50 IDs per call), or export / paginated metrics per active campaign
 3. **Warehouse:** join metrics on `campaign_id`
 
-Batch routes count as one rate-limit unit per request. They require batch reads to be enabled for your organization — otherwise they return `404`.
+Batch routes count as one rate-limit unit per request. Batch reads must be enabled for your organization — otherwise they return `404`.
 
 ## Organization scope
 

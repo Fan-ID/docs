@@ -236,7 +236,7 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/activity?startDa
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
-The batch route returns one activity page per authorized campaign (`data.items[].campaignId`, `items`, `pagination`). Shared `page`, `pageSize`, and `startDate` apply to every ID. Up to **50** `campaignIds`, one rate-limit unit. Unauthorized or unknown IDs are omitted. Requires batch reads to be enabled for your organization — otherwise the route returns `404`.
+The batch route returns one activity page per authorized campaign (`data.items[].campaignId`, `items`, `pagination`). Shared `page`, `pageSize`, and `startDate` apply to every ID. Up to **50** `campaignIds`, one rate-limit unit. Unauthorized or unknown IDs are omitted. Batch reads must be enabled for your organization — otherwise the route returns `404`.
 
 ```bash
 curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/activity/batch' \

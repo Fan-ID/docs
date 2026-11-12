@@ -262,7 +262,7 @@ Requires `campaigns:read`.
 
 `list` params: `page`, `pageSize` (max **100**), `sortBy` (`createdAt` \| `status`), `sortOrder` (`asc` \| `desc`).
 
-`activity` is a page of creative adds, budget changes, and other campaign events. `startDate` is `YYYY-MM-DD` (from 00:00:00Z) or an ISO-8601 timestamp. Omit it for the full history. `page` defaults to 1. `pageSize` defaults to 20 and maxes at **100**. See [Activity](/managing-campaigns#activity). Overview, creatives, and activity **batch** routes are available over HTTP today; SDK helpers for them are not shipped yet.
+`activity` is a page of creative adds, budget changes, and other campaign events. `startDate` is `YYYY-MM-DD` (from 00:00:00Z) or an ISO-8601 timestamp. Omit it for the full history. `page` defaults to 1. `pageSize` defaults to 20 and maxes at **100**. See [Activity](/managing-campaigns#activity). For multi-campaign reads, use the REST batch routes in [Campaign metrics](/understanding-metrics) and [Activity](/managing-campaigns#activity).
 
 ### Campaigns (write)
 
