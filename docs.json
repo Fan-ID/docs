@@ -80,7 +80,12 @@
               "errors",
               {
                 "group": "SDKs and tools",
-                "pages": ["sdks", "typescript-sdk", "api-emulator", "warehouse-connector"]
+                "pages": [
+                  "sdks",
+                  "typescript-sdk",
+                  "api-emulator",
+                  "warehouse-connector"
+                ]
               },
               {
                 "group": "API guides",
@@ -185,12 +190,16 @@
               "POST /v1/campaigns/{campaignId}/budget/decrease",
               "GET /v1/campaigns/{campaignId}/tiers",
               "PATCH /v1/campaigns/{campaignId}/tiers",
+              "GET /v1/campaigns/{campaignId}/activity",
+              "POST /v1/campaigns/activity/batch",
               {
                 "group": "Metrics",
                 "expanded": true,
                 "pages": [
                   "GET /v1/campaigns/{campaignId}/metrics/overview",
+                  "POST /v1/campaigns/metrics/overview/batch",
                   "GET /v1/campaigns/{campaignId}/metrics/creatives",
+                  "POST /v1/campaigns/metrics/creatives/batch",
                   "GET /v1/campaigns/{campaignId}/metrics/creative-daily",
                   "GET /v1/campaigns/{campaignId}/metrics/breakdown",
                   "GET /v1/campaigns/{campaignId}/metrics/breakdown/export",
