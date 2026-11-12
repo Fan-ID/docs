@@ -103,9 +103,9 @@ Scopes limit which endpoints a key can call. Select them when you create the key
 
 | Scope             | Access                                                                 | Self-serve UI |
 | ----------------- | ---------------------------------------------------------------------- | ------------- |
-| `campaigns:read`  | List campaigns, campaign detail, strategy catalog, campaign tiers | Yes           |
+| `campaigns:read`  | List campaigns, campaign detail, strategy catalog, campaign tiers, activity | Yes           |
 | `wallet:read`     | Organization wallet balance (`GET /v1/wallet`)                         | Yes           |
-| `metrics:read`    | Metrics overview, breakdown, exports                                   | Yes           |
+| `metrics:read`    | Metrics overview, creatives, breakdown, exports, and batch reads       | Yes           |
 | `soundlinks:read` | List soundlinks, soundlink detail, soundlink metrics                    | Yes           |
 | `soundlinks:write` | Create, archive, and send test events for self-serve soundlinks | Yes |
 | `campaigns:write` | Create/stop wallet campaigns, budget, tiers, auto-renew | Yes           |
@@ -170,7 +170,8 @@ Revoked keys stay visible in the list with status and date so you can audit past
 | `GET /v1/ping`                                | Valid key only (any v1 scope) |
 | `GET /v1/campaigns`, `/v1/strategies`, etc.   | `campaigns:read`              |
 | `GET /v1/wallet`                              | `wallet:read`                 |
-| Metrics overview / creatives / breakdown / exports | `metrics:read`           |
+| Metrics overview / creatives / breakdown / exports / batch | `metrics:read`     |
+| Campaign activity (single or batch)               | `campaigns:read`          |
 | `GET /v1/soundlinks` and soundlink metrics    | `soundlinks:read`            |
 | `POST /v1/soundlinks`                           | `soundlinks:write`           |
 | `DELETE /v1/soundlinks/{soundlinkId}`           | `soundlinks:write`           |

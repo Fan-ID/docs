@@ -44,13 +44,15 @@ Use the `campaignId` from the list response in all `/metrics/*` paths.
 ```mermaid
 flowchart LR
   A[List campaigns] --> B[Store campaign IDs]
-  B --> C[Metrics overview / export per campaign]
+  B --> C[Overview / creatives batch or per-campaign export]
   C --> D[Join on campaign_id in warehouse]
 ```
 
 1. **Daily:** `GET /v1/campaigns` — upsert catalog
-2. **Daily:** export or paginated metrics per active campaign
+2. **Daily:** [overview](/understanding-metrics#overview) or [creatives](/understanding-metrics#creatives) **batch** for many campaigns (up to 50 IDs per call), or export / paginated metrics per active campaign
 3. **Warehouse:** join metrics on `campaign_id`
+
+Batch routes count as one rate-limit unit per request. Batch reads must be enabled for your organization — otherwise they return `404`.
 
 ## Organization scope
 

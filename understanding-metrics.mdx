@@ -1,6 +1,6 @@
 ---
 title: Campaign metrics
-description: When to use campaign overview, creatives, creative daily, country breakdown, engagement, and retention endpoints.
+description: When to use campaign overview, creatives, creative daily, country breakdown, engagement, retention, and batch read endpoints.
 ---
 
 Pick the endpoint that matches how you store and report the data.
@@ -11,6 +11,8 @@ For soundlinks without a campaign, see [Soundlink metrics](/soundlink-metrics).
 
 `GET /v1/campaigns/{campaignId}/metrics/overview`
 
+`POST /v1/campaigns/metrics/overview/batch`
+
 Campaign-level totals for a date range: `listeners` (attributed new / Super Listeners), `total_listeners` (distinct new + returning in the window), streams, followers, delivery (`impressions`, `ad_clicks`, `link_clicks`), spend (`spend_media`, `spend_total`, `fees`), and efficiency metrics (`cpl`, `cpf`, `streams_per_listener`). One row per campaign per request window.
 
 `cpl` uses `listeners`. `streams_per_listener` uses `total_listeners`, matching dashboard S/L. `total_listeners` is not the sum of daily breakdown `total_listeners` — returning listeners count once in the overview window.
@@ -19,9 +21,24 @@ Use for dashboards, executive summaries, and quick health checks. Not broken dow
 
 **Per-day `new_listeners` / `returning_listeners` are on breakdown (and engagement), not overview.** Overview only adds the window-level `total_listeners`.
 
+For many campaigns in one sync, use the batch route. Same totals and date query as the single GET, up to **50** `campaignIds` per request (one rate-limit unit). Unauthorized or unknown IDs are omitted from `data.items`. Batch reads must be enabled for your organization — otherwise the route returns `404`.
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/metrics/overview/batch' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "campaignIds": ["CAMPAIGN_ID_1", "CAMPAIGN_ID_2"],
+    "startDate": "2026-04-01",
+    "endDate": "2026-04-08"
+  }'
+```
+
 ## Creatives
 
 `GET /v1/campaigns/{campaignId}/metrics/creatives`
+
+`POST /v1/campaigns/metrics/creatives/batch`
 
 Lifetime performance for one campaign, grouped by background video. Each group has a `children` array of variants (caption, language, track, and the audio cut as `timestamp_start_ms` / `timestamp_end_ms`). Both timestamps are null when the cut is not a ready sound. Two cuts of the same track stay separate. This is a snapshot — `startDate` and `endDate` return `400`.
 
@@ -30,6 +47,15 @@ Maps to the **Creatives** tab in Soundlink Insights. Spend is omitted until medi
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/creatives' \
   -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+The batch route returns the same lifetime groups per authorized campaign (`data.items[].campaignId` + `creatives`). Up to **50** IDs, one rate-limit unit, omit unauthorized IDs, and the same rules as [overview batch](#overview). Do not send dates.
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/metrics/creatives/batch' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{ "campaignIds": ["CAMPAIGN_ID_1", "CAMPAIGN_ID_2"] }'
 ```
 
 See the [API Reference](/api-reference) for the response shape.

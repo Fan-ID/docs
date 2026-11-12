@@ -223,6 +223,8 @@ Stopped campaigns cannot be restarted via the API — create a new campaign inst
 
 `GET /v1/campaigns/{campaignId}/activity`
 
+`POST /v1/campaigns/activity/batch`
+
 Requires `campaigns:read`. Returns a page of creative adds, creative pause/resume (user request or Meta sync), budget changes, tier updates, country updates, playlist redirect heals, and auto-renew changes. Each item has `event_type`, `timestamp`, and `summary`.
 
 Replacing a creative shows up as a pause of the old creative plus `CAMPAIGN_AD_CREATIVES_ADDED` for the new one. The list does not include campaign creation. Fee amounts, Stripe ids, and internal file URIs are left out. Apply any waiting rule, such as 72 hours after a change, on your side. This endpoint does not block the next change.
@@ -232,6 +234,20 @@ Replacing a creative shows up as a pause of the old creative plus `CAMPAIGN_AD_C
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/activity?startDate=2026-03-01T00:00:00Z' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+The batch route returns one activity page per authorized campaign (`data.items[].campaignId`, `items`, `pagination`). Shared `page`, `pageSize`, and `startDate` apply to every ID. Up to **50** `campaignIds`, one rate-limit unit. Unauthorized or unknown IDs are omitted. Batch reads must be enabled for your organization — otherwise the route returns `404`.
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/activity/batch' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "campaignIds": ["CAMPAIGN_ID_1", "CAMPAIGN_ID_2"],
+    "page": 1,
+    "pageSize": 20,
+    "startDate": "2026-03-01T00:00:00Z"
+  }'
 ```
 
 ## Common management errors
