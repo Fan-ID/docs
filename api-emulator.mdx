@@ -125,7 +125,7 @@ curl -s -X POST "http://127.0.0.1:8787/__emulator/campaigns/CAMPAIGN_ID/transiti
 
 Prefer `emulator.transition`, `emulator.setWallet`, `emulator.reset`, and `emulator.failNext` when this process owns the emulator.
 
-`failNext` (or `POST /__emulator/fault`) takes `timeout`, `conflict`, or `server_error`. `conflict` is `409 idempotency_key_conflict`. `server_error` is `500 internal_error`. `timeout` does not write a response. The fault runs once, does not change the wallet, and `reset` clears it. A missing API key still returns `401` and leaves the fault armed.
+`failNext` (or `POST /__emulator/fault`) takes `timeout`, `conflict`, or `server_error`. `conflict` is one `409 idempotency_key_conflict`. `server_error` is `500 internal_error` for the call and the SDK's default retries, then the next call succeeds. `timeout` writes nothing on listen. In-process `dispatch` returns `hang: true` and status `408`, which is not sent on the socket. A second arm while one is pending is rejected. The fault does not change the wallet, and `reset` clears it. A missing API key still returns `401` and leaves the fault armed.
 
 | Action                    | Effect                                                            |
 | ------------------------- | ----------------------------------------------------------------- |
@@ -135,7 +135,7 @@ Prefer `emulator.transition`, `emulator.setWallet`, `emulator.reset`, and `emula
 | `end`                     | `active` or `inactive` → `ended`, then the same refund as `stop`. |
 | `POST /__emulator/wallet` | `{ "balance": number }`. Tops up without deleting campaigns.      |
 | `POST /__emulator/reset`  | Clears campaigns and idempotency. Restores the initial balance.   |
-| `POST /__emulator/fault`  | Fails the next authenticated `/v1` call once.                     |
+| `POST /__emulator/fault`  | Fails the next authenticated `/v1` calls.                         |
 
 A campaign that never spends is refunded in full on stop. Stopping while status is still `creating` returns `400`. The path for a campaign that never went live is `reject_meta`, then `stop`.
 
@@ -231,8 +231,9 @@ Stop hashes `{ campaignId }` only. Stopping while `creating` releases the key, s
 </Warning>
 
 - Overview ignores the date query. Invalid date order is not a `400`.
-- Implemented routes: `GET /v1/ping`, `GET /v1/wallet`, `GET /v1/strategies`, campaign create, get, list, and stop, and `GET /v1/campaigns/{id}/metrics/overview`.
-- Pixels, soundlinks, budget changes, tiers, activity, and JSONL exports are not implemented.
+- Implemented routes: `GET /v1/ping`, `GET /v1/wallet`, `GET /v1/strategies`, campaign create, get, list, and stop, `GET /v1/campaigns/{id}/metrics/overview`, and pixel list, save, delete, and test-events.
+- A pixel test event does not call Meta. A saved pixel returns `200` with `status: "sent"`. Send health stays `ok`. `meta_pixel_conflict` and `pixel_in_use` are not returned.
+- Soundlinks, budget changes, tiers, activity, and JSONL exports are not implemented.
 - `campaignUrl` on detail is a placeholder. It is not a live dashboard for these ids.
 
 ## Worked example
