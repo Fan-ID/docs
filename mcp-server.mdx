@@ -14,9 +14,11 @@ https://api.getsoundlink.com/mcp
 
 - **API key** — when the client can send `Authorization: Bearer sk_...` (recommended for Cursor).
 - **OAuth app** — when the client asks for a client id and secret.
-- **Claude and Codex** — paste the MCP URL and complete the browser login. Those hosts use CIMD; you do not create an OAuth app.
+- **Claude, Codex, and other CIMD clients** — paste the MCP URL and complete the browser login. These clients identify themselves with a Client ID Metadata Document (CIMD), so you do not create an OAuth app.
 
 Soundlink does not support RFC 7591 dynamic client registration. Clients that try to register at runtime still need an API key or an OAuth app.
+
+Any client that supports CIMD can connect, not only the ones listed here. If Soundlink does not recognize the app, the consent screen says it is not verified and shows the host it will send you back to. Check that host before you approve.
 
 <CardGroup cols={2}>
   <Card
@@ -122,7 +124,7 @@ Complete the OAuth login in the browser. No OAuth app needed — Claude uses CIM
 
 ### Other clients
 
-Any client that speaks Streamable HTTP can use the same URL. If it cannot open a browser, send the API key as `Authorization: Bearer sk_your_key`.
+Any client that speaks Streamable HTTP can use the same URL. If it supports CIMD, it can start the browser login with no OAuth app. If it does not request specific scopes, Soundlink grants your identity and read access only (`openid`, `email`, and each `:read` scope). If it cannot open a browser, send the API key as `Authorization: Bearer sk_your_key`.
 
 ## 3. Check the connection
 
