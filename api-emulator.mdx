@@ -223,6 +223,25 @@ The SDK returns `{ data, error }` and does not throw on these responses. See [Er
 
 Stop hashes `{ campaignId }` only. Stopping while `creating` releases the key, so the same key works after `activate`.
 
+## Pixels
+
+Pixel routes need `soundlink` 2.13.0 or later. Request and response shapes match [Managing pixels](/managing-pixels). Pixels stay in memory for this process. `reset` clears them. The access token is stored and is not returned.
+
+`PUT /v1/pixels/{pixelId}` saves a pixel. `platform` must be `meta`. A new pixel needs `accessToken`. `isDefault: true` clears the previous default. Sending only `isDefault` for a pixel that is not saved returns `404` with message `Pixel not found.` The same token on another pixel returns `400` with message `Access token is already in use with another pixel ID`.
+
+```bash
+curl -sS -X PUT 'http://127.0.0.1:8787/v1/pixels/PIXEL_ID' \
+  -H 'Authorization: Bearer sk_emulator_test' \
+  -H 'Content-Type: application/json' \
+  -d '{"platform":"meta","accessToken":"test-token","isDefault":true}'
+```
+
+`GET /v1/pixels` lists them. Every saved pixel comes back with `status` `ok`, `lastErrorCode` null, and `errorSince` null. `DELETE /v1/pixels/{pixelId}` returns `204` and an empty body.
+
+`POST /v1/pixels/{pixelId}/test-events` on a saved pixel returns `200` with `data.status` `sent`. It does not call Meta. An unknown pixel returns `404` with message `Pixel not found.`
+
+These production errors are not returned: `403 custom_pixel_not_enabled`, `409 meta_pixel_conflict`, and `409 pixel_in_use`. The emulator has one organization, treats custom pixels as enabled, and does not store soundlinks.
+
 ## Not production
 
 <Warning>
@@ -231,8 +250,7 @@ Stop hashes `{ campaignId }` only. Stopping while `creating` releases the key, s
 </Warning>
 
 - Overview ignores the date query. Invalid date order is not a `400`.
-- Implemented routes: `GET /v1/ping`, `GET /v1/wallet`, `GET /v1/strategies`, campaign create, get, list, and stop, `GET /v1/campaigns/{id}/metrics/overview`, and pixel list, save, delete, and test-events.
-- A pixel test event does not call Meta. A saved pixel returns `200` with `status: "sent"`. Send health stays `ok`. `meta_pixel_conflict` and `pixel_in_use` are not returned.
+- Implemented routes: `GET /v1/ping`, `GET /v1/wallet`, `GET /v1/strategies`, campaign create, get, list, and stop, `GET /v1/campaigns/{id}/metrics/overview`, and pixel list, save, delete, and test-events. See [Pixels](#pixels).
 - Soundlinks, budget changes, tiers, activity, and JSONL exports are not implemented.
 - `campaignUrl` on detail is a placeholder. It is not a live dashboard for these ids.
 
