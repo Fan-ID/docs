@@ -10,7 +10,7 @@ Any client that speaks **Streamable HTTP** can use the same endpoint:
 https://api.getsoundlink.com/mcp
 ```
 
-Prefer the official paths when they apply: [Claude Directory](/mcp-claude) or the [Cursor plugin](/mcp-cursor). Use this page for ChatGPT, Codex, Grok, and other clients that accept a remote MCP URL.
+For Claude and Cursor, see [Claude Directory](/mcp-claude) and the [Cursor plugin](/mcp-cursor). This page covers any other client that accepts a remote MCP URL.
 
 ## CIMD browser login
 
@@ -26,7 +26,7 @@ If the client cannot open a browser, send the key as `Authorization: Bearer sk_y
 
 Create the key in [Settings → Developer → API keys](https://getsoundlink.com/settings/developer) with `campaigns:read`, `metrics:read`, `soundlinks:read`, and `wallet:read`. Add `pixels:read` for `get_pixels`.
 
-Example Cursor-style config:
+Example config:
 
 ```json
 {
@@ -64,7 +64,7 @@ Use this when the client asks for a client id and secret and does not use CIMD.
 
 Soundlink does not support RFC 7591 dynamic client registration. Clients that try to register at runtime still need an API key or an OAuth app.
 
-With OAuth and no API key headers, a Cursor-style config looks like:
+OAuth-only config:
 
 ```json
 {
