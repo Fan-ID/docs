@@ -1,0 +1,29 @@
+---
+title: Connect Claude
+sidebarTitle: Claude
+description: Install Soundlink from the Claude Directory and sign in with your organization.
+---
+
+Claude connects to Soundlink through the official directory listing. Access is read-only. Claude uses CIMD for login — you do not create an OAuth app.
+
+## Install from the Claude Directory
+
+1. Open the [Soundlink listing in the Claude Directory](https://claude.ai/directory/soundlink).
+2. Add the connector.
+3. Complete the browser login and approve one organization.
+
+Ask Claude to call `ping`. A working connection returns `{"status":"ok"}`. Then ask for a campaign list. For the full tool list and scopes, see the [MCP overview](/mcp-server#tools).
+
+## Custom connector fallback
+
+If you cannot use the Directory, open **Settings → Connectors → Add custom connector** and paste:
+
+```
+https://api.getsoundlink.com/mcp
+```
+
+Complete the OAuth login in the browser. No OAuth app needed — Claude uses CIMD.
+
+## Next
+
+[MCP overview](/mcp-server) · [Cursor](/mcp-cursor) · [Other clients](/mcp-other-clients)

@@ -1,0 +1,48 @@
+---
+title: Connect Cursor
+sidebarTitle: Cursor
+description: Install the Soundlink Cursor plugin and connect with an API key.
+---
+
+The Soundlink Cursor plugin calls the hosted MCP server at `https://api.getsoundlink.com/mcp`. Access is read-only. Auth is an API key — Cursor stores it for you after you paste it.
+
+## 1. Create an API key
+
+Go to [Settings → Developer → API keys](https://getsoundlink.com/settings/developer). Create a key with `campaigns:read`, `metrics:read`, `soundlinks:read`, and `wallet:read`. Add `pixels:read` if you need `get_pixels`. Copy the `sk_` secret once — you cannot reveal it again.
+
+Details: [Authentication](/authentication).
+
+## 2. Install the plugin
+
+Cursor loads a local plugin from `~/.cursor/plugins/local`. Clone the official connectors repo and copy the plugin files into that path:
+
+```bash
+git clone https://github.com/Fan-ID/soundlink-mcp-connectors.git
+rm -rf ~/.cursor/plugins/local/soundlink
+mkdir -p ~/.cursor/plugins/local/soundlink/.cursor-plugin
+cp soundlink-mcp-connectors/.cursor-plugin/plugin.json ~/.cursor/plugins/local/soundlink/.cursor-plugin/
+cp soundlink-mcp-connectors/mcp.json ~/.cursor/plugins/local/soundlink/
+cp -R soundlink-mcp-connectors/skills ~/.cursor/plugins/local/soundlink/
+```
+
+Source: [github.com/Fan-ID/soundlink-mcp-connectors](https://github.com/Fan-ID/soundlink-mcp-connectors).
+
+Reload the window (**Developer: Reload Window**). Open **Customize**, turn on the `soundlink` server, open **Configure**, and paste the API key. Do not put the key in the repo.
+
+<Note>
+  On Enterprise, local plugins stay hidden until an admin enables **Allow Local
+  Plugin Imports** under **Dashboard → Settings → Security & Identity →
+  Marketplace and Plugins**.
+</Note>
+
+## 3. Check the connection
+
+Ask Cursor to call `ping`. A working credential returns `{"status":"ok"}`. Then ask for a campaign list. For the full tool list and scopes, see the [MCP overview](/mcp-server#tools).
+
+## Manual JSON fallback
+
+Prefer the plugin when you can. To wire Cursor without it, open **Cursor Settings → MCP → Add new global MCP server** and use the API key JSON on [Other clients](/mcp-other-clients).
+
+## Next
+
+[MCP overview](/mcp-server) · [Claude](/mcp-claude) · [Other clients](/mcp-other-clients)
