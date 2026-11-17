@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Soundlink Public API
-  version: 0.0.1-draft
+  version: 1.0.0
   description: |
     Campaign listing, metrics, and write operations for Soundlink partner organizations.
 
@@ -1792,10 +1792,9 @@ paths:
         that has first plays (dates with no first plays have no row), where the
         cohort date is the UTC date listeners first played via the campaign soundlink.
         A listener's cohort date is their earliest first play across all countries.
-        Conforms to the `soundlink_cohort_retention_daily` v1.0 schema (same row
+        Conforms to the `soundlink_cohort_retention_daily` v1.1 schema (same row
         shape as `GET /v1/soundlinks/{soundlinkId}/metrics/retention`). All rows
-        are returned in `data.items` (one per cohort date), so there is no
-        pagination.
+        are returned in `data.items`, so there is no pagination.
 
         The campaign's `smart_link_id` is resolved from `dim_campaigns_current`
         before the retention query runs.
@@ -1806,7 +1805,12 @@ paths:
         - `retention_by_day_N`: share of the cohort (`cohort_size`) who played again on any
           day from 1 to N (end-day, cumulative). Each listener is counted once, so the
           by-day rate never decreases within a row.
+        - `streams_on_day_N`: attributed plays on exactly day N after first play.
         - A day-N value is `null` until day N has passed for that cohort date.
+
+        Omit `groupBy` for the global rollup (`country_code` is `null`; counts are summed
+        over acquisition countries and rates are recomputed). `groupBy=country` returns one
+        item per cohort date and acquisition country (`XX` when unknown).
 
         **Known limitation:** end-day rates are cumulative per listener, so whether
         day-3 returners also returned on day 2 is not recoverable from the end-day
@@ -1835,9 +1839,15 @@ paths:
         - $ref: '#/components/parameters/campaignId'
         - $ref: '#/components/parameters/startDate'
         - $ref: '#/components/parameters/endDate'
+        - name: groupBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [country]
       responses:
         '200':
-          description: Cohort retention rows (`soundlink_cohort_retention_daily` schema), sorted by `cohort_date` ascending.
+          description: Cohort retention rows (`soundlink_cohort_retention_daily` schema), sorted by `cohort_date` (then `country_code` when grouped).
           content:
             application/json:
               schema:
@@ -2666,9 +2676,8 @@ paths:
         plays (dates with no first plays have no row), where the cohort date is
         the UTC date listeners first played via the soundlink. A listener's
         cohort date is their earliest first play across all countries.
-        Conforms to the `soundlink_cohort_retention_daily` v1.0 schema. All rows
-        are returned in `data.items` (one per cohort date), so there is no
-        pagination.
+        Conforms to the `soundlink_cohort_retention_daily` v1.1 schema. All rows
+        are returned in `data.items`, so there is no pagination.
 
         **Retention definitions:**
         - `returned_on_day_N`: listeners from the cohort who played again on exactly day N
@@ -2676,7 +2685,12 @@ paths:
         - `retention_by_day_N`: share of the cohort (`cohort_size`) who played again on any
           day from 1 to N (end-day, cumulative). Each listener is counted once, so the
           by-day rate never decreases within a row.
+        - `streams_on_day_N`: attributed plays on exactly day N after first play.
         - A day-N value is `null` until day N has passed for that cohort date.
+
+        Omit `groupBy` for the global rollup (`country_code` is `null`; counts are summed
+        over acquisition countries and rates are recomputed). `groupBy=country` returns one
+        item per cohort date and acquisition country (`XX` when unknown).
 
         **Known limitation:** end-day rates are cumulative per listener, so whether
         day-3 returners also returned on day 2 is not recoverable from the end-day
@@ -2702,9 +2716,15 @@ paths:
         - $ref: '#/components/parameters/soundlinkId'
         - $ref: '#/components/parameters/startDate'
         - $ref: '#/components/parameters/endDate'
+        - name: groupBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [country]
       responses:
         '200':
-          description: Cohort retention rows (`soundlink_cohort_retention_daily` schema), sorted by `cohort_date` ascending.
+          description: Cohort retention rows (`soundlink_cohort_retention_daily` schema), sorted by `cohort_date` (then `country_code` when grouped).
           content:
             application/json:
               schema:
@@ -5467,12 +5487,19 @@ components:
       properties:
         data:
           type: object
-          required: [schemaVersion, items]
+          required: [schemaVersion, groupBy, items]
           properties:
             schemaVersion:
               type: string
               description: Version of the `soundlink_cohort_retention_daily` row schema. Pin your ingest pipeline to this.
-              example: "1.0"
+              example: "1.1"
+            groupBy:
+              type: string
+              nullable: true
+              enum: [country]
+              description: |
+                `null` when `groupBy` is omitted (global rollup). `country` when
+                `groupBy=country`.
             items:
               type: array
               items:
@@ -5569,8 +5596,9 @@ components:
     SoundlinkCohortRetentionDailyRow:
       type: object
       description: |
-        One row of the `soundlink_cohort_retention_daily` v1.0 schema.
-        Primary key: `(provider, account_id, cohort_date, soundlink_id)`.
+        One row of the `soundlink_cohort_retention_daily` v1.1 schema.
+        Primary key (global): `(provider, account_id, cohort_date, soundlink_id)`.
+        Primary key (`groupBy=country`): add `country_code`.
         Rows are idempotent. Re-ingesting on the primary key is safe.
         A day-N value is final once day N has passed for the cohort date.
         Until then it is `null`.
@@ -5584,21 +5612,29 @@ components:
         - soundlink_id
         - soundlink_name
         - soundlink_target_type
+        - country_code
         - cohort_size
         - returned_on_day_1
         - retention_by_day_1
+        - streams_on_day_1
         - returned_on_day_2
         - retention_by_day_2
+        - streams_on_day_2
         - returned_on_day_3
         - retention_by_day_3
+        - streams_on_day_3
         - returned_on_day_4
         - retention_by_day_4
+        - streams_on_day_4
         - returned_on_day_5
         - retention_by_day_5
+        - streams_on_day_5
         - returned_on_day_6
         - retention_by_day_6
+        - streams_on_day_6
         - returned_on_day_7
         - retention_by_day_7
+        - streams_on_day_7
       properties:
         provider:
           type: string
@@ -5610,7 +5646,7 @@ components:
         schema_version:
           type: string
           description: Schema version string. Pin your ingest pipeline to this value.
-          example: "1.0"
+          example: "1.1"
         cohort_date:
           type: string
           format: date
@@ -5647,6 +5683,12 @@ components:
           type: string
           nullable: true
           description: Spotify playlist ID. Populated when `soundlink_target_type = playlist`; otherwise `null`.
+        country_code:
+          type: string
+          nullable: true
+          description: |
+            Acquisition country (country of the listener's earliest first play).
+            `null` on the global rollup. `XX` when unknown in country mode.
         cohort_size:
           type: integer
           minimum: 0
@@ -5662,6 +5704,11 @@ components:
           minimum: 0
           maximum: 1
           description: Share of `cohort_size` who played again on any day from 1 to 1 (end-day, cumulative), rounded to 4 decimals. `null` until day 1 has passed.
+        streams_on_day_1:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Attributed plays on exactly day 1 after first play. `null` until day 1 has passed.
         returned_on_day_2:
           type: integer
           nullable: true
@@ -5673,6 +5720,11 @@ components:
           minimum: 0
           maximum: 1
           description: Share of `cohort_size` who played again on any day from 1 to 2 (end-day, cumulative), rounded to 4 decimals. `null` until day 2 has passed.
+        streams_on_day_2:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Attributed plays on exactly day 2 after first play. `null` until day 2 has passed.
         returned_on_day_3:
           type: integer
           nullable: true
@@ -5684,6 +5736,11 @@ components:
           minimum: 0
           maximum: 1
           description: Share of `cohort_size` who played again on any day from 1 to 3 (end-day, cumulative), rounded to 4 decimals. `null` until day 3 has passed.
+        streams_on_day_3:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Attributed plays on exactly day 3 after first play. `null` until day 3 has passed.
         returned_on_day_4:
           type: integer
           nullable: true
@@ -5695,6 +5752,11 @@ components:
           minimum: 0
           maximum: 1
           description: Share of `cohort_size` who played again on any day from 1 to 4 (end-day, cumulative), rounded to 4 decimals. `null` until day 4 has passed.
+        streams_on_day_4:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Attributed plays on exactly day 4 after first play. `null` until day 4 has passed.
         returned_on_day_5:
           type: integer
           nullable: true
@@ -5706,6 +5768,11 @@ components:
           minimum: 0
           maximum: 1
           description: Share of `cohort_size` who played again on any day from 1 to 5 (end-day, cumulative), rounded to 4 decimals. `null` until day 5 has passed.
+        streams_on_day_5:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Attributed plays on exactly day 5 after first play. `null` until day 5 has passed.
         returned_on_day_6:
           type: integer
           nullable: true
@@ -5717,6 +5784,11 @@ components:
           minimum: 0
           maximum: 1
           description: Share of `cohort_size` who played again on any day from 1 to 6 (end-day, cumulative), rounded to 4 decimals. `null` until day 6 has passed.
+        streams_on_day_6:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Attributed plays on exactly day 6 after first play. `null` until day 6 has passed.
         returned_on_day_7:
           type: integer
           nullable: true
@@ -5728,6 +5800,11 @@ components:
           minimum: 0
           maximum: 1
           description: Share of `cohort_size` who played again on any day from 1 to 7 (end-day, cumulative), rounded to 4 decimals. `null` until day 7 has passed.
+        streams_on_day_7:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Attributed plays on exactly day 7 after first play. `null` until day 7 has passed.
 
     # --- Videos ---
 

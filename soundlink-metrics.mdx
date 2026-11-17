@@ -104,26 +104,36 @@ curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/engag
 
 `GET /v1/soundlinks/{soundlinkId}/metrics/retention`
 
-One row per cohort date (`soundlink_cohort_retention_daily` v1.0). Primary key:
+One row per cohort date (`soundlink_cohort_retention_daily` v1.1). The response includes `schemaVersion` (`1.1`) and `groupBy` (`null` or `"country"`). Primary key (global):
 
 `(provider, account_id, cohort_date, soundlink_id)`
 
-The cohort date is the UTC date a listener first played through the soundlink. Each listener belongs to one cohort: their earliest first play across all countries. Dates with no first plays have no row. All rows come back in one response, with no pagination.
+With `groupBy=country`, add `country_code` to the primary key.
+
+The cohort date is the UTC date a listener first played through the soundlink. Each listener belongs to one cohort: their earliest first play across all countries. Acquisition country is the country of that earliest first play. Dates with no first plays have no row. All rows come back in one response, with no pagination.
+
+Omit `groupBy` for one item per cohort date. `country_code` is `null`. Counts are summed across acquisition countries, and `retention_by_day_N` is recomputed from those sums. `groupBy=country` returns one item per cohort date and country (`XX` when the country is unknown). There is no filter for a single country.
 
 | Column               | Meaning                                                                               |
 | -------------------- | ------------------------------------------------------------------------------------- |
 | `cohort_size`        | Unique listeners whose first play was on `cohort_date`.                               |
 | `returned_on_day_N`  | Cohort listeners who played again on exactly day N (1–7) after their first play.      |
 | `retention_by_day_N` | Share of `cohort_size` who played again on any day from 1 to N (end-day, cumulative). |
+| `streams_on_day_N`   | Attributed plays on exactly day N after first play.                                   |
 
 A day-N value is `null` until day N has passed for that cohort date. It is final after that.
 
-`retention_by_day_N` never decreases within a row, because each listener counts once. It can't tell you whether day-3 returners also played on day 2. Use `returned_on_day_N` for day-by-day behavior.
+`retention_by_day_N` never decreases within a row, because each listener counts once. It can't tell you whether day-3 returners also played on day 2. Use `returned_on_day_N` for day-by-day behavior. Streams per listener (SPL) is not returned; derive it as `streams_on_day_N / returned_on_day_N` when `returned_on_day_N` is greater than 0.
 
 `soundlink_target_isrc` is currently always `null`.
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/retention?startDate=2026-08-01&endDate=2026-08-31' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/retention?startDate=2026-08-01&endDate=2026-08-31&groupBy=country' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
