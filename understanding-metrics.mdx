@@ -130,7 +130,7 @@ Playlist engagement rows include `playlist_position` — the track's 1-based slo
 
 `GET /v1/campaigns/{campaignId}/metrics/retention`
 
-Cohort retention for the campaign's soundlink. Rows use the same `soundlink_cohort_retention_daily` v1.0 shape as [Soundlink metrics](/soundlink-metrics#retention-by-cohort), with one row per cohort date and no pagination.
+Cohort retention for the campaign's soundlink. Rows use the same `soundlink_cohort_retention_daily` v1.1 shape as [Soundlink metrics](/soundlink-metrics#retention-by-cohort), including optional `groupBy=country` and `streams_on_day_N`. All rows come back in one response, with no pagination.
 
 `startDate` and `endDate` filter the cohort date (inclusive). If you omit both, a recent window ending today is used. A range that is too wide returns `400 invalid_query_parameter`.
 
@@ -138,6 +138,11 @@ If the campaign isn't in your organization, the response is `404 campaign_not_fo
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/campaigns/{campaignId}/metrics/retention?startDate=2026-08-01&endDate=2026-08-31' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/campaigns/{campaignId}/metrics/retention?startDate=2026-08-01&endDate=2026-08-31&groupBy=country' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
