@@ -42,6 +42,8 @@ curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/metrics/overview/bat
 
 Lifetime performance for one campaign, grouped by background video. Each group has a `children` array of variants (caption, language, track, and the audio cut as `timestamp_start_ms` / `timestamp_end_ms`). Both timestamps are null when the cut is not a ready sound. Two cuts of the same track stay separate. This is a snapshot — `startDate` and `endDate` return `400`.
 
+Each child includes `delivery_state`: `disapproved` for a partner-uploaded (`user_upload`) creative with a Meta ad in `DISAPPROVED`; otherwise `null` (including catalog videos). Not set on parent groups.
+
 Maps to the **Creatives** tab in Soundlink Insights. Spend is omitted until media spend and fees can be split. Ratios use the same lifetime basis as that tab. Requires `metrics:read`.
 
 ```bash
