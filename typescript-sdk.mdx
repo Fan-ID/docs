@@ -308,6 +308,7 @@ Requires `metrics:read`.
 | ---------------------------------------------------------- | ----------------------------------- | ---------------------------------------------- |
 | `soundlink.metrics.overview(id, params?)`                  | `GET .../metrics/overview`          | `ApiResponse<MetricsOverview>`                 |
 | `soundlink.metrics.creatives(id)`                          | `GET .../metrics/creatives`         | `ApiResponse<CreativeMetrics>`                 |
+| `soundlink.metrics.creativesBatch(campaignIds)`            | `POST .../metrics/creatives/batch`  | `ApiResponse<CreativeMetricsBatch>`            |
 | `soundlink.metrics.creativeDaily(id, params?)`             | `GET .../metrics/creative-daily`    | `ApiResponse<CreativeDailyData>`               |
 | `soundlink.metrics.breakdown.list(id, params?)`            | `GET .../metrics/breakdown`         | `ApiResponse<BreakdownListData>`               |
 | `soundlink.metrics.breakdown.export(id, params?)`          | `GET .../metrics/breakdown/export`  | `ApiResponse<JsonlStream<BreakdownRow>>`       |
@@ -317,7 +318,9 @@ Requires `metrics:read`.
 
 Date params use inclusive `YYYY-MM-DD`. Export windows are capped at **90 days** per request. Breakdown list `pageSize` max is **500**. Paginated campaign engagement (`GET .../metrics/engagement`) is not in the SDK — use the HTTP path in [Campaign metrics](/understanding-metrics).
 
-`creatives` is a lifetime snapshot grouped by background video. Each child has the audio cut as `timestamp_start_ms` and `timestamp_end_ms` (both null when the cut is not a ready sound). It rejects dates.
+`creatives` is a lifetime snapshot grouped by background video. Each child has the audio cut as `timestamp_start_ms` and `timestamp_end_ms` (both null when the cut is not a ready sound). Children also include optional `delivery_state` (`disapproved` or `null`). It rejects dates. See [Creatives](/understanding-metrics#creatives).
+
+`creativesBatch` posts up to **50** campaign IDs and returns the same lifetime groups per authorized campaign. Omit unauthorized IDs. Do not send dates. Requires the org batch feature (`404` when disabled).
 
 `creativeDaily` is one row per day and Meta ad creative: `spend_media`, `impressions`, `followers`, and `cpf`. `cpf` is null when followers is zero. `pageSize` defaults to 50 and maxes at **500**. Omit both dates for every day that has rows. See [Creative daily](/understanding-metrics#creative-daily).
 
@@ -368,7 +371,7 @@ import type {
 | **Campaigns**  | `CampaignSummary`, `CampaignDetail`, `CampaignActivityItem`, `CampaignGeneration`, `CreateCampaignRequest`, `CampaignStatus` |
 | **Soundlinks** | `SoundlinkSummary`, `SoundlinkDetail`, `SoundlinkListData`, `SoundlinkMetricsOverview`, `SoundlinkBreakdownRow`, `SoundlinkEngagementRow` |
 | **Strategies** | `StrategiesCatalogData`, `StrategyCatalogItem`, `StrategyType`                                  |
-| **Campaign metrics** | `MetricsOverview`, `CreativeMetrics`, `CreativeDailyRow`, `BreakdownRow`, `BreakdownListData`, `EngagementRow` |
+| **Campaign metrics** | `MetricsOverview`, `CreativeMetrics`, `CreativeMetricsBatch`, `CreativeDeliveryState`, `CreativeDailyRow`, `BreakdownRow`, `BreakdownListData`, `EngagementRow` |
 | **Params**     | `DateRangeParams`, `SoundlinkListParams`, `SoundlinkBreakdownListParams`, `SoundlinkEngagementListParams`, `BreakdownListParams`, `BreakdownExportParams`, `EngagementExportParams`, `IdempotencyOptions` |
 | **Exports**    | `JsonlStream<T>`, `ExportCollection<T>`                                                          |
 | **Client**     | `Soundlink`, `SoundlinkClientOptions`                                                            |
