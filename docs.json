@@ -69,7 +69,12 @@
           },
           {
             "group": "AI tools",
-            "pages": ["mcp-server"]
+            "pages": [
+              "mcp-server",
+              "mcp-claude",
+              "mcp-cursor",
+              "mcp-other-clients"
+            ]
           },
           {
             "group": "For Developers",
