@@ -318,7 +318,7 @@ Requires `metrics:read`.
 
 Date params use inclusive `YYYY-MM-DD`. Export windows are capped at **90 days** per request. Breakdown list `pageSize` max is **500**. Paginated campaign engagement (`GET .../metrics/engagement`) is not in the SDK — use the HTTP path in [Campaign metrics](/understanding-metrics).
 
-`creatives` is a lifetime snapshot grouped by background video. Each child has the audio cut as `timestamp_start_ms` and `timestamp_end_ms` (both null when the cut is not a ready sound). Children also include optional `delivery_state` (`disapproved` or `null`). It rejects dates. See [Creatives](/understanding-metrics#creatives).
+`creatives` is a lifetime snapshot grouped by background video. Each child has the audio cut as `timestamp_start_ms` and `timestamp_end_ms` (both null when the cut is not a ready sound), plus optional `delivery_state` (`disapproved` or `null`). Prefer `== null` until every environment returns the field. It rejects dates. See [Creatives](/understanding-metrics#creatives).
 
 `creativesBatch` posts up to **50** campaign IDs and returns the same lifetime groups per authorized campaign. Omit unauthorized IDs. Do not send dates. Requires the org batch feature (`404` when disabled).
 
