@@ -44,6 +44,8 @@ Lifetime performance for one campaign, grouped by background video. Each group h
 
 Each child includes `delivery_state`: `disapproved` for a partner-uploaded (`user_upload`) creative with a Meta ad in `DISAPPROVED`; otherwise `null` (including catalog videos). Not set on parent groups.
 
+When `delivery_state` is `disapproved`, `delivery_reason` is Meta's policy name for the rejection, such as `Spam`. It is `null` when Meta sent no review feedback. Treat it as an open list: values come from Meta and can change, so don't build a closed enum on them.
+
 Maps to the **Creatives** tab in Soundlink Insights. Spend is omitted until media spend and fees can be split. Ratios use the same lifetime basis as that tab. Requires `metrics:read`.
 
 ```bash
