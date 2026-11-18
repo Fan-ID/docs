@@ -138,6 +138,8 @@ Prefer `emulator.transition`, `emulator.setWallet`, `emulator.reset`, and `emula
 | `POST /__emulator/reset`  | Clears campaigns and idempotency. Restores the initial balance.         |
 | `POST /__emulator/fault`  | Fails the next authenticated `/v1` calls.                               |
 
+`disapprove_creatives` takes an optional reason as the fourth argument of `emulator.transition`. It sets `delivery_reason` on creatives children, for example `emulator.transition(id, "disapprove_creatives", undefined, "Spam")`. Omit the reason to get `delivery_reason: null`. A later call without a reason keeps the reason already set. A blank reason is stored as `null`. The reason argument requires `soundlink` 2.16.0 or later.
+
 A campaign that never spends is refunded in full on stop. Stopping while status is still `creating` returns `400`. The path for a campaign that never went live is `reject_meta`, then `stop`.
 
 There is no calendar end date. `end` is the harness action that settles the cycle.
