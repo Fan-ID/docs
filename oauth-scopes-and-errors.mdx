@@ -171,7 +171,7 @@ curl "https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/overview?sta
 | `openid` | Verify Soundlink identity; required for `userinfo` |
 | `email` | View the user's email address |
 | `campaigns:read` | View campaigns |
-| `wallet:read` | Read the organization wallet balance |
+| `wallet:read` | Read the organization wallet balance and transaction history |
 | `campaigns:write` | Create and manage wallet-funded campaigns |
 | `metrics:read` | View campaign metrics |
 | `soundlinks:read` | View self-serve soundlinks and their metrics |
@@ -229,6 +229,7 @@ Returns the organization wallet. `available` is the amount `POST /v1/campaigns` 
 | Endpoint | Notes |
 | --- | --- |
 | `GET /v1/wallet` | `balance`, `available`, `reserved`, `currency`, `updatedAt`. |
+| `GET /v1/wallet/transactions` | Paginated wallet transactions, oldest first, with FOCUS column names. Optional `startDate` and `endDate` (UTC days, inclusive), `page`, `pageSize` (default 100, max 500). |
 
 ### `campaigns:write`
 

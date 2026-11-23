@@ -174,7 +174,7 @@
           {
             "group": "Wallet",
             "openapi": "openapi/soundlink-public-api-v1.yaml",
-            "pages": ["GET /v1/wallet"]
+            "pages": ["GET /v1/wallet", "GET /v1/wallet/transactions"]
           },
           {
             "group": "Campaigns",
