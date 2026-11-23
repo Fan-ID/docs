@@ -190,6 +190,71 @@ Expected (`200`):
 
 See [GET /v1/wallet](/api-reference/wallet/get-organization-wallet-balance) for the full response.
 
+## List wallet transactions
+
+`GET /v1/wallet/transactions` · scope `wallet:read`
+
+Returns every wallet transaction of the organization, oldest first: top-ups, campaign spend, refunds back to the wallet, credit grants, and manual adjustments. Use it to reconcile the wallet with your own books.
+
+| Query | Description |
+| --- | --- |
+| `startDate` | Optional. First UTC day to include (`YYYY-MM-DD`). |
+| `endDate` | Optional. Last UTC day to include (`YYYY-MM-DD`, inclusive). |
+| `page` | Optional. Page number, default `1`. |
+| `pageSize` | Optional. Rows per page, default `100`, maximum `500`. |
+
+```bash
+curl -sS 'https://api.getsoundlink.com/v1/wallet/transactions?startDate=2026-11-01&endDate=2026-11-30&pageSize=100' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
+```
+
+Expected (`200`):
+
+```json
+{
+  "data": {
+    "items": [
+      {
+        "BillingAccountId": "8358b5cb-38ff-435b-b1b4-0030f952d66b",
+        "BillingCurrency": "USD",
+        "ChargeCategory": "Purchase",
+        "ChargeClass": null,
+        "ChargeDescription": "Invoice top-up",
+        "ChargePeriodStart": "2026-11-18T09:12:03.000Z",
+        "ChargePeriodEnd": "2026-11-18T09:12:03.001Z",
+        "BilledCost": 13000,
+        "EffectiveCost": 13000,
+        "ServiceProviderName": "Soundlink",
+        "ServiceName": "Wallet",
+        "ResourceId": null,
+        "ResourceName": null,
+        "x_TransactionType": "topup",
+        "x_Reason": "invoice_topup",
+        "x_WalletAmount": 13000,
+        "x_BalanceAfter": 13250.5,
+        "x_StripeInvoiceId": "in_1Q..."
+      }
+    ],
+    "pagination": { "page": 1, "pageSize": 100, "totalCount": 412, "totalPages": 5 }
+  },
+  "meta": { "requestId": "..." }
+}
+```
+
+Column names follow [FOCUS](https://focus.finops.org/). The endpoint is FOCUS-aligned, not a full FOCUS dataset: billing-period and commitment columns are not returned. Columns that start with `x_` are Soundlink extensions.
+
+- `ChargeCategory` is `Purchase` for top-ups, `Usage` for campaign spend and refunds back to the wallet, `Credit` for grants and redeemed coupons, and `Adjustment` for manual adjustments.
+- `BilledCost` and `EffectiveCost` are equal. Spend is positive, and refunds and grants are negative.
+- `x_WalletAmount` is the signed wallet movement: inflow positive, outflow negative. `x_BalanceAfter` is the balance right after the row.
+- `ResourceId` and `ResourceName` are the campaign id and name for campaign rows, and `null` otherwise.
+- `ChargeClass` is always `null`.
+
+**Reconcile with the balance.** Page through all rows. The sum of `x_WalletAmount` is the net wallet movement, and `x_BalanceAfter` of the last row equals `balance` from `GET /v1/wallet`. Card-paid campaign renewal audit entries (a net-zero top-up and deduct pair) are not returned so the sums match.
+
+Errors: `400 invalid_query_parameter` (non-integer `page` or `pageSize`, or an unparsable date), `400 page_size_exceeded` (`pageSize` above 500), `400 invalid_date_range` (`endDate` before `startDate`).
+
+See [GET /v1/wallet/transactions](/api-reference/wallet/list-organization-wallet-transactions) for the full response.
+
 ## Stop a campaign
 
 `POST /v1/campaigns/{campaignId}/stop`
