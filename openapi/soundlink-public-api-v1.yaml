@@ -2289,6 +2289,132 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
+  /v1/soundlinks/metrics/breakdown/export:
+    get:
+      operationId: exportOrgSoundlinkMetricsBreakdown
+      summary: Organization soundlink metrics breakdown export (JSONL)
+      description: |
+        Streams country-level metrics for **all** soundlinks in the
+        authenticated organization as **newline-delimited JSON (JSONL)**.
+        Every line is a complete `soundlink_country_daily` v1.0 row — the
+        same schema as `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`,
+        including `soundlink_id` on each line.
+
+        Designed for orgs with many soundlinks: one call replaces one export
+        per soundlink.
+
+        **Usage:**
+        ```
+        GET /v1/soundlinks/metrics/breakdown/export
+        Accept: application/x-ndjson
+        ```
+
+        **Date range:** if you omit both dates, defaults to the last **90 days**
+        ending today. Override with `startDate` / `endDate`. **Responses are
+        capped at 90 days** — a wider range returns `400 invalid_query_parameter`.
+        Page longer histories in 90-day slices.
+
+        Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
+      tags: [Soundlinks]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: soundlinks:read
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: |
+            JSONL stream. Each line is a `soundlink_country_daily` v1.0 row.
+            Lines are sorted by `(soundlink_id asc, report_date asc, country_code)`.
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              description: |
+                `attachment; filename="breakdown_org_{organizationId}_{startDate}_{endDate}.jsonl"`
+              example: 'attachment; filename="breakdown_org_a7ac3173-2f71-4e79-921f-d15d7112dd11_2026-08-01_2026-08-31.jsonl"'
+            X-Row-Count:
+              schema:
+                type: integer
+              description: Total number of rows in the response.
+          content:
+            application/x-ndjson:
+              schema:
+                $ref: '#/components/schemas/SoundlinkCountryDailyRow'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/soundlinks/metrics/retention/export:
+    get:
+      operationId: exportOrgSoundlinkCohortRetention
+      summary: Organization soundlink cohort retention export (JSONL)
+      description: |
+        Streams cohort retention for **all** soundlinks in the authenticated
+        organization as **newline-delimited JSON (JSONL)**. Every line is a
+        `soundlink_cohort_retention_daily` v1.1 row — the same schema as
+        `GET /v1/soundlinks/{soundlinkId}/metrics/retention` items, including
+        `soundlink_id` on each line.
+
+        Unlike the per-soundlink JSON endpoint, this export does not clamp
+        cohorts to each soundlink's `createdAt` (plays are already scoped by
+        `smart_link_id`). Omit `groupBy` for the global rollup per soundlink
+        (`country_code` is null). Pass `groupBy=country` for one row per
+        cohort date and acquisition country.
+
+        **Date range:** if you omit both dates, defaults to the last **90 days**
+        ending today. Override with `startDate` / `endDate`. **Responses are
+        capped at 90 days** — a wider range returns `400 invalid_query_parameter`.
+
+        Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
+        Plan requirement: Label, Enterprise, committed, and self-serve plans
+        (same as per-soundlink cohort retention).
+      tags: [Soundlinks]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: soundlinks:read
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - name: groupBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [country]
+          description: |
+            Omit for the global rollup per soundlink. Pass `country` for one
+            row per cohort date and acquisition country.
+      responses:
+        '200':
+          description: |
+            JSONL stream. Each line is a `soundlink_cohort_retention_daily` v1.1 row.
+            Lines are sorted by `(soundlink_id, cohort_date, country_code)`.
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              description: |
+                `attachment; filename="retention_org_{organizationId}_{startDate}_{endDate}.jsonl"`
+            X-Row-Count:
+              schema:
+                type: integer
+              description: Total number of rows in the response.
+          content:
+            application/x-ndjson:
+              schema:
+                $ref: '#/components/schemas/SoundlinkCohortRetentionDailyRow'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
   /v1/soundlinks/{soundlinkId}:
     get:
       operationId: getSoundlink
