@@ -2308,7 +2308,6 @@ paths:
         **Date range:** if you omit both dates, defaults to the last **90 days**
         ending today. Responses are capped at **90 days**.
 
-        Requires org feature flag `public_api_soundlink_batch` (404 when off).
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
       tags: [Soundlinks]
       security:
@@ -2374,7 +2373,6 @@ paths:
         (same as per-soundlink cohort retention). Organizations on a lower plan
         receive `403 premium_plan_required`.
 
-        Requires org feature flag `public_api_soundlink_batch` (404 when off).
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
       tags: [Soundlinks]
       security:
