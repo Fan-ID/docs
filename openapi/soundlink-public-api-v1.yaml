@@ -2294,14 +2294,15 @@ paths:
       operationId: exportOrgSoundlinkMetricsBreakdown
       summary: Organization soundlink metrics breakdown export (JSONL)
       description: |
-        Streams country-level metrics for **all** soundlinks in the
+        Streams country-level metrics for **all self-serve** soundlinks in the
         authenticated organization as **newline-delimited JSON (JSONL)**.
         Every line is a complete `soundlink_country_daily` v1.0 row — the
         same schema as `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`,
         including `soundlink_id` on each line.
 
         Designed for orgs with many soundlinks: one call replaces one export
-        per soundlink.
+        per soundlink. Only **self-serve** soundlinks (the same set as
+        `GET /v1/soundlinks`) are included — campaign-linked soundlinks are omitted.
 
         **Usage:**
         ```
@@ -2354,11 +2355,12 @@ paths:
       operationId: exportOrgSoundlinkCohortRetention
       summary: Organization soundlink cohort retention export (JSONL)
       description: |
-        Streams cohort retention for **all** soundlinks in the authenticated
-        organization as **newline-delimited JSON (JSONL)**. Every line is a
-        `soundlink_cohort_retention_daily` v1.1 row — the same schema as
-        `GET /v1/soundlinks/{soundlinkId}/metrics/retention` items, including
-        `soundlink_id` on each line.
+        Streams cohort retention for **all self-serve** soundlinks in the
+        authenticated organization as **newline-delimited JSON (JSONL)**.
+        Every line is a `soundlink_cohort_retention_daily` v1.1 row — the same
+        schema as `GET /v1/soundlinks/{soundlinkId}/metrics/retention` items,
+        including `soundlink_id` on each line. Campaign-linked soundlinks are
+        omitted (same visibility as `GET /v1/soundlinks`).
 
         Unlike the per-soundlink JSON endpoint, this export does not clamp
         cohorts to each soundlink's `createdAt` (plays are already scoped by
@@ -2401,6 +2403,7 @@ paths:
                 type: string
               description: |
                 `attachment; filename="retention_org_{organizationId}_{startDate}_{endDate}.jsonl"`
+                or `..._{endDate}_by_country.jsonl` when `groupBy=country`.
             X-Row-Count:
               schema:
                 type: integer

@@ -225,6 +225,8 @@
                 "group": "Metrics",
                 "expanded": true,
                 "pages": [
+                  "GET /v1/soundlinks/metrics/breakdown/export",
+                  "GET /v1/soundlinks/metrics/retention/export",
                   "GET /v1/soundlinks/{soundlinkId}/metrics/overview",
                   "GET /v1/soundlinks/{soundlinkId}/metrics/breakdown",
                   "GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export",

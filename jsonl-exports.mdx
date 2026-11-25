@@ -23,14 +23,18 @@ Requires `metrics:read`.
 
 ### Soundlinks
 
-Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
+Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked) — the same set as `GET /v1/soundlinks`.
 
-| Export            | Path                                                         |
-| ----------------- | ------------------------------------------------------------ |
-| Country breakdown | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`  |
-| Track engagement  | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export` |
+| Export                         | Path                                                         |
+| ------------------------------ | ------------------------------------------------------------ |
+| Org country breakdown          | `GET /v1/soundlinks/metrics/breakdown/export`                |
+| Org cohort retention           | `GET /v1/soundlinks/metrics/retention/export`                |
+| Country breakdown (one link)   | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`  |
+| Track engagement (one link)    | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export` |
 
-Row schemas match the paginated `breakdown` / `engagement` JSON endpoints for the same resource. See [Campaign metrics](/understanding-metrics) and [Soundlink metrics](/soundlink-metrics) for primary keys.
+Org-wide exports stream every self-serve soundlink in one response. Each line includes `soundlink_id`. Prefer them when you have many soundlinks instead of one call per id.
+
+Row schemas match the paginated `breakdown` / `engagement` JSON endpoints (and retention items) for the same resource. See [Campaign metrics](/understanding-metrics) and [Soundlink metrics](/soundlink-metrics) for primary keys.
 
 ## Request
 
@@ -41,7 +45,16 @@ curl -sS \
   -H 'Accept: application/x-ndjson'
 ```
 
-Soundlink example:
+Org-wide soundlink breakdown:
+
+```bash
+curl -sS \
+  'https://api.getsoundlink.com/v1/soundlinks/metrics/breakdown/export?startDate=2026-08-01&endDate=2026-08-31' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Accept: application/x-ndjson'
+```
+
+Per-soundlink engagement:
 
 ```bash
 curl -sS \
@@ -54,6 +67,7 @@ Optional query params:
 
 - `startDate`, `endDate` — inclusive `YYYY-MM-DD`
 - `engagementContext` — `catalog` or `playlist` (engagement export only)
+- `groupBy=country` — org retention export only (omit for the global rollup per soundlink)
 
 ## Date windows
 
@@ -74,7 +88,7 @@ If `endDate` is before `startDate`, or the range exceeds 90 days, you get `400` 
 | Header                               | Purpose                                                       |
 | ------------------------------------ | ------------------------------------------------------------- |
 | `Content-Type: application/x-ndjson` | One JSON object per line                                      |
-| `Content-Disposition`                | Suggested filename, e.g. `breakdown_{id}_{start}_{end}.jsonl` |
+| `Content-Disposition`                | Suggested filename, e.g. `breakdown_org_{orgId}_{start}_{end}.jsonl` or `breakdown_{id}_{start}_{end}.jsonl` |
 | `X-Row-Count`                        | Total lines in the response (progress tracking)               |
 
 ## Ingest pattern
