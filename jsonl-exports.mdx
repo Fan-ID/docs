@@ -25,14 +25,14 @@ Requires `metrics:read`.
 
 Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
 
-| Export                       | Path                                                         |
-| ---------------------------- | ------------------------------------------------------------ |
-| Org country breakdown        | `GET /v1/soundlinks/metrics/breakdown/export`                |
-| Org cohort retention         | `GET /v1/soundlinks/metrics/retention/export`                |
-| Country breakdown (one link) | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`  |
-| Track engagement (one link)  | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export` |
+| Export                         | Path                                                              |
+| ------------------------------ | ----------------------------------------------------------------- |
+| Batch country breakdown        | `POST /v1/soundlinks/metrics/breakdown/export/batch`              |
+| Batch cohort retention         | `POST /v1/soundlinks/metrics/retention/export/batch`              |
+| Country breakdown (one link)   | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`       |
+| Track engagement (one link)    | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export`      |
 
-Org-wide exports include every self-serve soundlink; each line has `soundlink_id`.
+Batch exports take up to **50** `soundlinkIds` in the body (one rate-limit unit). Each line has `soundlink_id`. Unknown or unauthorized IDs are omitted. Batch reads must be enabled for your organization — otherwise the route returns `404`.
 
 Row schemas match the paginated `breakdown` / `engagement` JSON endpoints (and retention items) for the same resource. See [Campaign metrics](/understanding-metrics) and [Soundlink metrics](/soundlink-metrics) for primary keys.
 
@@ -45,13 +45,19 @@ curl -sS \
   -H 'Accept: application/x-ndjson'
 ```
 
-Org-wide soundlink breakdown:
+Batch soundlink breakdown:
 
 ```bash
-curl -sS \
-  'https://api.getsoundlink.com/v1/soundlinks/metrics/breakdown/export?startDate=2026-08-01&endDate=2026-08-31' \
+curl -sS -X POST \
+  'https://api.getsoundlink.com/v1/soundlinks/metrics/breakdown/export/batch' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
-  -H 'Accept: application/x-ndjson'
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/x-ndjson' \
+  -d '{
+    "soundlinkIds": ["SOUNDLINK_ID_1", "SOUNDLINK_ID_2"],
+    "startDate": "2026-08-01",
+    "endDate": "2026-08-31"
+  }'
 ```
 
 Per-soundlink engagement:
@@ -63,11 +69,11 @@ curl -sS \
   -H 'Accept: application/x-ndjson'
 ```
 
-Optional query params:
+Optional params:
 
-- `startDate`, `endDate` — inclusive `YYYY-MM-DD`
+- `startDate`, `endDate` — inclusive `YYYY-MM-DD` (query on GET exports; body on batch POST)
 - `engagementContext` — `catalog` or `playlist` (engagement export only)
-- `groupBy=country` — org retention export only (omit for the global rollup per soundlink)
+- `groupBy: "country"` — batch retention body only (omit for the global rollup per soundlink)
 
 ## Date windows
 
