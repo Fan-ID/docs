@@ -2372,14 +2372,17 @@ paths:
         ending today. Override with `startDate` / `endDate`. **Responses are
         capped at 90 days** — a wider range returns `400 invalid_query_parameter`.
 
+        **Plan requirement:** Label, Enterprise, committed, and self-serve plans
+        (same as per-soundlink cohort retention). Organizations on a lower plan
+        receive `403 premium_plan_required`.
+
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
-        Plan requirement: Label, Enterprise, committed, and self-serve plans
-        (same as per-soundlink cohort retention).
       tags: [Soundlinks]
       security:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       x-required-scope: soundlinks:read
+      x-premium-plan-level-min: 3
       parameters:
         - $ref: '#/components/parameters/startDate'
         - $ref: '#/components/parameters/endDate'
@@ -2414,7 +2417,7 @@ paths:
                 $ref: '#/components/schemas/SoundlinkCohortRetentionDailyRow'
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
+        '403': { $ref: '#/components/responses/PremiumAnalyticsForbidden' }
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
