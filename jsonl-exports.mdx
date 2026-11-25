@@ -32,7 +32,7 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
 | Country breakdown (one link)   | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`       |
 | Track engagement (one link)    | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export`      |
 
-Batch exports take up to **50** `soundlinkIds` in the body (one rate-limit unit). Each line has `soundlink_id`. Unknown or unauthorized IDs are omitted. Batch reads must be enabled for your organization — otherwise the route returns `404`.
+Batch exports take up to **50** `soundlinkIds` in the body (one rate-limit unit). Each line has `soundlink_id`. Unknown, unauthorized, draft, or archived IDs are omitted. Batch reads must be enabled for your organization — otherwise the route returns `404`.
 
 Row schemas match the paginated `breakdown` / `engagement` JSON endpoints (and retention items) for the same resource. See [Campaign metrics](/understanding-metrics) and [Soundlink metrics](/soundlink-metrics) for primary keys.
 

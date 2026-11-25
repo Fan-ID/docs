@@ -2301,9 +2301,9 @@ paths:
         **50** soundlink IDs in one request (counts as one rate-limit unit).
 
         Each line is a `soundlink_country_daily` v1.0 row and includes
-        `soundlink_id`. Self-serve soundlinks only (same visibility as
-        `GET /v1/soundlinks`), including archived ones. Unauthorized or unknown
-        IDs are omitted (no error) — same idea as campaign metrics batch.
+        `soundlink_id`. Self-serve **active** soundlinks only. Unauthorized,
+        unknown, draft, or archived IDs are omitted (no error) — same idea as
+        campaign metrics batch.
 
         **Date range:** if you omit both dates, defaults to the last **90 days**
         ending today. Responses are capped at **90 days**.
@@ -2362,8 +2362,8 @@ paths:
         (`soundlink_cohort_retention_daily` v1.1), for up to **50** soundlink
         IDs in one request (counts as one rate-limit unit).
 
-        Optional body `groupBy: country`. Unauthorized or unknown IDs are
-        omitted. Archived soundlinks are included with historical data.
+        Optional body `groupBy: country`. Unauthorized, unknown, draft, or
+        archived IDs are omitted.
 
         Unlike the per-soundlink JSON endpoint, this export does not clamp
         cohorts to each soundlink's `createdAt`.
