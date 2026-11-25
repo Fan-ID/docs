@@ -1450,8 +1450,8 @@ paths:
         of the same track stay separate. This is a snapshot, not a date range.
         `startDate` and `endDate` are rejected.
 
-        Children include `delivery_state` for partner-upload Meta disapproval
-        (not on parent groups). See `CreativeMetricsChild`.
+        Children include `delivery_state` and `delivery_reason` for partner-upload
+        Meta disapproval (not on parent groups). See `CreativeMetricsChild`.
 
         Spend is omitted until media spend and fees can be split. Ratios use
         the same lifetime basis as the Creatives tab.
@@ -1497,6 +1497,7 @@ paths:
                           cpc_linkclick: 0.5
                           frequency: 2
                           delivery_state: null
+                          delivery_reason: null
                         - caption: Daytime version
                           language: en
                           spotify_track_id: 11dFghVXANMlKmJXsNCbNl
@@ -1510,6 +1511,7 @@ paths:
                           cpc_linkclick: 0.25
                           frequency: 1.5
                           delivery_state: null
+                          delivery_reason: null
                 meta:
                   requestId: 550e8400-e29b-41d4-a716-446655440000
         '400': { $ref: '#/components/responses/BadRequest' }
@@ -2284,6 +2286,148 @@ paths:
         '403': { $ref: '#/components/responses/CreateSoundlinkForbidden' }
         '409': { $ref: '#/components/responses/IdempotencyKeyConflict' }
         '422': { $ref: '#/components/responses/CreateSoundlinkUnprocessable' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/soundlinks/metrics/breakdown/export/batch:
+    post:
+      operationId: batchExportSoundlinkMetricsBreakdown
+      summary: Batch soundlink metrics breakdown export (JSONL)
+      description: |
+        Same country-level JSONL rows as
+        `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`, for up to
+        **50** soundlink IDs in one request (counts as one rate-limit unit).
+
+        Each line is a `soundlink_country_daily` v1.0 row and includes
+        `soundlink_id`. Self-serve **active** soundlinks only. Unauthorized,
+        unknown, draft, or archived IDs are omitted (no error) — same idea as
+        campaign metrics batch.
+
+        **Date range:** if you omit both dates, defaults to the last **90 days**
+        ending today. Responses are capped at **90 days**.
+
+        Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
+        Use a client timeout of at least 120 seconds.
+      tags: [Soundlinks]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: soundlinks:read
+      x-recommended-timeout-seconds: 120
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SoundlinkMetricsBatchExportRequest'
+            example:
+              soundlinkIds:
+                - V1StGXR8_Z5jdHi6B-myT
+                - 7c9e6679-7425-40de-944b-e07fc1f90ae7
+              startDate: '2026-08-01'
+              endDate: '2026-08-31'
+      responses:
+        '200':
+          description: |
+            JSONL stream. Each line is a `soundlink_country_daily` v1.0 row.
+            Suggested filename:
+            `breakdown_batch_{startDate}_{endDate}.jsonl`
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+            X-Row-Count:
+              schema:
+                type: integer
+              description: Total lines in the response.
+          content:
+            application/x-ndjson:
+              schema:
+                $ref: '#/components/schemas/SoundlinkCountryDailyRow'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/soundlinks/metrics/retention/export/batch:
+    post:
+      operationId: batchExportSoundlinkCohortRetention
+      summary: Batch soundlink cohort retention export (JSONL)
+      description: |
+        Same cohort retention JSONL rows as
+        `GET /v1/soundlinks/{soundlinkId}/metrics/retention` items
+        (`soundlink_cohort_retention_daily` v1.1), for up to **50** soundlink
+        IDs in one request (counts as one rate-limit unit).
+
+        Optional body `groupBy: country`. Unauthorized, unknown, draft, or
+        archived IDs are omitted.
+
+        Unlike the per-soundlink JSON endpoint, this export does not clamp
+        cohorts to each soundlink's `createdAt`.
+
+        **Date range:** default last **90 days**; capped at **90 days**.
+
+        **Plan requirement:** Label, Enterprise, committed, and self-serve plans
+        (same as per-soundlink cohort retention). Organizations on a lower plan
+        receive `403 premium_plan_required`.
+
+        Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
+        Use a client timeout of at least 120 seconds.
+      tags: [Soundlinks]
+      security:
+        - apiKeyBearerAuth: []
+        - oauthBearer: []
+      x-required-scope: soundlinks:read
+      x-premium-plan-level-min: 3
+      x-recommended-timeout-seconds: 120
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/SoundlinkMetricsBatchExportRequest'
+                - type: object
+                  properties:
+                    groupBy:
+                      type: string
+                      enum: [country]
+                      description: |
+                        Omit for the global rollup per soundlink
+                        (`country_code` is null). Pass `country` for one row
+                        per cohort date and acquisition country.
+            example:
+              soundlinkIds:
+                - V1StGXR8_Z5jdHi6B-myT
+                - 7c9e6679-7425-40de-944b-e07fc1f90ae7
+              startDate: '2026-08-01'
+              endDate: '2026-08-31'
+              groupBy: country
+      responses:
+        '200':
+          description: |
+            JSONL stream. Each line is a `soundlink_cohort_retention_daily` v1.1 row.
+            Suggested filename:
+            `retention_batch_{startDate}_{endDate}.jsonl`
+            or `..._{endDate}_by_country.jsonl` when `groupBy=country`.
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+            X-Row-Count:
+              schema:
+                type: integer
+              description: Total lines in the response.
+          content:
+            application/x-ndjson:
+              schema:
+                $ref: '#/components/schemas/SoundlinkCohortRetentionDailyRow'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/PremiumAnalyticsForbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/RateLimited' }
         '500': { $ref: '#/components/responses/InternalError' }
 
@@ -3725,7 +3869,7 @@ components:
 
     CampaignStatus:
       type: string
-      enum: [creating, active, inactive, ended, renewing, restarting, restart_failed, renew_awaiting_charge, renew_failed, stopped]
+      enum: [creating, active, inactive, ended, renewing, restarting, restart_failed, renew_awaiting_charge, renew_failed, stopped, archived]
 
     CampaignSummary:
       type: object
@@ -4518,6 +4662,30 @@ components:
         meta:
           $ref: '#/components/schemas/Meta'
 
+
+    SoundlinkMetricsBatchExportRequest:
+      type: object
+      required: [soundlinkIds]
+      properties:
+        soundlinkIds:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+            minLength: 1
+          description: |
+            Soundlink IDs to export. Duplicates ignored. Max 50.
+            Use `GET /v1/soundlinks` to page the catalog, then batch export.
+        startDate:
+          type: string
+          format: date
+          description: Inclusive start (YYYY-MM-DD). Optional.
+        endDate:
+          type: string
+          format: date
+          description: Inclusive end (YYYY-MM-DD). Optional.
+
     CampaignMetricsOverviewBatchRequest:
       type: object
       required: [campaignIds]
@@ -4579,6 +4747,7 @@ components:
         - cpc_linkclick
         - frequency
         - delivery_state
+        - delivery_reason
       properties:
         caption:
           type: string
@@ -4633,6 +4802,16 @@ components:
             (`user_upload`) background video and at least one linked Meta ad
             has `effective_status` DISAPPROVED. Otherwise `null` (catalog
             videos, non-disapproved ads, or status not yet synced).
+        delivery_reason:
+          type: string
+          nullable: true
+          example: Spam
+          description: |
+            Meta's policy name for the disapproval. Non-null only when
+            `delivery_state` is `disapproved`, and `null` when Meta sent no
+            review feedback. When Meta reports several policies, one is
+            returned. This is an open list: values come from Meta and can
+            change, so do not treat them as a closed enum.
 
     CreativeMetricsGroup:
       type: object
