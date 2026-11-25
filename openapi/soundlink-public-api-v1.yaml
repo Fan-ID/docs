@@ -1182,8 +1182,7 @@ paths:
 
         Shared `page`, `pageSize`, and `startDate` apply to every authorized
         campaign. Unauthorized or unknown IDs are omitted from `data.items`
-        (not errors). Requires org feature flag `public_api_campaign_batch`
-        (404 when off).
+        (not errors).
 
         Requires the `campaigns:read` scope. Accepts API key or OAuth Bearer.
       tags: [Campaigns]
@@ -1309,7 +1308,6 @@ paths:
         up to 50 campaign IDs in one request (counts as one rate-limit unit).
 
         Unauthorized or unknown IDs are omitted from `data.items` (not errors).
-        Requires org feature flag `public_api_campaign_batch` (404 when off).
 
         Requires the `metrics:read` scope. Accepts API key or OAuth Bearer.
       tags: [Metrics]
@@ -1407,7 +1405,7 @@ paths:
         campaign IDs in one request (counts as one rate-limit unit).
 
         Unauthorized or unknown IDs are omitted from `data.items` (not errors).
-        Requires org feature flag `public_api_campaign_batch` (404 when off).
+
         `startDate` and `endDate` are rejected on the body.
 
         Requires the `metrics:read` scope. Accepts API key or OAuth Bearer.

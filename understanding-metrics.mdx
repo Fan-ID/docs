@@ -21,7 +21,7 @@ Use for dashboards, executive summaries, and quick health checks. Not broken dow
 
 **Per-day `new_listeners` / `returning_listeners` are on breakdown (and engagement), not overview.** Overview only adds the window-level `total_listeners`.
 
-For many campaigns in one sync, use the batch route. Same totals and date query as the single GET, up to **50** `campaignIds` per request (one rate-limit unit). Unauthorized or unknown IDs are omitted from `data.items`. Batch reads must be enabled for your organization — otherwise the route returns `404`.
+For many campaigns in one sync, use the batch route. Same totals and date query as the single GET, up to **50** `campaignIds` per request (one rate-limit unit). Unauthorized or unknown IDs are omitted from `data.items`.
 
 ```bash
 curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/metrics/overview/batch' \
