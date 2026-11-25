@@ -23,16 +23,16 @@ Requires `metrics:read`.
 
 ### Soundlinks
 
-Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked) — the same set as `GET /v1/soundlinks`.
+Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
 
-| Export                         | Path                                                         |
-| ------------------------------ | ------------------------------------------------------------ |
-| Org country breakdown          | `GET /v1/soundlinks/metrics/breakdown/export`                |
-| Org cohort retention           | `GET /v1/soundlinks/metrics/retention/export`                |
-| Country breakdown (one link)   | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`  |
-| Track engagement (one link)    | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export` |
+| Export                       | Path                                                         |
+| ---------------------------- | ------------------------------------------------------------ |
+| Org country breakdown        | `GET /v1/soundlinks/metrics/breakdown/export`                |
+| Org cohort retention         | `GET /v1/soundlinks/metrics/retention/export`                |
+| Country breakdown (one link) | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`  |
+| Track engagement (one link)  | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export` |
 
-Org-wide exports stream every self-serve soundlink in one response. Each line includes `soundlink_id`. Prefer them when you have many soundlinks instead of one call per id.
+Org-wide exports include every self-serve soundlink; each line has `soundlink_id`.
 
 Row schemas match the paginated `breakdown` / `engagement` JSON endpoints (and retention items) for the same resource. See [Campaign metrics](/understanding-metrics) and [Soundlink metrics](/soundlink-metrics) for primary keys.
 
@@ -88,7 +88,7 @@ If `endDate` is before `startDate`, or the range exceeds 90 days, you get `400` 
 | Header                               | Purpose                                                       |
 | ------------------------------------ | ------------------------------------------------------------- |
 | `Content-Type: application/x-ndjson` | One JSON object per line                                      |
-| `Content-Disposition`                | Suggested filename, e.g. `breakdown_org_{orgId}_{start}_{end}.jsonl` or `breakdown_{id}_{start}_{end}.jsonl` |
+| `Content-Disposition`                | Suggested filename, e.g. `breakdown_{id}_{start}_{end}.jsonl` |
 | `X-Row-Count`                        | Total lines in the response (progress tracking)               |
 
 ## Ingest pattern

@@ -11,22 +11,22 @@ Requires `soundlinks:read`. Use a `soundlinkId` from [Syncing soundlinks](/sound
 
 Soundlink metrics omit spend, fees, and efficiency fields (`cpl`, `cpf`) — ads run in your Meta account.
 
-| Use                          | Endpoint                                              | Maps to Insights             |
-| ---------------------------- | ----------------------------------------------------- | ---------------------------- |
-| Period totals                | `/{soundlinkId}/metrics/overview`                     | **Overview**                 |
-| Per-day × country            | `/{soundlinkId}/metrics/breakdown` (+ `/export`)      | **Countries**                |
-| Org country breakdown (JSONL)| `/metrics/breakdown/export`                           | **Countries** (all links)    |
-| Per-day × track              | `/{soundlinkId}/metrics/engagement` (+ `/export`)     | Catalog / playlist spillover |
-| Per-cohort-date              | `/{soundlinkId}/metrics/retention`                    | —                            |
-| Org cohort retention (JSONL) | `/metrics/retention/export`                           | —                            |
-| Per-cohort-week              | `/{soundlinkId}/metrics/retention-weekly`             | —                            |
+| Use                        | Endpoint                                   | Maps to Insights             |
+| -------------------------- | ------------------------------------------ | ---------------------------- |
+| Period totals              | `/metrics/overview`                        | **Overview**                 |
+| Per-day × country          | `/metrics/breakdown` (+ `/export`)         | **Countries**                |
+| Org country breakdown      | `/v1/soundlinks/metrics/breakdown/export`  | **Countries**                |
+| Per-day × track            | `/metrics/engagement` (+ `/export`)        | Catalog / playlist spillover |
+| Per-cohort-date            | `/metrics/retention`                       | —                            |
+| Org cohort retention       | `/v1/soundlinks/metrics/retention/export`  | —                            |
+| Per-cohort-week            | `/metrics/retention-weekly`                | —                            |
 
 `startDate` and `endDate` are inclusive (`YYYY-MM-DD`).
 
 - **Overview** and paginated **breakdown:** default to the soundlink creation date → today (no 90-day cap).
 - **Retention:** filters by cohort date. If you omit both dates, a recent window ending today is used. A range that is too wide returns `400 invalid_query_parameter`.
 - **Weekly retention:** filters by cohort week, with the same default window and the same `400` when the range is too wide.
-- **Engagement** (paginated + export), **per-soundlink breakdown export**, and **org-wide breakdown / retention exports:** default to the last 90 days ending today; responses are capped at **90 days** per request. Page longer histories in 90-day slices. See [JSONL exports](/jsonl-exports).
+- **Engagement** (paginated + export), **breakdown export**, and **org-wide breakdown / retention exports:** default to the last 90 days ending today; responses are capped at **90 days** per request. Page longer histories in 90-day slices. See [JSONL exports](/jsonl-exports).
 
 ## Overview
 
@@ -63,13 +63,11 @@ Each row includes `spotify_link_clicks`, `apple_music_link_clicks`, and `youtube
 
 Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and daily warehouse loads by territory. Summing country rows for a given `report_date` reconstructs the day total across territories.
 
-| Use case                                    | Endpoint                         |
-| ------------------------------------------- | -------------------------------- |
-| Interactive sync, small windows             | Paginated `breakdown`            |
-| Full backfill for one soundlink             | `/{id}/metrics/breakdown/export` |
-| Full backfill for every self-serve soundlink| `/metrics/breakdown/export`      |
-
-The org-wide export uses the same row schema; each line includes `soundlink_id`. Campaign-linked soundlinks are omitted (same visibility as `GET /v1/soundlinks`).
+| Use case                           | Endpoint                         |
+| ---------------------------------- | -------------------------------- |
+| Interactive sync, small windows    | Paginated `breakdown`            |
+| Full backfill, one soundlink       | `breakdown/export`               |
+| Full backfill, all self-serve      | `/v1/soundlinks/metrics/breakdown/export` |
 
 ```bash
 curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/breakdown?startDate=2026-08-01&endDate=2026-08-31&page=1&pageSize=50' \
@@ -116,11 +114,11 @@ curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/engag
 
 ## Retention (by cohort)
 
-`GET /v1/soundlinks/{soundlinkId}/metrics/retention` (JSON)
+`GET /v1/soundlinks/{soundlinkId}/metrics/retention`
 
 `GET /v1/soundlinks/metrics/retention/export` (JSONL, all self-serve soundlinks)
 
-One row per cohort date (`soundlink_cohort_retention_daily` v1.1). The JSON response includes `schemaVersion` (`1.1`) and `groupBy` (`null` or `"country"`). Primary key (global):
+One row per cohort date (`soundlink_cohort_retention_daily` v1.1). The response includes `schemaVersion` (`1.1`) and `groupBy` (`null` or `"country"`). Primary key (global):
 
 `(provider, account_id, cohort_date, soundlink_id)`
 
@@ -153,7 +151,7 @@ curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/reten
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
-For many soundlinks, use the org-wide JSONL export instead of one JSON call per id. Same row schema and `groupBy=country` behavior; each line includes `soundlink_id`. Campaign-linked soundlinks are omitted. The export defaults to the last 90 days and is capped at 90 days per request (see [JSONL exports](/jsonl-exports)). Unlike the per-soundlink JSON endpoint, it does not clamp cohorts to each soundlink's `createdAt`.
+The org-wide export uses the same row schema and `groupBy=country` behavior. Unlike the per-soundlink JSON endpoint, it does not clamp cohorts to each soundlink's `createdAt`. See [JSONL exports](/jsonl-exports) for the 90-day window.
 
 ```bash
 curl -sS \
@@ -201,9 +199,9 @@ On breakdown and engagement rows, **do not sum `listeners` across days** — the
 ## Typical sync flow
 
 1. **Daily:** [list soundlinks](/soundlinks) — upsert catalog
-2. **Daily:** org-wide `breakdown/export` (or overview / per-id breakdown when you only need a few links)
+2. **Daily:** overview and/or breakdown (paginated, per-id export, or org-wide export)
 3. **Optional:** engagement (paginated or export) for track-level spillover
-4. **Optional:** org-wide `retention/export`, per-id retention, or weekly retention
+4. **Optional:** retention (per-id or org-wide export), or weekly retention
 
 Your organization is determined only from the API key (or OAuth token). You never pass an organization id in query params. Warehouse rows use `account_id` for the same organization UUID that catalog JSON calls `organizationId`. Join on `soundlink_id`.
 

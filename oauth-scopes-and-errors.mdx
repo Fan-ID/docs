@@ -281,8 +281,8 @@ Self-serve soundlinks (no Soundlink-funded campaign). Same routes as the API key
 | --- | --- |
 | `GET /v1/soundlinks` | Paginated catalog. Campaign-linked soundlinks are omitted. |
 | `GET /v1/soundlinks/{soundlinkId}` | Detail. `404` when not owned or campaign-linked. |
-| `GET /v1/soundlinks/metrics/breakdown/export` | JSONL bulk country breakdown for all self-serve soundlinks. Each line includes `soundlink_id`. |
-| `GET /v1/soundlinks/metrics/retention/export` | JSONL bulk daily cohort retention for all self-serve soundlinks. Optional `groupBy=country`. |
+| `GET /v1/soundlinks/metrics/breakdown/export` | JSONL bulk breakdown for all self-serve soundlinks. |
+| `GET /v1/soundlinks/metrics/retention/export` | JSONL bulk retention for all self-serve soundlinks. Optional `groupBy=country`. |
 | `GET /v1/soundlinks/{soundlinkId}/metrics/overview` | Period totals. Maps to Insights **Overview**. |
 | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown` | Per-day × country (`soundlink_country_daily`). |
 | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export` | JSONL bulk for breakdown. |
