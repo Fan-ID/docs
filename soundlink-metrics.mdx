@@ -63,7 +63,7 @@ Each row includes `spotify_link_clicks`, `apple_music_link_clicks`, and `youtube
 
 Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and daily warehouse loads by territory. Summing country rows for a given `report_date` reconstructs the day total across territories.
 
-For many soundlinks in one sync, use the batch route. Same JSONL rows as the per-id export, up to **50** `soundlinkIds` per request (one rate-limit unit). Unauthorized, unknown, draft, or archived IDs are omitted.
+For many soundlinks in one sync, use the batch route. Same JSONL rows as the per-id export, up to **50** `soundlinkIds` per request (one rate-limit unit). Unauthorized, unknown, draft, or archived IDs are omitted. Use a client timeout of at least **120 seconds**.
 
 | Use case                           | Endpoint                                      |
 | ---------------------------------- | --------------------------------------------- |
@@ -159,7 +159,7 @@ curl -sS 'https://api.getsoundlink.com/v1/soundlinks/{soundlinkId}/metrics/reten
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET'
 ```
 
-The batch export uses the same row schema (including `soundlink_id`) and optional body `groupBy: "country"`. Unauthorized, unknown, draft, or archived IDs are omitted. Unlike the per-soundlink JSON endpoint, it does not clamp cohorts to each soundlink's `createdAt`. See [JSONL exports](/jsonl-exports) for the 90-day window.
+The batch export uses the same row schema (including `soundlink_id`) and optional body `groupBy: "country"`. Unauthorized, unknown, draft, or archived IDs are omitted. Unlike the per-soundlink JSON endpoint, it does not clamp cohorts to each soundlink's `createdAt`. Same plan gate as per-soundlink retention: organizations on a lower plan receive `403 premium_plan_required`. Use a client timeout of at least **120 seconds**. See [JSONL exports](/jsonl-exports) for the 90-day window.
 
 ```bash
 curl -sS -X POST \

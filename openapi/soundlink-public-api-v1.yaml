@@ -2309,11 +2309,13 @@ paths:
         ending today. Responses are capped at **90 days**.
 
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
+        Use a client timeout of at least 120 seconds.
       tags: [Soundlinks]
       security:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       x-required-scope: soundlinks:read
+      x-recommended-timeout-seconds: 120
       requestBody:
         required: true
         content:
@@ -2374,12 +2376,14 @@ paths:
         receive `403 premium_plan_required`.
 
         Requires the `soundlinks:read` scope. Accepts API key or OAuth Bearer.
+        Use a client timeout of at least 120 seconds.
       tags: [Soundlinks]
       security:
         - apiKeyBearerAuth: []
         - oauthBearer: []
       x-required-scope: soundlinks:read
       x-premium-plan-level-min: 3
+      x-recommended-timeout-seconds: 120
       requestBody:
         required: true
         content:

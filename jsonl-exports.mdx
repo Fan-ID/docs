@@ -32,7 +32,7 @@ Requires `soundlinks:read`. Self-serve soundlinks only (not campaign-linked).
 | Country breakdown (one link)   | `GET /v1/soundlinks/{soundlinkId}/metrics/breakdown/export`       |
 | Track engagement (one link)    | `GET /v1/soundlinks/{soundlinkId}/metrics/engagement/export`      |
 
-Batch exports take up to **50** `soundlinkIds` in the body (one rate-limit unit). Each line has `soundlink_id`. Unknown, unauthorized, draft, or archived IDs are omitted.
+Batch exports take up to **50** `soundlinkIds` in the body (one rate-limit unit). Each line has `soundlink_id`. Unknown, unauthorized, draft, or archived IDs are omitted. Use a client timeout of at least **120 seconds**. Retention batch has the same plan gate as per-soundlink retention (`403 premium_plan_required` on a lower plan).
 
 Row schemas match the paginated `breakdown` / `engagement` JSON endpoints (and retention items) for the same resource. See [Campaign metrics](/understanding-metrics) and [Soundlink metrics](/soundlink-metrics) for primary keys.
 
