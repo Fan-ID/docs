@@ -267,6 +267,7 @@ Wallet-funded campaigns only. Same endpoints and rules as the API key scope of t
 | `GET /v1/campaigns/{campaignId}/metrics/creatives` | Lifetime creatives, grouped by video. |
 | `POST /v1/campaigns/metrics/creatives/batch` | Same lifetime groups for up to 50 campaign IDs. |
 | `GET /v1/campaigns/{campaignId}/metrics/breakdown` | Per-day × country (`campaign_country_daily`). |
+| `POST /v1/campaigns/metrics/breakdown/export/batch` | JSONL bulk breakdown for up to 50 campaign IDs (one rate-limit unit). |
 | `GET /v1/campaigns/{campaignId}/metrics/breakdown/export` | JSONL bulk for breakdown. |
 | `GET /v1/campaigns/{campaignId}/metrics/engagement` | Per-day × track (`campaign_engagement_daily`). |
 | `GET /v1/campaigns/{campaignId}/metrics/engagement/export` | JSONL bulk for engagement. |

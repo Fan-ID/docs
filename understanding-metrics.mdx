@@ -83,6 +83,8 @@ curl -sS 'https://api.getsoundlink.com/v1/campaigns/CAMPAIGN_ID/metrics/creative
 
 `GET /v1/campaigns/{campaignId}/metrics/breakdown/export` (JSONL)
 
+`POST /v1/campaigns/metrics/breakdown/export/batch` (JSONL, up to 50 IDs)
+
 Per-day, per-country rows (`campaign_country_daily` v1.1). Primary key:
 
 `(provider, account_id, report_date, campaign_id, country_code)`
@@ -93,10 +95,25 @@ On track campaigns (`campaign_target_type = track`), each row also includes `cam
 
 Maps to the **Countries** tab in Soundlink Insights. Use for geo reporting and daily warehouse loads by territory.
 
-| Use case                           | Endpoint              |
-| ---------------------------------- | --------------------- |
-| Interactive sync, small windows    | Paginated `breakdown` |
-| Full backfill, pipelines, BigQuery | `breakdown/export`    |
+The batch route streams the same JSONL rows for up to **50** `campaignIds` (one rate-limit unit). Each line includes `campaign_id`. Unauthorized or unknown IDs are omitted. Use a client timeout of at least **120 seconds**.
+
+```bash
+curl -sS -X POST 'https://api.getsoundlink.com/v1/campaigns/metrics/breakdown/export/batch' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/x-ndjson' \
+  -d '{
+    "campaignIds": ["CAMPAIGN_ID_1", "CAMPAIGN_ID_2"],
+    "startDate": "2026-08-01",
+    "endDate": "2026-08-31"
+  }'
+```
+
+| Use case                               | Endpoint                         |
+| -------------------------------------- | -------------------------------- |
+| Interactive sync, small windows        | Paginated `breakdown`            |
+| Full backfill, one campaign            | `breakdown/export`               |
+| Full backfill, many campaigns          | `breakdown/export/batch`         |
 
 ## Engagement (by track)
 
