@@ -16,10 +16,13 @@ Export endpoints stream **newline-delimited JSON (JSONL)**. Each line is one com
 
 Requires `metrics:read`.
 
-| Export            | Path                                                       |
-| ----------------- | ---------------------------------------------------------- |
-| Country breakdown | `GET /v1/campaigns/{campaignId}/metrics/breakdown/export`  |
-| Track engagement  | `GET /v1/campaigns/{campaignId}/metrics/engagement/export` |
+| Export                     | Path                                                      |
+| -------------------------- | --------------------------------------------------------- |
+| Batch country breakdown    | `POST /v1/campaigns/metrics/breakdown/export/batch`       |
+| Country breakdown (one ID) | `GET /v1/campaigns/{campaignId}/metrics/breakdown/export` |
+| Track engagement           | `GET /v1/campaigns/{campaignId}/metrics/engagement/export` |
+
+Batch campaign breakdown takes up to **50** `campaignIds` in the body (one rate-limit unit). Each line has `campaign_id`. Unauthorized or unknown IDs are omitted. Use a client timeout of at least **120 seconds**.
 
 ### Soundlinks
 
@@ -43,6 +46,21 @@ curl -sS \
   'https://api.getsoundlink.com/v1/campaigns/{campaignId}/metrics/breakdown/export?startDate=2026-04-01&endDate=2026-04-30' \
   -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
   -H 'Accept: application/x-ndjson'
+```
+
+Batch campaign breakdown:
+
+```bash
+curl -sS -X POST \
+  'https://api.getsoundlink.com/v1/campaigns/metrics/breakdown/export/batch' \
+  -H 'Authorization: Bearer sk_YOUR_PREFIX_YOUR_SECRET' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/x-ndjson' \
+  -d '{
+    "campaignIds": ["CAMPAIGN_ID_1", "CAMPAIGN_ID_2"],
+    "startDate": "2026-08-01",
+    "endDate": "2026-08-31"
+  }'
 ```
 
 Batch soundlink breakdown:
